@@ -6,7 +6,7 @@
 <title>El Impostor</title>
 <style>
     /* ----------------------------------------------------
-       SISTEMA DE DISEÑO (VARIABLES)
+       VARIABLES & TEMAS
     ---------------------------------------------------- */
     :root {
         --bg-gradient: linear-gradient(180deg, #eef3ff 0%, #f6fbff 100%);
@@ -23,9 +23,8 @@
         --item-bg: #fafbff;
         --item-border: #f0f2ff;
 
-        /* COLORES */
-        --accent: #9b5ce7;   /* Morado */
-        --accent-2: #14ff00; /* Verde Fosfo */
+        --accent: #9b5ce7;
+        --accent-2: #14ff00;
         --danger: #ff6b6b;
     }
 
@@ -46,7 +45,7 @@
     }
 
     /* ----------------------------------------------------
-       ESTILOS GENERALES Y LAYOUT FIJO
+       LAYOUT GLOBAL
     ---------------------------------------------------- */
     html, body {
         height: 100dvh;
@@ -59,7 +58,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        transition: color 0.3s ease, background 0.3s ease;
+        transition: color 0.4s ease, background 0.4s ease;
         -webkit-user-select: none;
         user-select: none;
         -webkit-text-size-adjust: 100%;
@@ -79,9 +78,16 @@
 
     .spacer { flex: 1; }
 
-    header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-shrink: 0; }
+    /* --- HEADER --- */
+    header { 
+        display: flex; 
+        align-items: center; 
+        gap: 12px; 
+        margin-top: 24px;
+        margin-bottom: 24px;
+        flex-shrink: 0; 
+    }
     
-    /* EFECTO MÁQUINA DE ESCRIBIR EN H1 */
     h1 { 
         font-size: 20px; 
         margin: 0; 
@@ -108,18 +114,57 @@
 
     .sub { color: var(--text-muted); font-size: 13px; margin-top: 4px; }
 
+    /* --- BOTÓN TOGGLE (ANIMACIÓN FLUIDA) --- */
     .dark-toggle {
         margin-left: auto;
         cursor: pointer;
-        background: none;
+        background: transparent;
         border: none;
-        font-size: 20px;
-        padding: 8px;
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
-        transition: background 0.2s;
+        position: relative;
+        color: var(--text-main);
+        overflow: hidden;
     }
-    .dark-toggle:hover { background: rgba(128,128,128,0.1); }
+    .dark-toggle:hover { 
+        background: rgba(128,128,128,0.1); 
+    }
 
+    .dark-toggle svg {
+        width: 22px;
+        height: 22px;
+        stroke-width: 2px;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        fill: none;
+        stroke: currentColor;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transition: all 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
+    }
+
+    .icon-moon { 
+        opacity: 1; 
+        transform: translate(-50%, -50%) rotate(0deg) scale(1); 
+    }
+    .icon-sun { 
+        opacity: 0; 
+        transform: translate(-50%, -50%) rotate(90deg) scale(0.5); 
+    }
+
+    html.dark .icon-moon { 
+        opacity: 0; 
+        transform: translate(-50%, -50%) rotate(-90deg) scale(0.5); 
+    }
+    html.dark .icon-sun { 
+        opacity: 1; 
+        transform: translate(-50%, -50%) rotate(0deg) scale(1); 
+    }
+
+
+    /* --- TARJETAS --- */
     .card {
         background: var(--card-bg);
         border: 1px solid var(--card-border);
@@ -152,23 +197,21 @@
         border-color: var(--accent-2);
     }
 
-    /* --- BOTONES CON 15% MORADO --- */
+    /* --- BOTONES GENERALES (Texto Blanco) --- */
     button {
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
         padding: 12px 24px;
         border-radius: 50px;
         border: none;
-        
-        /* CAMBIO: El morado llega solo al 15% */
         background: linear-gradient(110deg, var(--accent) 0%, var(--accent) 15%, var(--accent-2) 100%);
-        
-        color: #000;
+        color: #ffffff;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.3);
         font-weight: 700;
         cursor: pointer;
-        
-        /* Sombra con toque morado muy sutil */
         box-shadow: 0 4px 15px rgba(20, 255, 0, 0.4), 0 0 20px rgba(155, 92, 231, 0.15);
-        
         transition: transform .12s ease, opacity .12s;
         font-size: 14px;
         -webkit-touch-callout: none;
@@ -177,9 +220,16 @@
     }
     button:active { transform: scale(0.97); }
     
+    button svg {
+        width: 18px;
+        height: 18px;
+        fill: currentColor;
+    }
+
     button.ghost {
         background: transparent;
         color: var(--accent-2);
+        text-shadow: none;
         box-shadow: none;
         border: 2px solid var(--accent-2);
         opacity: 0.9;
@@ -193,6 +243,21 @@
         background: linear-gradient(90deg, #ff8a8a, #ff6b6b);
         box-shadow: 0 4px 12px rgba(255,107,107,0.3);
         color: white;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    /* Reset para toggle */
+    button.dark-toggle {
+        background: transparent;
+        box-shadow: none;
+        padding: 0;
+        width: 40px;
+        height: 40px;
+        color: var(--text-main);
+        text-shadow: none;
+    }
+    button.dark-toggle:hover {
+        background: rgba(128,128,128,0.1);
     }
 
     .hold-btn {
@@ -204,6 +269,7 @@
 
     .row { display: flex; gap: 8px; }
     
+    /* --- BOTONES PEQUEÑOS DE AÑADIR (+) --- */
     .smallbtn { 
         padding: 0; 
         width: 44px;
@@ -214,16 +280,19 @@
         justify-content: center;
         border-radius: 50%;
         flex-shrink: 0;
-        color: black;
+        
+        /* RESTAURADO: Fondo degradado */
+        background: linear-gradient(110deg, var(--accent) 0%, var(--accent) 15%, var(--accent-2) 100%);
+        border: none;
+        
+        /* COLOR BLANCO EN EL SIGNO + */
+        color: #ffffff;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        box-shadow: 0 4px 15px rgba(20, 255, 0, 0.4), 0 0 20px rgba(155, 92, 231, 0.15);
     }
 
-    /* ESTILOS DE LISTA (Items) */
-    ul { 
-        padding: 0; 
-        margin: 8px 0 0 0; 
-        color: var(--text-main); 
-        list-style: none;
-    }
+    /* ESTILOS DE LISTA */
+    ul { padding: 0; margin: 8px 0 0 0; color: var(--text-main); list-style: none; }
     
     li { 
         margin-bottom: 6px;
@@ -251,6 +320,8 @@
         justify-content: center;
         border-radius: 50%;
         cursor: pointer;
+        color: var(--text-muted);
+        text-shadow: none;
     }
     
     .btn-delete { color: var(--danger); }
@@ -284,43 +355,21 @@
         to { opacity: 1; transform: translateY(0); }
     }
 
-    /* --- EFECTO NEÓN (85% Verde / 15% Morado) --- */
+    /* NEÓN */
     .neon {
         color: var(--accent-2); 
         text-shadow:
             0 0 5px var(--accent-2),
             0 0 15px var(--accent-2),
-            0 0 30px var(--accent-2), /* Tercera capa verde */
-            0 0 60px rgba(155, 92, 231, 0.4); /* Morado sutil y transparente */
-        
+            0 0 30px var(--accent-2),
+            0 0 60px rgba(155, 92, 231, 0.4); 
         animation: neonPulse 1.6s ease-in-out infinite;
     }
 
     @keyframes neonPulse {
-        0% { 
-            text-shadow: 
-                0 0 5px var(--accent-2), 
-                0 0 15px var(--accent-2),
-                0 0 30px var(--accent-2),
-                0 0 60px rgba(155, 92, 231, 0.3); 
-            transform: scale(1); 
-        }
-        50% { 
-            text-shadow: 
-                0 0 5px var(--accent-2), 
-                0 0 20px var(--accent-2),
-                0 0 40px var(--accent-2),
-                0 0 70px rgba(155, 92, 231, 0.5); /* Destello sutil morado */
-            transform: scale(1.02); 
-        }
-        100% { 
-            text-shadow: 
-                0 0 5px var(--accent-2), 
-                0 0 15px var(--accent-2),
-                0 0 30px var(--accent-2),
-                0 0 60px rgba(155, 92, 231, 0.3); 
-            transform: scale(1); 
-        }
+        0% { text-shadow: 0 0 5px var(--accent-2), 0 0 15px var(--accent-2), 0 0 30px var(--accent-2), 0 0 60px rgba(155, 92, 231, 0.3); transform: scale(1); }
+        50% { text-shadow: 0 0 5px var(--accent-2), 0 0 20px var(--accent-2), 0 0 40px var(--accent-2), 0 0 70px rgba(155, 92, 231, 0.5); transform: scale(1.02); }
+        100% { text-shadow: 0 0 5px var(--accent-2), 0 0 15px var(--accent-2), 0 0 30px var(--accent-2), 0 0 60px rgba(155, 92, 231, 0.3); transform: scale(1); }
     }
 
     .timer-wrap { display: flex; flex-direction: column; gap: 8px; align-items: center; }
@@ -363,9 +412,14 @@
 
     <header>
         <div>
-            <h1></h1> <div class="sub">TRAKAS HDSPM</div>
+            <h1></h1>
+            <div class="sub">TRAKAS HDSPM</div>
         </div>
-        <button class="dark-toggle" onclick="toggleDarkMode()" title="Cambiar tema">🌗</button>
+        
+        <button class="dark-toggle" onclick="toggleDarkMode()" title="Cambiar tema">
+            <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
     </header>
 
     <div id="admin" class="card">
@@ -459,7 +513,9 @@
         </div>
 
         <div style="margin-top:20px" class="controls">
-            <button id="botonIniciarTimer" style="flex:1" onclick="iniciarTemporizador()">▶ Iniciar</button>
+            <button id="botonIniciarTimer" style="flex:1" onclick="iniciarTemporizador()">
+                <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Iniciar
+            </button>
             <button class="ghost" onclick="saltarAPuesta()">Ir a votación</button>
         </div>
     </div>
@@ -521,9 +577,6 @@
 </div>
 
 <script>
-    /* -------------------------------------------
-       EFECTO MÁQUINA DE ESCRIBIR
-    ------------------------------------------- */
     const titleElement = document.querySelector('h1');
     const textToType = "El Impostor";
     let charIndex = 0;
@@ -532,15 +585,12 @@
         if (charIndex < textToType.length) {
             titleElement.textContent += textToType.charAt(charIndex);
             charIndex++;
-            setTimeout(typeWriter, 120); // Velocidad escritura
+            setTimeout(typeWriter, 120);
         }
     }
     setTimeout(typeWriter, 300);
 
-
-    /* -------------------------------------------
-       LÓGICA DEL JUEGO
-    ------------------------------------------- */
+    /* LOGICA DEL JUEGO */
     let palabras = [];
     let jugadores = [];
     let jugadoresMezclados = [];
@@ -552,6 +602,10 @@
     let timer = null;
     let tiempoRestante = 0;
     let timerRunning = false;
+
+    // DEFINICIÓN DE ICONOS SVG PARA EL TEMPORIZADOR
+    const SVG_PLAY = '<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
+    const SVG_PAUSE = '<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
 
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         document.documentElement.classList.add('dark');
@@ -566,7 +620,6 @@
         secciones.forEach(s => document.getElementById(s).style.display = (s===id ? 'block' : 'none'));
     }
 
-    /* --- GESTIÓN DE PALABRAS --- */
     function agregarPalabra(){
         const input = document.getElementById('nuevaPalabra');
         const p = input.value.trim();
@@ -591,13 +644,6 @@
         }
     }
 
-    function resetWords(){
-        if(confirm("¿Borrar todas las palabras?")) {
-            palabras = [];
-            renderPalabras();
-        }
-    }
-
     function renderPalabras(){
         const ul = document.getElementById('listaPalabras');
         ul.innerHTML = '';
@@ -617,7 +663,6 @@
         });
     }
 
-    /* --- GESTIÓN DE JUGADORES --- */
     function agregarJugador(){
         const input = document.getElementById('nombreJugador');
         const name = input.value.trim();
@@ -661,7 +706,6 @@
         });
     }
 
-    /* --- RESTO DE LA LÓGICA --- */
     function reiniciarTodo(){
         if(!confirm('¿Seguro que quieres borrar jugadores y palabras?')) return;
         palabras = [];
@@ -732,7 +776,8 @@
         
         indiceActual++;
         if(indiceActual >= jugadoresMezclados.length){
-            document.getElementById('botonIniciarTimer').innerText = "▶ Iniciar Temporizador";
+            // Resetear botón de inicio con icono
+            document.getElementById('botonIniciarTimer').innerHTML = SVG_PLAY + " Iniciar";
             prepararVotacion();
             mostrarSeccion('pistas');
             return;
@@ -740,7 +785,6 @@
         cargarJugador();
     }
 
-    /* --- HOLD TO REVEAL --- */
     const btnReveal = document.getElementById('btnReveal');
     const revealBox = document.getElementById('textoPalabra');
 
@@ -772,18 +816,21 @@
     });
     btnReveal.addEventListener('touchend', hideContent);
 
-    /* TEMPORIZADOR */
     function iniciarTemporizador(){
+        const btn = document.getElementById('botonIniciarTimer');
+        
         if(timerRunning) {
             stopTemporizador();
-            document.getElementById('botonIniciarTimer').innerText = "▶ Reanudar";
+            // Cambiar a icono de Play
+            btn.innerHTML = SVG_PLAY + " Reanudar";
             return;
         }
         
         if(tiempoRestante <= 0 && !timer) tiempoRestante = duracion;
         
         actualizarTimerUI(tiempoRestante);
-        document.getElementById('botonIniciarTimer').innerText = 'Pausar';
+        // Cambiar a icono de Pause
+        btn.innerHTML = SVG_PAUSE + " Pausar";
         timerRunning = true;
 
         timer = setInterval(()=> {
@@ -823,7 +870,6 @@
         mostrarSeccion('votacion');
     }
 
-    /* VOTACIÓN */
     function prepararVotacion(){
         const sel = document.getElementById('voto');
         sel.innerHTML = '';
