@@ -63,27 +63,32 @@
         --dot-color: #1e293b;
     }
 
-    * { -webkit-tap-highlight-color: transparent; }
-
     /* ----------------------------------------------------
-       FIX AGRESIVO PARA SCROLLBAR (SAFARI/CHROME)
+       BLOQUEO TOTAL DE SELECCIÓN (SOLUCIÓN A TU PEDIDO)
     ---------------------------------------------------- */
-    html::-webkit-scrollbar, 
-    body::-webkit-scrollbar, 
-    .app::-webkit-scrollbar, 
-    ul::-webkit-scrollbar,
-    *::-webkit-scrollbar { 
-        display: none; 
-        width: 0 !important;
-        height: 0 !important; 
-        background: transparent !important; 
-        -webkit-appearance: none !important; 
+    * { 
+        -webkit-tap-highlight-color: transparent; 
+        
+        /* Esto evita que se seleccione texto o aparezca el menú de copiar */
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
     }
-    
-    html, body, .app, ul {
-        scrollbar-width: none;  
-        -ms-overflow-style: none;  
+
+    /* Permitir selección SOLO en inputs para poder escribir */
+    input, select {
+        -webkit-user-select: text;
+        user-select: text;
     }
+
+    /* FIX AGRESIVO PARA SCROLLBAR */
+    html::-webkit-scrollbar, body::-webkit-scrollbar, .app::-webkit-scrollbar, ul::-webkit-scrollbar, *::-webkit-scrollbar { 
+        display: none; width: 0 !important; height: 0 !important; background: transparent !important; -webkit-appearance: none !important; 
+    }
+    html, body, .app, ul { scrollbar-width: none; -ms-overflow-style: none; }
 
     /* ----------------------------------------------------
        LAYOUT
@@ -97,11 +102,9 @@
         background-image: radial-gradient(var(--dot-color) 1.5px, transparent 1.5px);
         background-size: 32px 32px;
         color: var(--text-main);
-        
         overflow-x: hidden; 
         overflow-y: auto; 
         overscroll-behavior-y: none; 
-        
         transition: all 0.4s ease;
     }
 
