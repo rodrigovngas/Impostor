@@ -64,10 +64,9 @@
     }
 
     /* ----------------------------------------------------
-       COMPORTAMIENTO NATIVO (SCROLL & BLOQUEOS)
+       COMPORTAMIENTO NATIVO
     ---------------------------------------------------- */
     
-    /* Bloqueo de selección de texto (Excepto inputs) */
     * { 
         -webkit-tap-highlight-color: transparent; 
         -webkit-touch-callout: none;
@@ -76,34 +75,29 @@
     }
     input, select { -webkit-user-select: text; user-select: text; }
 
-    /* Ocultar Barras de Scroll (Safari/Chrome/Firefox) */
     html::-webkit-scrollbar, body::-webkit-scrollbar, .app::-webkit-scrollbar, ul::-webkit-scrollbar, *::-webkit-scrollbar { 
         display: none; width: 0 !important; height: 0 !important; background: transparent !important; -webkit-appearance: none !important; 
     }
     html, body, .app, ul { scrollbar-width: none; -ms-overflow-style: none; }
 
-    /* LAYOUT MEJORADO PARA SCROLL */
     html, body {
         height: 100dvh;
         width: 100vw;
         margin: 0;
         font-family: 'Outfit', sans-serif;
         background-color: var(--bg-color);
-        
-        /* FONDO FIJO: Esto crea el efecto de profundidad al scrollear */
         background-image: radial-gradient(var(--dot-color) 1.5px, transparent 1.5px);
         background-size: 32px 32px;
-        background-attachment: fixed; /* <--- CLAVE DEL EFECTO */
+        background-attachment: fixed;
         
         color: var(--text-main);
         
         overflow-x: hidden; 
         overflow-y: auto; 
         
-        /* Bloqueo de "Pull-to-refresh" pero manteniendo inercia */
         overscroll-behavior-y: none;
         scroll-behavior: smooth;
-        -webkit-overflow-scrolling: touch; /* Momentum en iOS */
+        -webkit-overflow-scrolling: touch; 
         
         transition: color 0.4s ease, background-color 0.4s ease;
     }
@@ -674,6 +668,26 @@
     setTimeout(typeWriter, 300);
 
 
+    /* --- WAKE LOCK (PANTALLA SIEMPRE ENCENDIDA) --- */
+    let wakeLock = null;
+    async function requestWakeLock() {
+        if ('wakeLock' in navigator) {
+            try {
+                wakeLock = await navigator.wakeLock.request('screen');
+                console.log('Wake Lock Activo');
+            } catch (err) {
+                console.error(`${err.name}, ${err.message}`);
+            }
+        }
+    }
+    // Re-activar si se minimiza y se vuelve
+    document.addEventListener('visibilitychange', async () => {
+        if (wakeLock !== null && document.visibilityState === 'visible') {
+            await requestWakeLock();
+        }
+    });
+
+
     /* --- LÓGICA DEL JUEGO --- */
     let palabras = [];
     let jugadores = [];
@@ -808,6 +822,9 @@
         
         const label = document.getElementById('duracionLabel');
         if(label) label.innerText = duracion + 's';
+
+        // Intentar activar el Wake Lock al iniciar
+        requestWakeLock();
 
         nuevaRonda();
     }
