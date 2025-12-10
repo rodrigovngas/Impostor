@@ -4,76 +4,92 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content" />
 <title>El Impostor</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+
 <style>
     /* ----------------------------------------------------
        VARIABLES & TEMAS
     ---------------------------------------------------- */
     :root {
-        --bg-gradient: linear-gradient(180deg, #eef3ff 0%, #f6fbff 100%);
+        --bg-color: #f8fafc;
         --card-bg: #ffffff;
-        --card-border: #e6e9ef;
-        --card-shadow: 0 6px 18px rgba(17,24,39,0.06);
+        --card-border: #e2e8f0;
+        --card-shadow: 0 20px 40px -10px rgba(148, 163, 184, 0.15);
         
-        --text-main: #1f2937;
-        --text-muted: #6b7280;
+        --text-main: #0f172a; 
+        --text-muted: #64748b;
         
-        --input-bg: #ffffff;
-        --input-border: #e5e7eb;
+        --input-bg: #f1f5f9;
+        --input-border: transparent;
         
-        --item-bg: #fafbff;
-        --item-border: #f0f2ff;
+        --item-bg: #ffffff;
+        --item-border: #f1f5f9;
 
-        --accent: #9b5ce7;
-        --accent-2: #14ff00; /* Verde Fosfo */
-        --danger: #ff6b6b;
+        /* MODO CLARO (#00ABE4) */
+        --accent: #00ABE4; 
+        --accent-soft: rgba(0, 171, 228, 0.08);
+        --accent-glow: rgba(0, 171, 228, 0.4);
+        
+        --danger: #ef4444;
+        --danger-soft: rgba(239, 68, 68, 0.1);
+        --danger-glow: rgba(239, 68, 68, 0.4);
+        
+        --dot-color: #cbd5e1;
     }
 
     html.dark {
-        --bg-gradient: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
-        --card-bg: #1e293b;
-        --card-border: #334155;
-        --card-shadow: 0 6px 18px rgba(0,0,0,0.4);
+        --bg-color: #020617; 
+        --card-bg: #0f172a;
+        --card-border: #1e293b;
+        --card-shadow: 0 20px 40px -10px rgba(0,0,0,0.6);
         
-        --text-main: #f3f4f6;
-        --text-muted: #9ca3af;
+        --text-main: #f8fafc; 
+        --text-muted: #94a3b8;
         
-        --input-bg: #0f172a;
-        --input-border: #374151;
+        --input-bg: #1e293b;
+        --input-border: transparent;
         
         --item-bg: #1e293b;
-        --item-border: #374151;
+        --item-border: #334155;
+
+        /* MODO OSCURO (#2272FF) */
+        --accent: #3b82f6; 
+        --accent-soft: rgba(59, 130, 246, 0.15);
+        --accent-glow: rgba(59, 130, 246, 0.5);
+        
+        --dot-color: #1e293b;
     }
 
-    /* ----------------------------------------------------
-       LAYOUT GLOBAL
-    ---------------------------------------------------- */
+    * { -webkit-tap-highlight-color: transparent; }
+
+    /* LAYOUT GLOBAL */
     html, body {
         height: 100dvh;
         width: 100vw;
         margin: 0;
-        font-family: Inter, "Segoe UI", Roboto, sans-serif;
-        background: var(--bg-gradient);
+        font-family: 'Outfit', sans-serif;
+        background-color: var(--bg-color);
+        background-image: radial-gradient(var(--dot-color) 1.5px, transparent 1.5px);
+        background-size: 32px 32px;
         color: var(--text-main);
-        overflow: hidden;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        transition: color 0.4s ease, background 0.4s ease;
-        -webkit-user-select: none;
-        user-select: none;
-        -webkit-text-size-adjust: 100%;
+        overflow-x: hidden; 
+        overflow-y: auto; 
+        transition: all 0.4s ease;
     }
 
     .app {
-        max-width: 420px;
+        max-width: 440px;
         width: 100%;
-        height: 100%;
-        margin: auto;
-        padding: 16px;
+        min-height: 100dvh; 
+        margin: 0 auto;
+        padding: 20px;
         box-sizing: border-box;
-        overflow-y: auto;
         display: flex;
         flex-direction: column;
+        justify-content: flex-start;
     }
 
     .spacer { flex: 1; }
@@ -82,388 +98,379 @@
     header { 
         display: flex; 
         align-items: center; 
-        gap: 12px; 
-        margin-top: 24px;
-        margin-bottom: 24px;
+        justify-content: space-between; 
+        margin-top: 10px;
+        margin-bottom: 20px;
         flex-shrink: 0; 
     }
     
-    h1 { 
-        font-size: 20px; 
+    .logo-area h1 { 
+        font-size: 26px; 
+        font-weight: 800;
         margin: 0; 
         color: var(--text-main);
-        display: inline-flex;
-        align-items: center;
-        min-height: 24px;
+        letter-spacing: -0.03em;
+        line-height: 1;
     }
 
-    h1::after {
-        content: '';
-        display: inline-block;
-        width: 3px;
-        height: 20px;
-        background-color: var(--accent-2);
-        margin-left: 2px;
-        animation: blinkCursor 0.8s step-end infinite;
+    .logo-area .sub { 
+        color: var(--text-muted); 
+        font-size: 13px; 
+        font-weight: 500;
+        margin-top: 4px;
+        letter-spacing: 0.05em;
     }
 
-    @keyframes blinkCursor {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0; }
-    }
-
-    .sub { color: var(--text-muted); font-size: 13px; margin-top: 4px; }
-
-    /* --- BOTÓN TOGGLE (ANIMACIÓN FLUIDA) --- */
-    .dark-toggle {
-        margin-left: auto;
-        cursor: pointer;
-        background: transparent;
-        border: none;
-        width: 40px;
-        height: 40px;
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        background-color: var(--accent);
         border-radius: 50%;
+        display: inline-block;
+        margin-left: 6px;
+        box-shadow: 0 0 10px var(--accent);
+        animation: breath 2s infinite;
+    }
+    @keyframes breath { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
+
+    .dark-toggle {
+        cursor: pointer;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        width: 48px;
+        height: 48px;
+        border-radius: 16px;
         position: relative;
         color: var(--text-main);
         overflow: hidden;
+        transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+        box-shadow: var(--card-shadow);
     }
-    .dark-toggle:hover { 
-        background: rgba(128,128,128,0.1); 
-    }
+    .dark-toggle:active { transform: scale(0.9); }
+    .dark-toggle svg { width: 22px; height: 22px; stroke-width: 2px; fill: none; stroke: currentColor; position: absolute; top: 50%; left: 50%; transition: all 0.5s cubic-bezier(0.4, 0.0, 0.2, 1); }
 
-    .dark-toggle svg {
-        width: 22px;
-        height: 22px;
-        stroke-width: 2px;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-        fill: none;
-        stroke: currentColor;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transition: all 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
-    }
-
-    .icon-moon { 
-        opacity: 1; 
-        transform: translate(-50%, -50%) rotate(0deg) scale(1); 
-    }
-    .icon-sun { 
-        opacity: 0; 
-        transform: translate(-50%, -50%) rotate(90deg) scale(0.5); 
-    }
-
-    html.dark .icon-moon { 
-        opacity: 0; 
-        transform: translate(-50%, -50%) rotate(-90deg) scale(0.5); 
-    }
-    html.dark .icon-sun { 
-        opacity: 1; 
-        transform: translate(-50%, -50%) rotate(0deg) scale(1); 
-    }
+    .icon-moon { opacity: 1; transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+    .icon-sun { opacity: 0; transform: translate(-50%, -50%) rotate(90deg) scale(0.5); }
+    html.dark .icon-moon { opacity: 0; transform: translate(-50%, -50%) rotate(-90deg) scale(0.5); }
+    html.dark .icon-sun { opacity: 1; transform: translate(-50%, -50%) rotate(0deg) scale(1); }
 
 
     /* --- TARJETAS --- */
     .card {
         background: var(--card-bg);
         border: 1px solid var(--card-border);
-        border-radius: 18px;
-        padding: 16px;
+        border-radius: 28px;
+        padding: 24px;
         box-shadow: var(--card-shadow);
-        margin-bottom: 12px;
-        overflow: hidden;
-        transition: background 0.3s ease, border-color 0.3s ease;
-        flex-shrink: 0;
+        margin-bottom: 16px;
+        height: auto; 
+        overflow: visible;
+        animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        backdrop-filter: blur(20px);
     }
 
-    label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; margin-left: 4px; }
+    @keyframes slideUpFade {
+        from { opacity: 0; transform: translateY(20px) scale(0.98); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    label { display: block; font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 10px; padding-left: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
 
     input, select {
         width: 100%;
-        padding: 12px 20px;
-        border-radius: 50px;
-        border: 1px solid var(--input-border);
+        padding: 16px 20px;
+        border-radius: 18px;
+        border: 2px solid transparent; 
         background: var(--input-bg);
         color: var(--text-main);
         font-size: 16px; 
+        font-family: 'Outfit', sans-serif;
+        font-weight: 500;
         box-sizing: border-box;
         outline: none;
-        transition: border-color 0.2s;
-        -webkit-user-select: text;
-        user-select: text;
+        transition: all 0.2s ease;
     }
     input:focus, select:focus {
-        border-color: var(--accent-2);
+        background: var(--card-bg);
+        border-color: var(--accent);
+        box-shadow: 0 4px 20px var(--accent-soft);
     }
+    
+    ::placeholder { color: var(--text-muted); opacity: 0.6; }
 
-    /* --- BOTONES MINIMALISTAS (Solo contorno verde) --- */
+    /* --- BOTONES --- */
     button {
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 8px;
-        padding: 12px 24px;
-        border-radius: 50px;
-        
-        /* CAMBIO: Fondo transparente y borde verde */
+        padding: 16px 24px;
+        border-radius: 18px;
         background: transparent;
-        border: 2px solid var(--accent-2);
-        color: var(--accent-2);
-        
-        text-shadow: none;
+        border: 2px solid var(--accent);
+        color: var(--accent);
         font-weight: 700;
+        font-family: 'Outfit', sans-serif;
+        font-size: 15px;
         cursor: pointer;
-        
-        /* Sombra suave tipo neón en lugar de sombra sólida */
-        box-shadow: 0 0 10px rgba(20, 255, 0, 0.1);
-        
-        transition: transform .12s ease, background .2s, box-shadow .2s;
-        font-size: 14px;
-        -webkit-touch-callout: none;
-        -webkit-user-select: none;
-        user-select: none;
+        letter-spacing: 0.02em;
+        transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+        box-shadow: 0 4px 15px var(--accent-soft);
+        min-height: 56px; 
+        box-sizing: border-box;
     }
+    
+    button:active { transform: scale(0.96); }
     
     button:hover {
-        background: rgba(20, 255, 0, 0.05); /* Relleno muy sutil al pasar el mouse */
-        box-shadow: 0 0 15px rgba(20, 255, 0, 0.25);
-    }
-
-    button:active { transform: scale(0.97); }
-    
-    button svg {
-        width: 18px;
-        height: 18px;
-        fill: currentColor;
+        background: var(--accent-soft);
+        box-shadow: 0 8px 25px var(--accent-soft);
     }
 
     button.ghost {
-        background: transparent;
-        color: var(--accent-2);
-        border: 2px solid var(--accent-2);
-        opacity: 0.8;
+        border-color: var(--card-border);
+        color: var(--text-muted);
+        box-shadow: none;
     }
     button.ghost:hover {
-        opacity: 1;
-        background: rgba(20, 255, 0, 0.05);
+        border-color: var(--text-muted);
+        color: var(--text-main);
+        background: var(--input-bg);
     }
     
-    /* Botón peligro: Minimalista pero en Rojo para mantener alerta */
     button.danger {
-        background: transparent;
-        border: 2px solid var(--danger);
+        border-color: var(--danger);
         color: var(--danger);
-        box-shadow: none;
+        box-shadow: 0 4px 15px var(--danger-soft);
     }
     button.danger:hover {
-        background: rgba(255, 107, 107, 0.05);
-        box-shadow: 0 0 10px rgba(255, 107, 107, 0.2);
+        background: var(--danger-soft);
+        box-shadow: 0 8px 25px var(--danger-soft);
     }
 
-    /* Reset para toggle de tema (excepción) */
     button.dark-toggle {
-        background: transparent;
-        box-shadow: none;
-        border: none;
+        border: 1px solid var(--card-border);
         padding: 0;
-        width: 40px;
-        height: 40px;
+        background: var(--card-bg);
+        box-shadow: var(--card-shadow);
         color: var(--text-main);
-    }
-    button.dark-toggle:hover {
-        background: rgba(128,128,128,0.1);
+        min-height: 44px;
     }
 
     .hold-btn {
-        padding: 24px 20px;
-        font-size: 16px;
         width: 100%;
-        touch-action: manipulation;
+        padding: 40px 20px;
+        border: 2px dashed var(--accent);
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 16px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: none;
+        display: flex;
+    }
+    .hold-btn:active {
+        background: var(--accent);
+        color: white;
+        border-style: solid;
+        transform: scale(0.98);
     }
 
-    .row { display: flex; gap: 8px; }
+    .row { display: flex; gap: 10px; }
     
-    /* --- BOTONES PEQUEÑOS DE AÑADIR (+) --- */
     .smallbtn { 
         padding: 0; 
-        width: 44px;
-        height: 44px;
-        font-size: 22px; 
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
+        width: 54px;
+        height: 54px;
+        font-size: 26px; 
+        border-radius: 18px;
         flex-shrink: 0;
-        
-        /* CAMBIO: Minimalista verde */
-        background: transparent;
-        border: 2px solid var(--accent-2);
-        color: var(--accent-2);
-        text-shadow: none;
-        box-shadow: none;
-    }
-    .smallbtn:hover {
-        background: rgba(20, 255, 0, 0.1);
+        min-height: 54px;
     }
 
-    /* ESTILOS DE LISTA */
-    ul { padding: 0; margin: 8px 0 0 0; color: var(--text-main); list-style: none; }
+    ul { 
+        padding: 0; 
+        margin: 10px 0 0 0; 
+        list-style: none; 
+    }
     
     li { 
-        margin-bottom: 6px;
+        margin-bottom: 8px;
         display: flex;
         justify-content: space-between;
         align-items: center;
         background: var(--item-bg);
         border: 1px solid var(--item-border);
-        padding: 8px 12px;
-        border-radius: 12px;
-        font-size: 14px;
+        padding: 14px 18px;
+        border-radius: 16px;
+        font-size: 16px;
+        font-weight: 500;
+        animation: slideInLeft 0.3s ease;
     }
 
-    .actions { display: flex; align-items: center; gap: 2px; }
+    @keyframes slideInLeft {
+        from { opacity: 0; transform: translateX(-10px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    .actions { display: flex; align-items: center; gap: 4px; }
 
     .btn-icon {
+        border: none;
         background: transparent;
-        box-shadow: none;
-        border: none; /* Icon buttons sin borde */
-        padding: 0;
-        width: 32px;
-        height: 32px;
-        font-size: 18px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        cursor: pointer;
+        padding: 8px;
+        border-radius: 12px;
         color: var(--text-muted);
+        box-shadow: none;
+        width: auto; height: auto;
+        min-height: auto;
+    }
+    .btn-icon:hover { background: var(--input-bg); color: var(--text-main); }
+    .btn-delete:hover { background: var(--danger-soft); color: var(--danger); }
+    .btn-edit:hover { color: var(--accent); background: transparent; }
+
+    /* NOMBRE JUGADOR (SIN PULSACION) */
+    .assign-name { 
+        font-size: 42px; 
+        font-weight: 900; 
+        color: var(--text-main);
+        text-align: center;
+        margin: 30px 0;
+        line-height: 1;
+        letter-spacing: -1.5px;
+        /* Animation removed as requested */
     }
     
-    .btn-delete { color: var(--danger); border: none; }
-    .btn-delete:hover { background: rgba(255, 107, 107, 0.1); box-shadow: none; }
-
-    .btn-edit { color: var(--accent); font-size: 16px; border: none; }
-    .btn-edit:hover { background: rgba(155, 92, 231, 0.1); box-shadow: none; }
-
-    .assign-name { font-size: 20px; font-weight: 700; color: var(--text-main); }
-    
+    /* CAJA DE REVELAR (CON PULSACION) */
     .reveal {
-        margin-top: 12px;
-        padding: 24px 16px;
-        border-radius: 16px;
-        background: linear-gradient(180deg, #0a0a0a 0%, #000000 100%);
-        border: 2px solid var(--accent-2); /* Borde verde para la caja de revelación */
-        color: white;
+        margin-top: 0; 
+        padding: 40px 24px;
+        border-radius: 24px;
+        
+        background: var(--accent-soft);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        
+        border: 2px solid var(--accent);
+        
         text-align: center;
-        font-weight: 700;
-        font-size: 22px;
         display: none;
-        min-height: 80px;
+        min-height: 120px;
         align-items: center;
         justify-content: center;
         flex-direction: column;
-        animation: fadeIn 0.2s ease;
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(-5px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* NEÓN */
-    .neon {
-        color: var(--accent-2); 
-        text-shadow:
-            0 0 5px var(--accent-2),
-            0 0 15px var(--accent-2),
-            0 0 30px var(--accent-2),
-            0 0 60px rgba(155, 92, 231, 0.4); 
-        animation: neonPulse 1.6s ease-in-out infinite;
-    }
-
-    @keyframes neonPulse {
-        0% { text-shadow: 0 0 5px var(--accent-2), 0 0 15px var(--accent-2), 0 0 30px var(--accent-2), 0 0 60px rgba(155, 92, 231, 0.3); transform: scale(1); }
-        50% { text-shadow: 0 0 5px var(--accent-2), 0 0 20px var(--accent-2), 0 0 40px var(--accent-2), 0 0 70px rgba(155, 92, 231, 0.5); transform: scale(1.02); }
-        100% { text-shadow: 0 0 5px var(--accent-2), 0 0 15px var(--accent-2), 0 0 30px var(--accent-2), 0 0 60px rgba(155, 92, 231, 0.3); transform: scale(1); }
-    }
-
-    .timer-wrap { display: flex; flex-direction: column; gap: 8px; align-items: center; }
-    .timer-number { font-size: 48px; font-weight: 800; color: var(--text-main); }
-    .bar-outer { width: 100%; height: 12px; background: var(--input-border); border-radius: 999px; overflow: hidden; }
-    
-    /* Barra de progreso verde */
-    .bar-inner { height: 100%; width: 100%; background: var(--accent-2); box-shadow: 0 0 10px var(--accent-2); transition: width 0.2s linear; }
-
-    .result-text { font-size: 18px; font-weight: 700; color: var(--text-main); margin: 8px 0; }
-    .controls { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
-
-    .footer {
+        
+        /* AQUÍ ESTÁ LA PULSACIÓN UNICAMENTE EN LA CAJA */
+        animation: boxPulse 2s infinite;
+        
         width: 100%;
-        text-align: center;
-        margin: 20px 0;
-        color: var(--text-muted);
-        font-size: 12px;
-        flex-shrink: 0;
-        padding-bottom: 10px;
+        box-sizing: border-box;
     }
 
-    @media (max-width: 420px){
-        .timer-number { font-size: 44px; }
+    @keyframes boxPulse {
+        0% { transform: scale(1); box-shadow: 0 0 0 0 var(--accent-soft); }
+        50% { transform: scale(1.02); box-shadow: 0 0 20px var(--accent-soft); }
+        100% { transform: scale(1); box-shadow: 0 0 0 0 var(--accent-soft); }
     }
 
-    /* --- ESTILOS PARA VOTACIÓN CON TARJETAS (SELECCIÓN ÚNICA) --- */
-    .vote-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-        margin-bottom: 20px;
-        margin-top: 10px;
+    .reveal-title { font-size: 14px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 600; }
+    .reveal-word { font-size: 32px; font-weight: 800; color: var(--text-main); }
+
+    /* IMPOSTOR MODE */
+    .reveal.impostor-mode {
+        background: var(--danger-soft);
+        border-color: var(--danger);
+        animation: dangerPulse 1.5s infinite;
     }
+    
+    .reveal-impostor-text {
+        font-size: 36px;
+        font-weight: 900;
+        color: var(--danger); 
+        letter-spacing: -1px;
+        text-shadow: 0 4px 20px var(--danger-glow);
+    }
+
+    @keyframes dangerPulse {
+        0% { box-shadow: 0 0 0 0 var(--danger-soft); transform: scale(1); }
+        50% { transform: scale(1.02); }
+        100% { box-shadow: 0 0 0 15px transparent; transform: scale(1); }
+    }
+
+    /* TIMER */
+    .timer-wrap { display: flex; flex-direction: column; gap: 12px; align-items: center; margin: 20px 0; }
+    .timer-number { font-size: 72px; font-weight: 900; color: var(--text-main); font-variant-numeric: tabular-nums; line-height: 1; }
+    
+    .bar-outer { width: 100%; height: 12px; background: var(--input-bg); border-radius: 99px; overflow: hidden; }
+    .bar-inner { 
+        height: 100%; width: 100%; 
+        background: linear-gradient(90deg, var(--danger) 0%, var(--accent) 100%);
+        border-radius: 99px;
+        transition: width 0.1s linear; 
+    }
+
+    .controls { 
+        display: flex; 
+        gap: 12px; 
+        flex-wrap: wrap; 
+        margin-top: 10px; 
+        align-items: stretch; 
+    }
+
+    /* VOTACION */
+    .vote-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
 
     .vote-card {
         background: var(--item-bg);
         border: 2px solid var(--item-border);
-        border-radius: 16px;
-        padding: 16px 8px;
+        border-radius: 20px;
+        padding: 24px 10px;
         text-align: center;
         color: var(--text-main);
         font-weight: 700;
-        font-size: 15px;
+        font-size: 16px;
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        min-height: 60px;
-        box-shadow: none;
-        opacity: 1;
+        min-height: 80px;
     }
+    
+    .vote-card:active { transform: scale(0.95); }
 
-    /* Cuando una tarjeta está seleccionada: Minimalista Verde */
     .vote-card.voted {
-        background: rgba(20, 255, 0, 0.08); /* Fondo muy suave transparente */
-        color: var(--accent-2); 
-        border-color: var(--accent-2);
-        transform: scale(1.05);
-        box-shadow: 0 0 15px rgba(20, 255, 0, 0.2);
-        z-index: 1;
+        background: var(--accent-soft);
+        color: var(--accent); 
+        border-color: var(--accent);
+        transform: scale(1.02);
+        box-shadow: 0 10px 25px var(--accent-soft);
     }
 
-    /* Las tarjetas NO seleccionadas se ven un poco apagadas */
-    .vote-grid.has-selection .vote-card:not(.voted) {
-        opacity: 0.5;
-        transform: scale(0.95);
+    .vote-grid.has-selection .vote-card:not(.voted) { opacity: 0.4; transform: scale(0.95); filter: grayscale(1); }
+
+    /* RESULTADO */
+    .result-text { font-size: 24px; font-weight: 800; color: var(--text-main); margin: 10px 0; line-height: 1.3; }
+    
+    .footer {
+        text-align: center;
+        margin-top: auto;
+        padding: 20px 0;
+        color: var(--text-muted);
+        font-size: 12px;
+        font-weight: 500;
+        opacity: 0.7;
     }
+
 </style>
 </head>
 <body>
 <div class="app">
 
     <header>
-        <div>
-            <h1></h1>
+        <div class="logo-area">
+            <h1>El Impostor<span class="status-dot"></span></h1>
             <div class="sub">TRAKAS HDSPM</div>
         </div>
         
@@ -476,29 +483,23 @@
     <div id="admin" class="card">
         <label>Añadir palabra</label>
         <div class="row">
-            <input type="text" id="nuevaPalabra" placeholder="ej. Cybertruck, Zumpango, ..." />
+            <input type="text" id="nuevaPalabra" placeholder="Ej. Cybertruck, Zumpango..." />
             <button class="smallbtn" onclick="agregarPalabra()">+</button>
         </div>
 
-        <div style="margin-top:12px">
-            <label>Palabras disponibles</label>
-            <ul id="listaPalabras"></ul>
-        </div>
+        <ul id="listaPalabras"></ul>
 
-        <hr style="margin:16px 0; border:none; border-top:1px solid var(--card-border)" />
+        <hr style="margin:24px 0; border:none; border-top:1px solid var(--card-border)" />
 
         <label>Añadir jugador</label>
         <div class="row">
-            <input type="text" id="nombreJugador" placeholder="Nombre" />
+            <input type="text" id="nombreJugador" placeholder="Nombre del jugador" />
             <button class="smallbtn" onclick="agregarJugador()">+</button>
         </div>
 
-        <div style="margin-top:12px">
-            <label>Jugadores</label>
-            <ul id="listaJugadores"></ul>
-        </div>
+        <ul id="listaJugadores"></ul>
 
-        <div style="margin-top:16px" class="row">
+        <div style="margin-top:24px" class="row">
             <div style="flex:1">
                 <label>Tiempo ronda</label>
                 <select id="duracionSelect">
@@ -510,99 +511,91 @@
                 </select>
             </div>
             <div style="align-self:flex-end">
-                <button onclick="iniciarJuego()">¡Jugar!</button>
+                <button style="width:100%" onclick="iniciarJuego()">¡Jugar!</button>
             </div>
         </div>
 
-        <div style="margin-top:12px" class="row">
-            <button class="danger" style="flex:1" onclick="reiniciarTodo()">Reset Total</button>
+        <div style="margin-top:16px" class="row">
+            <button class="danger ghost" style="flex:1" onclick="reiniciarTodo()">Reset Total</button>
         </div>
     </div>
 
     <div id="asignacion" class="card" style="display:none">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <div>
-                <div style="font-size:12px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px;">Turno de</div>
-                <div class="assign-name" id="nombreJugadorAsignacion">Jugador</div>
-            </div>
-            <div style="text-align:right; color:var(--text-muted); font-size:14px; font-feature-settings:'tnum';">
+        <div style="display:flex; justify-content:space-between; align-items:center; opacity:0.6;">
+            <div style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px;">Turno de</div>
+            <div style="font-size:14px; font-variant-numeric: tabular-nums;">
                 <span id="indiceAsignacion">1</span> / <span id="totalAsignacion">1</span>
             </div>
         </div>
 
-        <div style="display:flex; gap:12px; flex-direction:column">
-            <button id="btnReveal" class="hold-btn" oncontextmenu="return false;">
-                Mantén presionado para ver la palabra
-            </button>
-            
-            <div id="textoPalabra" class="reveal"></div>
+        <div class="assign-name" id="nombreJugadorAsignacion">Jugador</div>
 
-            <div style="display:flex; gap:8px">
-                <button onclick="siguienteJugador()" style="flex:1">Entendido, siguiente</button>
+        <div style="display:flex; gap:16px; flex-direction:column; margin-top:10px;">
+            <div style="position:relative; width:100%">
+                <button id="btnReveal" class="hold-btn" oncontextmenu="return false;">
+                    MANTÉN PARA VER TU ROL
+                </button>
+                <div id="textoPalabra" class="reveal"></div>
             </div>
+
+            <button onclick="siguienteJugador()" style="margin-top:8px; width:100%">Entendido, siguiente</button>
         </div>
     </div>
 
     <div id="pistas" class="card" style="display:none">
         <div style="display:flex; justify-content:space-between; align-items:center">
             <div>
-                <div style="font-size:12px; color:var(--text-muted)">Go Go Go</div>
-                <div style="font-weight:700; font-size:16px; color:var(--text-main)">Describan la palabra</div>
-            </div>
-            <div style="text-align:right">
-                <div style="font-size:12px; color:var(--text-muted)">Tiempo</div>
-                <div style="font-weight:700; color:var(--text-main)" id="duracionLabel"></div>
+                <div style="font-size:12px; color:var(--text-muted); font-weight:600; text-transform:uppercase">Fase de debate</div>
+                <div style="font-weight:800; font-size:18px; color:var(--text-main)">Describan la palabra</div>
             </div>
         </div>
 
-        <div style="margin-top:20px" class="timer-wrap">
+        <div class="timer-wrap">
             <div class="timer-number" id="timerNumber">60</div>
-            <div class="bar-outer" aria-hidden="true">
-                <div id="timerBar" class="bar-inner"></div>
-            </div>
+            <div class="bar-outer"><div id="timerBar" class="bar-inner"></div></div>
         </div>
 
-        <div style="margin-top:20px" class="controls">
-            <button id="botonIniciarTimer" style="flex:1" onclick="iniciarTemporizador()">
+        <div class="controls">
+            <button id="botonIniciarTimer" style="flex:1.5" onclick="iniciarTemporizador()">
                 <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Iniciar
             </button>
-            <button class="ghost" onclick="saltarAPuesta()">Ir a votación</button>
+            <button class="ghost" style="flex:1" onclick="saltarAPuesta()">Votación</button>
         </div>
     </div>
 
     <div id="votacion" class="card" style="display:none">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-            <div>
-                <div style="font-size:12px; color:var(--text-muted)">Votación</div>
-                <div style="font-weight:700; font-size:16px; color:var(--text-main)">¿Quién es el impostor?</div>
-            </div>
+        <div style="text-align:center; margin-bottom:16px;">
+            <div style="font-size:12px; color:var(--text-muted); font-weight:700; text-transform:uppercase">Votación final</div>
+            <div style="font-weight:900; font-size:20px; color:var(--text-main)">¿Quién es el impostor?</div>
         </div>
 
         <div id="voteContainer" class="vote-grid"></div>
 
-        <button style="margin-top:8px; width:100%" class="ghost" onclick="mostrarResultado()">
+        <button style="margin-top:20px; width:100%" class="ghost" onclick="mostrarResultado()">
             Ver Resultados
         </button>
     </div>
 
     <div id="resultado" class="card" style="display:none">
-        <div>
-            <div style="font-size:12px; color:var(--text-muted)">Resultado final</div>
+        <div style="text-align:center">
+            <div style="font-size:12px; color:var(--text-muted); font-weight:700; text-transform:uppercase">Resultado</div>
             <div class="result-text" id="textoResultado"></div>
         </div>
 
-        <div id="impostorGuessSection" style="margin-top:16px; padding:12px; border:1px solid var(--danger); border-radius:18px; background:rgba(255,107,107,0.1); display:none">
-            <label style="color:var(--danger); font-weight:700;">¡Sin Yolanda Impostor!</label>
-            <p style="font-size:13px; margin:4px 0 8px 0; color:var(--text-main)">Si adivinas la palabra, ganas la partida.</p>
-            <div class="row">
-                <input type="text" id="guessInput" placeholder="¿Cuál era la palabra?" />
-                <button class="danger" onclick="impostorAdivina()">Probar</button>
+        <div id="impostorGuessSection" style="margin-top:24px; padding:20px; border:1px solid var(--danger); border-radius:24px; background:var(--danger-soft); display:none">
+            <label id="impostorGuessLabel" style="color:var(--danger); font-weight:800; font-size:18px; text-align:center; display:block; margin-bottom:8px"></label>
+            <p style="font-size:14px; text-align:center; margin-bottom:16px; color:var(--text-main); opacity:0.8;">Si adivinas la palabra, ganas la partida.</p>
+            
+            <div style="display:flex; gap:8px">
+                <input type="text" id="guessInput" placeholder="Palabra secreta..." style="background:var(--card-bg)" />
             </div>
-            <div id="guessFeedback" style="margin-top:8px; font-weight:600; font-size:14px;"></div>
+            <button class="danger" style="width:100%; margin-top:12px;" onclick="impostorAdivina()">Intentar Adivinar</button>
+            
+            <div id="guessFeedback" style="margin-top:12px; font-weight:700; font-size:15px; text-align:center"></div>
         </div>
 
-        <div style="margin-top:20px; display:flex; flex-direction:column; gap:8px;">
-            <button onclick="nuevaRonda()">Jugar otra vez (Mismos jugadores)</button>
+        <div style="margin-top:30px; display:flex; flex-direction:column; gap:12px;">
+            <button onclick="nuevaRonda()">Jugar otra vez</button>
             <button class="ghost" onclick="mostrarSeccion('admin')">Volver al menú</button>
         </div>
     </div>
@@ -616,30 +609,31 @@
 </div>
 
 <script>
+    /* LÓGICA DE ESCRITURA EN EL TÍTULO */
     const titleElement = document.querySelector('h1');
     const textToType = "El Impostor";
     let charIndex = 0;
 
-    /* --- LÓGICA DE MÁQUINA DE ESCRIBIR EN BUCLE --- */
     function typeWriter() {
         if (charIndex < textToType.length) {
-            titleElement.textContent += textToType.charAt(charIndex);
+            let currentText = titleElement.childNodes[0].nodeValue || "";
+            titleElement.childNodes[0].nodeValue = currentText + textToType.charAt(charIndex);
             charIndex++;
             setTimeout(typeWriter, 120);
         } else {
-            // Cuando termina de escribir, espera 7 segundos
             setTimeout(() => {
-                // Borra el texto y reinicia el proceso
-                titleElement.textContent = '';
+                titleElement.childNodes[0].nodeValue = "";
                 charIndex = 0;
                 typeWriter();
             }, 10000); 
         }
     }
+    titleElement.innerHTML = '<span class="status-dot"></span>'; 
+    titleElement.insertBefore(document.createTextNode(""), titleElement.firstChild);
     setTimeout(typeWriter, 300);
 
 
-    /* LOGICA DEL JUEGO */
+    /* --- LÓGICA DEL JUEGO --- */
     let palabras = [];
     let jugadores = [];
     let jugadoresMezclados = [];
@@ -652,10 +646,10 @@
     let tiempoRestante = 0;
     let timerRunning = false;
 
-    // DEFINICIÓN DE ICONOS SVG PARA EL TEMPORIZADOR
     const SVG_PLAY = '<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
     const SVG_PAUSE = '<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
 
+    /* Auto Dark Mode detection */
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         document.documentElement.classList.add('dark');
     }
@@ -666,9 +660,20 @@
 
     function mostrarSeccion(id) {
         const secciones = ['admin','asignacion','pistas','votacion','resultado'];
-        secciones.forEach(s => document.getElementById(s).style.display = (s===id ? 'block' : 'none'));
+        secciones.forEach(s => {
+            const el = document.getElementById(s);
+            if(s === id) {
+                el.style.display = 'block';
+                el.style.animation = 'none';
+                el.offsetHeight; 
+                el.style.animation = null; 
+            } else {
+                el.style.display = 'none';
+            }
+        });
     }
 
+    /* GESTIÓN DE PALABRAS Y JUGADORES */
     function agregarPalabra(){
         const input = document.getElementById('nuevaPalabra');
         const p = input.value.trim();
@@ -684,29 +689,17 @@
         renderPalabras();
     }
 
-    function editarPalabra(index){
-        const actual = palabras[index];
-        const nuevo = prompt("Corregir palabra:", actual);
-        if(nuevo !== null && nuevo.trim() !== ""){
-            palabras[index] = nuevo.trim();
-            renderPalabras();
-        }
-    }
-
     function renderPalabras(){
         const ul = document.getElementById('listaPalabras');
         ul.innerHTML = '';
         if(palabras.length === 0) {
-            ul.innerHTML = '<li style="justify-content:center; color:var(--text-muted); font-style:italic">No hay palabras</li>';
+            ul.innerHTML = '<li style="justify-content:center; color:var(--text-muted); font-style:italic; background:transparent; border:none">No hay palabras</li>';
         }
         palabras.forEach((p, index) => {
             const li = document.createElement('li');
             li.innerHTML = `
                 <span>${p}</span>
-                <div class="actions">
-                    <button class="btn-icon btn-edit" onclick="editarPalabra(${index})">✎</button>
-                    <button class="btn-icon btn-delete" onclick="eliminarPalabra(${index})">&times;</button>
-                </div>
+                <button class="btn-icon btn-delete" onclick="eliminarPalabra(${index})">&times;</button>
             `;
             ul.appendChild(li);
         });
@@ -727,36 +720,24 @@
         renderJugadores();
     }
 
-    function editarJugador(index){
-        const actual = jugadores[index];
-        const nuevo = prompt("Corregir nombre:", actual);
-        if(nuevo !== null && nuevo.trim() !== ""){
-            jugadores[index] = nuevo.trim();
-            renderJugadores();
-        }
-    }
-
     function renderJugadores(){
         const ul = document.getElementById('listaJugadores');
         ul.innerHTML = '';
         if(jugadores.length === 0) {
-            ul.innerHTML = '<li style="justify-content:center; color:var(--text-muted); font-style:italic">No hay jugadores</li>';
+            ul.innerHTML = '<li style="justify-content:center; color:var(--text-muted); font-style:italic; background:transparent; border:none">No hay jugadores</li>';
         }
         jugadores.forEach((j, index) => {
             const li = document.createElement('li');
             li.innerHTML = `
                 <span>${j}</span>
-                <div class="actions">
-                    <button class="btn-icon btn-edit" onclick="editarJugador(${index})">✎</button>
-                    <button class="btn-icon btn-delete" onclick="eliminarJugador(${index})">&times;</button>
-                </div>
+                <button class="btn-icon btn-delete" onclick="eliminarJugador(${index})">&times;</button>
             `;
             ul.appendChild(li);
         });
     }
 
     function reiniciarTodo(){
-        if(!confirm('¿Seguro que quieres borrar jugadores y palabras?')) return;
+        if(!confirm('¿Borrar todo?')) return;
         palabras = [];
         jugadores = [];
         resetGameData();
@@ -773,24 +754,25 @@
         stopTemporizador();
     }
 
+    /* FLUJO DEL JUEGO */
     function iniciarJuego(){
         if(jugadores.length < 3){
-            alert('Se recomiendan al menos 3 jugadores.');
+            alert('Se requieren mínimo 3 jugadores.'); return;
         }
         if(palabras.length === 0){
-            alert('Añade al menos una palabra para jugar.');
-            return;
+            alert('Faltan palabras.'); return;
         }
 
         duracion = Number(document.getElementById('duracionSelect').value || 60);
-        document.getElementById('duracionLabel').innerText = duracion + 's';
+        
+        const label = document.getElementById('duracionLabel');
+        if(label) label.innerText = duracion + 's';
 
         nuevaRonda();
     }
 
     function nuevaRonda(){
         votos = {};
-        // Limpieza de estados anteriores
         document.getElementById('guessFeedback').innerText = '';
         document.getElementById('guessInput').value = '';
         document.getElementById('impostorGuessSection').style.display = 'none';
@@ -801,6 +783,7 @@
 
         indiceActual = 0;
         document.getElementById('totalAsignacion').innerText = jugadoresMezclados.length;
+        
         cargarJugador();
         mostrarSeccion('asignacion');
 
@@ -816,7 +799,11 @@
         
         const elem = document.getElementById('textoPalabra');
         elem.style.display = 'none';
-        elem.classList.remove('neon');
+        elem.className = 'reveal'; 
+        
+        const btn = document.getElementById('btnReveal');
+        btn.style.display = 'flex';
+        btn.style.opacity = '1';
     }
 
     function siguienteJugador(){
@@ -824,7 +811,6 @@
         
         indiceActual++;
         if(indiceActual >= jugadoresMezclados.length){
-            // Resetear botón de inicio con icono
             document.getElementById('botonIniciarTimer').innerHTML = SVG_PLAY + " Iniciar";
             prepararVotacion();
             mostrarSeccion('pistas');
@@ -833,43 +819,48 @@
         cargarJugador();
     }
 
+    /* REVELAR ROL */
     const btnReveal = document.getElementById('btnReveal');
     const revealBox = document.getElementById('textoPalabra');
 
     function showContent(){
         const jugador = jugadoresMezclados[indiceActual];
         if(jugador === impostor){
-            revealBox.innerHTML = '<div style="color:#ff6b6b; font-size:24px; margin-bottom:5px">🤫 IMPOSTOR</div><div style="font-size:14px; color:#ccc; font-weight:400">Engaña a los demás</div>';
-            revealBox.classList.remove('neon');
+            revealBox.className = 'reveal impostor-mode'; 
+            revealBox.innerHTML = `
+                <div class="reveal-title">Tu misión</div>
+                <div class="reveal-impostor-text">IMPOSTOR</div>
+                <div style="font-size:13px; margin-top:8px; opacity:0.8; color:var(--danger)">Engaña a todos</div>
+            `;
         } else {
-            revealBox.innerHTML = `<div style="font-size:14px; color:#ccc; font-weight:400; margin-bottom:5px">La palabra es:</div><div style="font-size:24px">${palabraSeleccionada}</div>`;
-            revealBox.classList.add('neon');
+            revealBox.className = 'reveal'; 
+            revealBox.innerHTML = `
+                <div class="reveal-title">La palabra es</div>
+                <div class="reveal-word">${palabraSeleccionada}</div>
+            `;
         }
+        
+        btnReveal.style.display = 'none'; 
         revealBox.style.display = 'flex';
-        btnReveal.style.opacity = '0.5';
     }
 
     function hideContent(){
         revealBox.style.display = 'none';
-        btnReveal.style.opacity = '1';
+        btnReveal.style.display = 'flex';
     }
 
     btnReveal.addEventListener('mousedown', showContent);
     btnReveal.addEventListener('mouseup', hideContent);
     btnReveal.addEventListener('mouseleave', hideContent);
-
-    btnReveal.addEventListener('touchstart', (e) => {
-        e.preventDefault(); 
-        showContent();
-    });
+    btnReveal.addEventListener('touchstart', (e) => { e.preventDefault(); showContent(); });
     btnReveal.addEventListener('touchend', hideContent);
 
+    /* TEMPORIZADOR */
     function iniciarTemporizador(){
         const btn = document.getElementById('botonIniciarTimer');
         
         if(timerRunning) {
             stopTemporizador();
-            // Cambiar a icono de Play
             btn.innerHTML = SVG_PLAY + " Reanudar";
             return;
         }
@@ -877,7 +868,6 @@
         if(tiempoRestante <= 0 && !timer) tiempoRestante = duracion;
         
         actualizarTimerUI(tiempoRestante);
-        // Cambiar a icono de Pause
         btn.innerHTML = SVG_PAUSE + " Pausar";
         timerRunning = true;
 
@@ -906,10 +896,6 @@
         document.getElementById('timerNumber').innerText = Math.ceil(segundos);
         const pct = Math.max(0, Math.min(1, segundos / duracion));
         document.getElementById('timerBar').style.width = (pct*100) + '%';
-        
-        const bar = document.getElementById('timerBar');
-        if(pct < 0.2) bar.style.background = 'var(--danger)';
-        else bar.style.background = 'var(--accent-2)';
     }
 
     function saltarAPuesta(){
@@ -918,52 +904,43 @@
         mostrarSeccion('votacion');
     }
 
-    /* --- LOGICA DE VOTACIÓN (VOTO ÚNICO) --- */
+    /* VOTACION */
     function prepararVotacion(){
         const container = document.getElementById('voteContainer');
         container.innerHTML = ''; 
-        container.classList.remove('has-selection'); // Resetear estado visual
+        container.classList.remove('has-selection'); 
         votos = {}; 
         
         jugadores.forEach(jugador => {
             const btn = document.createElement('button');
             btn.className = 'vote-card';
             btn.innerText = jugador;
-            
-            // Guardamos el nombre original para poder restaurarlo si cambiamos de voto
             btn.dataset.originalName = jugador;
             
-            btn.onclick = function() {
-                registrarVotoUnico(jugador, btn);
-            };
-            
+            btn.onclick = function() { registrarVotoUnico(jugador, btn); };
             container.appendChild(btn);
         });
     }
 
     function registrarVotoUnico(elegido, btnElement){
-        // 1. Lógica: Solo existe 1 voto en todo el juego (el del expulsado)
         votos = {}; 
         votos[elegido] = 1;
 
-        // 2. Visual: Limpiar selección de todos los otros botones
         const container = document.getElementById('voteContainer');
-        container.classList.add('has-selection'); // Activa el efecto de opacidad en los no elegidos
+        container.classList.add('has-selection'); 
 
         const allBtns = container.querySelectorAll('.vote-card');
         allBtns.forEach(b => {
             b.classList.remove('voted');
-            b.innerText = b.dataset.originalName; // Restaurar texto original
+            b.innerText = b.dataset.originalName; 
         });
 
-        // 3. Visual: Marcar el nuevo seleccionado
         btnElement.classList.add('voted');
-        btnElement.innerText = "Eliminar a\n" + elegido; // Feedback visual claro
-        
-        // Vibración suave
+        btnElement.innerText = "Eliminar a\n" + elegido; 
         if(navigator.vibrate) navigator.vibrate(50);
     }
 
+    /* RESULTADO */
     function mostrarResultado(){
         let masVotado = null;
         let max = -1;
@@ -983,7 +960,8 @@
             guessSection.style.display = 'none';
         } 
         else {
-            res.innerHTML = `Se equivocaron. Expulsaron a <strong>${masVotado}</strong>.<br>El impostor era <strong style="color:var(--danger)">${impostor}</strong>.`;
+            res.innerHTML = `Se equivocaron.<br>El impostor era <strong style="color:var(--danger)">${impostor}</strong>.`;
+            document.getElementById('impostorGuessLabel').innerText = `¡No te me emociones ${impostor}!`;
             guessSection.style.display = 'block';
         }
         
@@ -998,13 +976,14 @@
         
         if(intento.toLowerCase() === palabraSeleccionada.toLowerCase()){
             feed.style.color = '#10b981';
-            feed.innerText = '¡INCREÍBLE! El impostor acertó la palabra secreta.';
+            feed.innerText = '¡INCREÍBLE! Ganaste.';
         } else {
             feed.style.color = 'var(--danger)';
-            feed.innerText = `Incorrecto. La palabra era "${palabraSeleccionada}".`;
+            feed.innerText = `Nop. Era "${palabraSeleccionada}".`;
         }
     }
 
+    /* TECLADO */
     document.addEventListener('keydown', e => {
         if(e.key === 'Enter'){
             const f = document.activeElement;
