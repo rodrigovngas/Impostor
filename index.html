@@ -64,15 +64,30 @@
     }
 
     /* ----------------------------------------------------
-       COMPORTAMIENTO NATIVO
+       COMPORTAMIENTO NATIVO Y PROTECCIÓN CSS
     ---------------------------------------------------- */
     * { 
         -webkit-tap-highlight-color: transparent; 
         -webkit-touch-callout: none;
         -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
         user-select: none;
     }
-    input, select { -webkit-user-select: text; user-select: text; }
+    /* Permitir selección solo en inputs para poder escribir */
+    input, select { 
+        -webkit-user-select: text; 
+        user-select: text; 
+    }
+    
+    /* Prevenir arrastre de imágenes y enlaces */
+    img, a {
+        -webkit-user-drag: none;
+        user-drag: none;
+        pointer-events: none; /* Bloquea interacción extraña */
+    }
+    /* Reactivar pointer events para botones interactivos si usan a o img dentro (aquí usamos SVG así que ok) */
+    button svg { pointer-events: none; }
 
     html::-webkit-scrollbar, body::-webkit-scrollbar, .app::-webkit-scrollbar, ul::-webkit-scrollbar, *::-webkit-scrollbar { 
         display: none; width: 0 !important; height: 0 !important; background: transparent !important; -webkit-appearance: none !important; 
@@ -95,6 +110,7 @@
         scroll-behavior: smooth;
         -webkit-overflow-scrolling: touch; 
         transition: color 0.4s ease, background-color 0.4s ease;
+        cursor: default; /* Forzar cursor por defecto */
     }
 
     .app {
@@ -653,6 +669,43 @@
 </div>
 
 <script>
+    /* --------------------------------------------------------------------------------
+       SEGURIDAD BÁSICA (ANTI INSPECTOR)
+       Previene click derecho y atajos de teclado comunes (F12, Ctrl+U, Ctrl+Shift+I)
+    -------------------------------------------------------------------------------- */
+    (function() {
+        // 1. Deshabilitar Menú Contextual (Click Derecho)
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            return false;
+        }, false);
+
+        // 2. Deshabilitar Atajos de Teclado de Desarrollo
+        document.onkeydown = function(e) {
+            // F12
+            if(e.keyCode == 123) {
+                return false;
+            }
+            // Ctrl+Shift+I (Inspector)
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) {
+                return false;
+            }
+            // Ctrl+Shift+C (Inspector Elemento)
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) {
+                return false;
+            }
+            // Ctrl+Shift+J (Consola)
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) {
+                return false;
+            }
+            // Ctrl+U (Ver Fuente)
+            if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) {
+                return false;
+            }
+        }
+    })();
+    /* -------------------------------------------------------------------------------- */
+
     const titleElement = document.querySelector('h1');
     const textToType = "El Impostor";
     let charIndex = 0;
