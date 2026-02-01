@@ -667,6 +667,7 @@
 
 </div>
 
+<!-- CONFIRMACION (reset) -->
 <div id="toastOverlay" class="toast-overlay" onclick="cerrarConfirmacion(event)">
     <div class="toast-content" onclick="event.stopPropagation()">
         <div class="toast-title">¿Reiniciar todo?</div>
@@ -678,7 +679,8 @@
     </div>
 </div>
 
-<div id="alertFinOverlay" class="toast-overlay" style="z-index: 1000;">
+<!-- ALERTA: No quedan palabras nuevas (usa las mismas clases) -->
+<div id="alertFinOverlay" class="toast-overlay" style="z-index: 1000;" onclick="irAlInicio()">
     <div class="toast-content" onclick="event.stopPropagation()">
         <div class="toast-title">¡Se acabaron!</div>
         <div class="toast-msg">Ya no quedan palabras nuevas en la lista.</div>
@@ -686,11 +688,24 @@
     </div>
 </div>
 
-<div id="timeOutOverlay" class="toast-overlay" style="z-index: 1000;">
+<!-- ALERTA: Tiempo terminado (usa las mismas clases) -->
+<div id="timeOutOverlay" class="toast-overlay" style="z-index: 1000;" onclick="finalizarTiempoYContinuar()">
     <div class="toast-content" onclick="event.stopPropagation()">
         <div class="toast-title">¡Tiempo terminado!</div>
         <div class="toast-msg">Es momento de votar por el impostor.</div>
         <button style="width:100%" onclick="finalizarTiempoYContinuar()">Aceptar</button>
+    </div>
+</div>
+
+<!-- NUEVA: Alerta genérica reutilizable para "faltan jugadores" / "faltan palabras" -->
+<div id="genericAlertOverlay" class="toast-overlay" style="z-index: 1001;" onclick="cerrarAlertaGenerica()">
+    <div class="toast-content" onclick="event.stopPropagation()">
+        <div id="genericAlertTitle" class="toast-title">Título</div>
+        <div id="genericAlertMsg" class="toast-msg">Mensaje</div>
+        <div class="row">
+            <button class="ghost" style="flex:1" onclick="cerrarAlertaGenerica()">Cancelar</button>
+            <button style="flex:1" onclick="cerrarAlertaGenerica()">Aceptar</button>
+        </div>
     </div>
 </div>
 
@@ -824,6 +839,29 @@
     }
     /* ------------------------------------------------------------ */
 
+    /* --- NUEVAS FUNCIONES: Alerta genérica (usa mismas clases/styles) --- */
+    function showAlertMessage(title, msg){
+        const ov = document.getElementById('genericAlertOverlay');
+        const t = document.getElementById('genericAlertTitle');
+        const m = document.getElementById('genericAlertMsg');
+        t.innerText = title;
+        m.innerText = msg;
+        ov.style.display = 'flex';
+        ov.offsetHeight; // reflow for animation
+        ov.classList.add('active');
+        if(navigator.vibrate) navigator.vibrate(50);
+    }
+
+    function cerrarAlertaGenerica(){
+        const ov = document.getElementById('genericAlertOverlay');
+        ov.classList.remove('active');
+        setTimeout(() => {
+            ov.style.display = 'none';
+            mostrarSeccion('admin'); // volver al admin para corregir faltantes
+        }, 300);
+    }
+    /* ------------------------------------------------------------ */
+
     /* --- LÓGICA DEL JUEGO --- */
     let palabras = [];
     let palabrasDisponibles = []; // <--- NUEVA VARIABLE PARA CONTROLAR REPETICIONES
@@ -933,8 +971,15 @@
     }
 
     function iniciarJuego(){
-        if(jugadores.length < 3){ alert('Se requieren mínimo 3 jugadores.'); return; }
-        if(palabras.length === 0){ alert('Faltan palabras.'); return; }
+        // Reemplazamos alert() por overlay reutilizable (mismo diseño)
+        if(jugadores.length < 3){
+            showAlertMessage('Faltan jugadores', 'Se requieren mínimo 3 jugadores.');
+            return;
+        }
+        if(palabras.length === 0){
+            showAlertMessage('Faltan palabras', 'Agrega al menos una palabra.');
+            return;
+        }
 
         duracion = Number(document.getElementById('duracionSelect').value || 60);
         const label = document.getElementById('duracionLabel');
