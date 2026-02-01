@@ -67,32 +67,26 @@
        COMPORTAMIENTO NATIVO Y PROTECCIÓN CSS
     ---------------------------------------------------- */
     * { 
-        /* ELIMINA RESALTADO AZUL/GRIS AL TOCAR EN CUALQUIER ELEMENTO */
-        -webkit-tap-highlight-color: rgba(0,0,0,0) !important;
-        -webkit-touch-callout: none !important;
-        
-        /* PREVIENE SELECCIÓN MANUAL (excepto inputs) */
+        -webkit-tap-highlight-color: transparent; 
+        -webkit-touch-callout: none;
         -webkit-user-select: none;
         -moz-user-select: none;
         -ms-user-select: none;
         user-select: none;
     }
-    
-    /* ELIMINA EL CUADRO DE FOCO NATIVO (EL RECUADRO NEGRO O AZUL) */
-    *:focus {
-        outline: none !important;
-    }
-
+    /* Permitir selección solo en inputs para poder escribir */
     input, select { 
         -webkit-user-select: text; 
         user-select: text; 
     }
     
+    /* Prevenir arrastre de imágenes y enlaces */
     img, a {
         -webkit-user-drag: none;
         user-drag: none;
         pointer-events: none; 
     }
+    /* Reactivar pointer events para botones interactivos si usan a o img dentro */
     button svg { pointer-events: none; }
 
     html::-webkit-scrollbar, body::-webkit-scrollbar, .app::-webkit-scrollbar, ul::-webkit-scrollbar, *::-webkit-scrollbar { 
@@ -185,6 +179,7 @@
         transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
         box-shadow: var(--card-shadow);
     }
+    /* Feedback inmediato en móvil */
     .dark-toggle:active { transform: scale(0.95); }
 
     .dark-toggle svg {
@@ -272,6 +267,7 @@
         box-sizing: border-box;
     }
     
+    /* ACTIVE PARA MÓVIL: Se activa solo al tocar */
     button:active { 
         transform: scale(0.96); 
         background: var(--accent-soft);
@@ -329,7 +325,7 @@
         transform: scale(0.98);
     }
 
-    /* HOVER SOLO EN PC */
+    /* HOVER SOLO PARA PC/MOUSE */
     @media (hover: hover) {
         button:hover {
             background: var(--accent-soft);
@@ -350,6 +346,7 @@
         .btn-edit:hover { color: var(--accent); background: transparent; }
     }
 
+    /* --- ESTADO BLOQUEADO PARA EL BOTÓN DE SIGUIENTE --- */
     .btn-locked {
         background: var(--input-bg) !important;
         border-color: var(--input-bg) !important;
@@ -392,49 +389,6 @@
         to { opacity: 1; transform: translateX(0); }
     }
 
-    /* --- CLASE PARA LA CENSURA (BLUR) ---
-       Corrección: Eliminación total de outline y highlight tap.
-    */
-    .secret-word {
-        filter: blur(5px);
-        transition: filter 0.2s ease;
-        cursor: pointer;
-        
-        /* Previene selección de texto accidental */
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-        
-        /* FUERZA LA ELIMINACIÓN DEL RECUADRO EN TODOS LOS NAVEGADORES */
-        -webkit-tap-highlight-color: transparent !important; 
-        -webkit-tap-highlight-color: rgba(0,0,0,0) !important;
-        -webkit-focus-ring-color: transparent !important;
-        
-        outline: none !important;
-        border: none !important;
-        box-shadow: none !important;
-        background-color: transparent !important;
-        
-        display: inline-block;
-        border-radius: 6px; 
-        padding: 0 4px;
-    }
-
-    /* Refuerzo adicional para estado focus y active */
-    .secret-word:focus, 
-    .secret-word:active,
-    .secret-word:hover {
-        outline: none !important;
-        background: transparent !important;
-        box-shadow: none !important;
-    }
-
-    .secret-word:active, .secret-word.revealed {
-        filter: blur(0);
-    }
-    /* ------------------------------------------------ */
-
     .actions { display: flex; align-items: center; gap: 4px; }
 
     .btn-icon {
@@ -447,6 +401,7 @@
         width: auto; height: auto;
         min-height: auto;
     }
+    /* Active para iconos */
     .btn-icon:active { background: var(--input-bg); color: var(--text-main); }
     .btn-delete:active { background: var(--danger-soft); color: var(--danger); }
 
@@ -460,6 +415,7 @@
         letter-spacing: -1.5px;
     }
     
+    /* CAJA DE REVELAR */
     .reveal {
         margin-top: 0; 
         padding: 40px 24px;
@@ -564,7 +520,9 @@
         opacity: 0.7;
     }
 
-    /* --- ALERTAS --- */
+    /* ----------------------------------------------------
+       ALERTAS (TOAST / ACTION SHEET)
+    ---------------------------------------------------- */
     .toast-overlay {
         position: fixed;
         top: 0; left: 0;
@@ -604,6 +562,21 @@
 
     .toast-title { font-size: 22px; font-weight: 800; margin-bottom: 8px; color: var(--text-main); }
     .toast-msg { font-size: 15px; color: var(--text-muted); margin-bottom: 24px; }
+
+    /* ----------------------------------------------------
+       MODIFICACIÓN: EFECTO BLUR PARA PALABRAS
+    ---------------------------------------------------- */
+    #listaPalabras li span {
+        filter: blur(8px);       /* Desenfoque fuerte */
+        cursor: help;            /* Icono de ayuda */
+        transition: filter 0.2s; /* Transición suave */
+        user-select: none;       /* Evita selección */
+    }
+
+    #listaPalabras li span:hover,
+    #listaPalabras li span:active {
+        filter: blur(0);
+    }
 
 </style>
 </head>
@@ -770,6 +743,9 @@
 </div>
 
 <script>
+    /* --------------------------------------------------------------------------------
+       SEGURIDAD BÁSICA
+    -------------------------------------------------------------------------------- */
     (function() {
         document.addEventListener('contextmenu', function(e) { e.preventDefault(); return false; }, false);
         document.onkeydown = function(e) {
@@ -778,6 +754,7 @@
             if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
         }
     })();
+    /* -------------------------------------------------------------------------------- */
 
     const titleElement = document.querySelector('h1');
     const textToType = "El Impostor";
@@ -801,6 +778,7 @@
     titleElement.insertBefore(document.createTextNode(""), titleElement.firstChild);
     setTimeout(typeWriter, 300);
 
+    /* --- WAKE LOCK --- */
     let wakeLock = null;
     async function requestWakeLock() {
         if ('wakeLock' in navigator) {
@@ -814,6 +792,7 @@
         if (wakeLock !== null && document.visibilityState === 'visible') { await requestWakeLock(); }
     });
 
+    /* --- LÓGICA ALERTAS --- */
     function mostrarConfirmacion() {
         const overlay = document.getElementById('toastOverlay');
         overlay.style.display = 'flex';
@@ -886,6 +865,7 @@
         }, 300);
     }
 
+    /* --- LÓGICA DEL JUEGO --- */
     let palabras = [];
     let palabrasDisponibles = []; 
     let jugadores = [];
@@ -903,15 +883,18 @@
     const SVG_PAUSE = '<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
 
     // --- MODO OSCURO AUTOMÁTICO Y MANUAL ---
+    // 1. Chequeo inicial
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         document.documentElement.classList.add('dark');
     }
+    // 2. Escuchar cambios del sistema en tiempo real
     if(window.matchMedia){
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
             if(e.matches) document.documentElement.classList.add('dark');
             else document.documentElement.classList.remove('dark');
         });
     }
+    // 3. Toggle manual
     function toggleDarkMode(){
         document.documentElement.classList.toggle('dark');
     }
@@ -954,7 +937,7 @@
         }
         palabras.forEach((p, index) => {
             const li = document.createElement('li');
-            li.innerHTML = `<span class="secret-word" onclick="this.classList.toggle('revealed')">${p}</span><button class="btn-icon btn-delete" onclick="eliminarPalabra(${index})">&times;</button>`;
+            li.innerHTML = `<span>${p}</span><button class="btn-icon btn-delete" onclick="eliminarPalabra(${index})">&times;</button>`;
             ul.appendChild(li);
         });
     }
@@ -1276,6 +1259,5 @@
 
   window.addEventListener('wheel', function(e) { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
 </script>
-
 </body>
 </html>
