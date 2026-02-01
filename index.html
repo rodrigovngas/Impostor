@@ -985,7 +985,23 @@
     const btnReveal = document.getElementById('btnReveal');
     const revealBox = document.getElementById('textoPalabra');
 
-    function showContent(){
+    /* ----------------------------------------------------------------------
+       SOLUCIÓN DEL BUG DE BRAVE / MOBILE
+       
+       Problema: Al hacer btnReveal.style.display='none', el botón desaparece
+       y el evento "touchend" o "mouseleave" se rompe o se dispara de inmediato.
+       
+       Solución: Al iniciar el toque, agregamos los listeners de "soltar"
+       al DOCUMENTO entero (window), no al botón. Así, aunque el botón
+       desaparezca, el sistema detecta que levantaste el dedo en cualquier
+       parte de la pantalla.
+    ---------------------------------------------------------------------- */
+    
+    function showContent(e){
+        // Prevenir menú contextual o comportamientos extraños del navegador (zoom, etc)
+        // Solo si es cancelable para evitar warnings en consola
+        if(e.cancelable && e.type === 'touchstart') e.preventDefault();
+
         const jugador = jugadoresMezclados[indiceActual];
         if(jugador === impostor){
             revealBox.className = 'reveal impostor-mode'; 
@@ -994,22 +1010,35 @@
             revealBox.className = 'reveal'; 
             revealBox.innerHTML = `<div class="reveal-title">La palabra es</div><div class="reveal-word">${palabraSeleccionada}</div>`;
         }
+        
+        // Ocultar botón y mostrar caja
         btnReveal.style.display = 'none'; 
         revealBox.style.display = 'flex';
 
         document.getElementById('btnSiguiente').classList.remove('btn-locked');
+
+        // AGREGAR listeners globales para detectar cuando sueltas
+        document.addEventListener('mouseup', hideContent);
+        document.addEventListener('touchend', hideContent);
+        document.addEventListener('touchcancel', hideContent);
     }
 
     function hideContent(){
+        // Restaurar estado
         revealBox.style.display = 'none';
         btnReveal.style.display = 'flex';
+        
+        // LIMPIAR listeners globales
+        document.removeEventListener('mouseup', hideContent);
+        document.removeEventListener('touchend', hideContent);
+        document.removeEventListener('touchcancel', hideContent);
     }
 
+    // Listeners solo para INICIAR la acción
     btnReveal.addEventListener('mousedown', showContent);
-    btnReveal.addEventListener('mouseup', hideContent);
-    btnReveal.addEventListener('mouseleave', hideContent);
-    btnReveal.addEventListener('touchstart', (e) => { e.preventDefault(); showContent(); });
-    btnReveal.addEventListener('touchend', hideContent);
+    // { passive: false } es CRÍTICO para que e.preventDefault() funcione en Brave/Chrome móvil
+    btnReveal.addEventListener('touchstart', showContent, { passive: false });
+
 
     function iniciarTemporizador(){
         const btn = document.getElementById('botonIniciarTimer');
