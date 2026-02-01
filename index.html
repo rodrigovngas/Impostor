@@ -686,6 +686,14 @@
     </div>
 </div>
 
+<div id="timeOutOverlay" class="toast-overlay" style="z-index: 1000;">
+    <div class="toast-content" onclick="event.stopPropagation()">
+        <div class="toast-title">¡Tiempo terminado!</div>
+        <div class="toast-msg">Es momento de votar por el impostor.</div>
+        <button style="width:100%" onclick="finalizarTiempoYContinuar()">Aceptar</button>
+    </div>
+</div>
+
 <script>
     /* --------------------------------------------------------------------------------
        SEGURIDAD BÁSICA (ANTI INSPECTOR)
@@ -797,6 +805,24 @@
             mostrarSeccion('admin');
         }, 300);
     }
+
+    /* --- NUEVAS FUNCIONES PARA LA ALERTA DE TIEMPO TERMINADO --- */
+    function mostrarAlertaTiempo() {
+        const ov = document.getElementById('timeOutOverlay');
+        ov.style.display = 'flex';
+        ov.offsetHeight; 
+        ov.classList.add('active');
+    }
+
+    function finalizarTiempoYContinuar() {
+        const ov = document.getElementById('timeOutOverlay');
+        ov.classList.remove('active');
+        setTimeout(() => {
+            ov.style.display = 'none';
+            saltarAPuesta();
+        }, 300);
+    }
+    /* ------------------------------------------------------------ */
 
     /* --- LÓGICA DEL JUEGO --- */
     let palabras = [];
@@ -1058,8 +1084,11 @@
                 actualizarTimerUI(0);
                 stopTemporizador();
                 if(navigator.vibrate) navigator.vibrate([200, 100, 200]);
-                alert("¡Tiempo terminado!");
-                saltarAPuesta();
+                
+                // --- CAMBIO: Aquí se llamaba al alert() y a saltarAPuesta()
+                // Ahora llamamos al overlay personalizado
+                mostrarAlertaTiempo();
+                
             } else {
                 actualizarTimerUI(tiempoRestante);
             }
