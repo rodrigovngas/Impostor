@@ -110,7 +110,13 @@
         scroll-behavior: smooth;
         -webkit-overflow-scrolling: touch; 
         transition: color 0.4s ease, background-color 0.4s ease;
-        cursor: default; /* Forzar cursor por defecto */
+        cursor: default; 
+        
+        /* -----------------------------------------------------------
+           MODIFICACIÓN 1: BLOQUEO DE ZOOM EN CSS
+           Esto le dice al navegador que solo permita scroll (pan), no zoom.
+        ----------------------------------------------------------- */
+        touch-action: pan-x pan-y;
     }
 
     .app {
@@ -563,19 +569,17 @@
             <input type="text" id="nuevaPalabra" placeholder="Ej. Cybertruck, Zumpango..." />
             <button class="smallbtn" onclick="agregarPalabra()">+</button>
         </div>
-
         <ul id="listaPalabras"></ul>
-
+        
         <hr style="margin:24px 0; border:none; border-top:1px solid var(--card-border)" />
-
+        
         <label>Añadir jugador</label>
         <div class="row">
             <input type="text" id="nombreJugador" placeholder="Nombre del jugador" />
             <button class="smallbtn" onclick="agregarJugador()">+</button>
         </div>
-
         <ul id="listaJugadores"></ul>
-
+        
         <div style="margin-top:24px" class="row">
             <div style="flex:1">
                 <label>Tiempo ronda</label>
@@ -591,7 +595,6 @@
                 <button style="width:100%" onclick="iniciarJuego()">¡Jugar!</button>
             </div>
         </div>
-
         <div style="margin-top:16px" class="row">
             <button class="danger ghost" style="flex:1" onclick="mostrarConfirmacion()">Reset Total</button>
         </div>
@@ -605,6 +608,7 @@
             </div>
         </div>
         <div class="assign-name" id="nombreJugadorAsignacion">Jugador</div>
+        
         <div style="display:flex; gap:16px; flex-direction:column; margin-top:10px;">
             <div style="position:relative; width:100%">
                 <button id="btnReveal" class="hold-btn" oncontextmenu="return false;">MANTÉN PARA VER TU ROL</button>
@@ -621,608 +625,416 @@
                 <div style="font-weight:800; font-size:18px; color:var(--text-main)">Describan la palabra</div>
             </div>
         </div>
+        
         <div class="timer-wrap">
             <div class="timer-number" id="timerNumber">60</div>
             <div class="bar-outer"><div id="timerBar" class="bar-inner"></div></div>
         </div>
+        
         <div class="controls">
             <button id="botonIniciarTimer" style="flex:1.5" onclick="iniciarTemporizador()">
-                <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Iniciar
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                Iniciar
             </button>
-            <button class="ghost" style="flex:1" onclick="saltarAPuesta()">Votación</button>
+            <button class="ghost" style="flex:1" onclick="saltarAPuesta()">Votación...</button>
         </div>
     </div>
 
     <div id="votacion" class="card" style="display:none">
-        <div style="text-align:center; margin-bottom:16px;">
-            <div style="font-size:12px; color:var(--text-muted); font-weight:700; text-transform:uppercase">Votación final</div>
-            <div style="font-weight:900; font-size:20px; color:var(--text-main)">¿Quién es el impostor?</div>
-        </div>
-        <div id="voteContainer" class="vote-grid"></div>
-        <button style="margin-top:20px; width:100%" class="ghost" onclick="mostrarResultado()">Ver Resultados</button>
+         <div style="font-size:12px; color:var(--text-muted); font-weight:600; text-transform:uppercase; margin-bottom:4px;">Fase Final</div>
+         <div style="font-weight:800; font-size:20px; color:var(--text-main); line-height:1.2;">¿Quién es el impostor?</div>
+         <div style="color:var(--text-muted); font-size:14px; margin-top:4px;">Toquen al sospechoso.</div>
+         
+         <div id="grillaVotacion" class="vote-grid"></div>
+         
+         <button onclick="finalizarJuegoSinVotos()" class="ghost" style="width:100%; margin-top:20px;">Saltar votación</button>
     </div>
 
-    <div id="resultado" class="card" style="display:none">
-        <div style="text-align:center">
-            <div style="font-size:12px; color:var(--text-muted); font-weight:700; text-transform:uppercase">Resultado</div>
-            <div class="result-text" id="textoResultado"></div>
-        </div>
-        <div id="impostorGuessSection" style="margin-top:24px; padding:20px; border:1px solid var(--danger); border-radius:24px; background:var(--danger-soft); display:none">
-            <label id="impostorGuessLabel" style="color:var(--danger); font-weight:800; font-size:18px; text-align:center; display:block; margin-bottom:8px"></label>
-            <p style="font-size:14px; text-align:center; margin-bottom:16px; color:var(--text-main); opacity:0.8;">Si adivinas la palabra, ganas la partida.</p>
-            <div style="display:flex; gap:8px">
-                <input type="text" id="guessInput" placeholder="Palabra secreta..." style="background:var(--card-bg)" />
+    <div id="resultado" class="card" style="display:none; text-align:center; padding-top:40px; padding-bottom:40px;">
+        <div id="resultadoIcono" style="font-size:60px; margin-bottom:10px;">👻</div>
+        <div id="resultadoTitulo" class="result-text">El Impostor Ganó</div>
+        <div id="resultadoMensaje" style="color:var(--text-muted); font-size:16px; margin-bottom:24px;">Nadie lo descubrió.</div>
+        
+        <div id="impostorGuessSection" style="display:none; margin-top:20px; border-top:1px solid var(--item-border); padding-top:20px;">
+            <label id="impostorGuessLabel" style="color:var(--danger)">¡Impostor! Adivina la palabra para ganar:</label>
+            <div class="row">
+                <input type="text" id="guessInput" placeholder="¿Cuál era la palabra?" />
+                <button class="smallbtn" onclick="impostorAdivina()">?</button>
             </div>
-            <button class="danger" style="width:100%; margin-top:12px;" onclick="impostorAdivina()">Intentar Adivinar</button>
-            <div id="guessFeedback" style="margin-top:12px; font-weight:700; font-size:15px; text-align:center"></div>
+            <div id="guessFeedback" style="margin-top:10px; font-weight:700;"></div>
         </div>
-        <div style="margin-top:30px; display:flex; flex-direction:column; gap:12px;">
-            <button onclick="nuevaRonda()">Jugar otra vez</button>
-            <button class="ghost" onclick="mostrarSeccion('admin')">Volver al menú</button>
-        </div>
+
+        <button onclick="mostrarSeccion('admin')" style="width:100%; margin-top:24px;">Jugar de nuevo</button>
     </div>
-    
+
     <div class="spacer"></div>
-    <footer class="footer">Development by VNGAS</footer>
+    <div class="footer">
+        Hecho con odio por tu ex.
+    </div>
 
 </div>
 
-<!-- CONFIRMACION (reset) -->
-<div id="toastOverlay" class="toast-overlay" onclick="cerrarConfirmacion(event)">
-    <div class="toast-content" onclick="event.stopPropagation()">
-        <div class="toast-title">¿Reiniciar todo?</div>
-        <div class="toast-msg">Se borrarán todos los jugadores y palabras guardadas.</div>
+<div class="toast-overlay" id="confirmToast">
+    <div class="toast-content">
+        <div class="toast-title">¿Borrar todo?</div>
+        <div class="toast-msg">Se borrarán los jugadores y palabras guardadas.</div>
         <div class="row">
-            <button class="ghost" style="flex:1" onclick="cerrarConfirmacion()">Cancelar</button>
-            <button class="danger" style="flex:1" onclick="confirmarReinicio()">Sí, borrar</button>
-        </div>
-    </div>
-</div>
-
-<!-- ALERTA: No quedan palabras nuevas (usa las mismas clases) -->
-<div id="alertFinOverlay" class="toast-overlay" style="z-index: 1000;" onclick="irAlInicio()">
-    <div class="toast-content" onclick="event.stopPropagation()">
-        <div class="toast-title">¡Se acabaron!</div>
-        <div class="toast-msg">Ya no quedan palabras nuevas en la lista.</div>
-        <button style="width:100%" onclick="irAlInicio()">Volver al menú</button>
-    </div>
-</div>
-
-<!-- ALERTA: Tiempo terminado (usa las mismas clases) -->
-<div id="timeOutOverlay" class="toast-overlay" style="z-index: 1000;" onclick="finalizarTiempoYContinuar()">
-    <div class="toast-content" onclick="event.stopPropagation()">
-        <div class="toast-title">¡Tiempo terminado!</div>
-        <div class="toast-msg">Es momento de votar por el impostor.</div>
-        <button style="width:100%" onclick="finalizarTiempoYContinuar()">Aceptar</button>
-    </div>
-</div>
-
-<!-- NUEVA: Alerta genérica reutilizable para "faltan jugadores" / "faltan palabras" -->
-<div id="genericAlertOverlay" class="toast-overlay" style="z-index: 1001;" onclick="cerrarAlertaGenerica()">
-    <div class="toast-content" onclick="event.stopPropagation()">
-        <div id="genericAlertTitle" class="toast-title">Título</div>
-        <div id="genericAlertMsg" class="toast-msg">Mensaje</div>
-        <div class="row">
-            <button style="flex:1" onclick="cerrarAlertaGenerica()">Aceptar</button>
+            <button class="ghost" style="flex:1" onclick="cerrarToast()">Cancelar</button>
+            <button class="danger" style="flex:1" onclick="resetTotal()">Sí, borrar</button>
         </div>
     </div>
 </div>
 
 <script>
-    /* --------------------------------------------------------------------------------
-       SEGURIDAD BÁSICA (ANTI INSPECTOR)
-       Previene click derecho y atajos de teclado comunes (F12, Ctrl+U, Ctrl+Shift+I)
-    -------------------------------------------------------------------------------- */
+    /* -----------------------------------------------------------
+       MODIFICACIÓN 2: BLOQUEO DE ZOOM TOTAL (JS)
+       Esto previene gestos de pinza y doble tap rápido.
+    ----------------------------------------------------------- */
     (function() {
-        // 1. Deshabilitar Menú Contextual (Click Derecho)
-        document.addEventListener('contextmenu', function(e) {
+        // 1. Prevenir el gesto de "Pellizcar" (Pinch-to-zoom) en iOS
+        document.addEventListener('gesturestart', function(e) {
             e.preventDefault();
-            return false;
+        });
+
+        // 2. Prevenir el zoom por doble toque rápido
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
         }, false);
 
-        // 2. Deshabilitar Atajos de Teclado de Desarrollo
-        document.onkeydown = function(e) {
-            // F12
-            if(e.keyCode == 123) {
-                return false;
+        // 3. Prevenir zoom con teclas (Ctrl + / Ctrl -)
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey && (event.key === '+' || event.key === '-' || event.key === '0')) {
+                event.preventDefault();
             }
-            // Ctrl+Shift+I (Inspector)
-            if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) {
-                return false;
-            }
-            // Ctrl+Shift+C (Inspector Elemento)
-            if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) {
-                return false;
-            }
-            // Ctrl+Shift+J (Consola)
-            if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) {
-                return false;
-            }
-            // Ctrl+U (Ver Fuente)
-            if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) {
-                return false;
-            }
-        }
+        });
     })();
-    /* -------------------------------------------------------------------------------- */
 
-    const titleElement = document.querySelector('h1');
-    const textToType = "El Impostor";
-    let charIndex = 0;
-
-    function typeWriter() {
-        if (charIndex < textToType.length) {
-            let currentText = titleElement.childNodes[0].nodeValue || "";
-            titleElement.childNodes[0].nodeValue = currentText + textToType.charAt(charIndex);
-            charIndex++;
-            setTimeout(typeWriter, 120);
-        } else {
-            setTimeout(() => {
-                titleElement.childNodes[0].nodeValue = "";
-                charIndex = 0;
-                typeWriter();
-            }, 10000); 
-        }
-    }
-    titleElement.innerHTML = '<span class="status-dot"></span>'; 
-    titleElement.insertBefore(document.createTextNode(""), titleElement.firstChild);
-    setTimeout(typeWriter, 300);
-
-    /* --- WAKE LOCK --- */
-    let wakeLock = null;
-    async function requestWakeLock() {
-        if ('wakeLock' in navigator) {
-            try {
-                wakeLock = await navigator.wakeLock.request('screen');
-                console.log('Wake Lock Activo');
-            } catch (err) { console.error(err); }
-        }
-    }
-    document.addEventListener('visibilitychange', async () => {
-        if (wakeLock !== null && document.visibilityState === 'visible') { await requestWakeLock(); }
-    });
-
-    /* --- LÓGICA CONFIRMACIÓN (TOAST) --- */
-    function mostrarConfirmacion() {
-        const overlay = document.getElementById('toastOverlay');
-        overlay.style.display = 'flex';
-        // Forzar reflow para animación
-        overlay.offsetHeight; 
-        overlay.classList.add('active');
-        if(navigator.vibrate) navigator.vibrate(50);
-    }
-
-    function cerrarConfirmacion(e) {
-        const overlay = document.getElementById('toastOverlay');
-        overlay.classList.remove('active');
-        setTimeout(() => {
-            overlay.style.display = 'none';
-        }, 300);
-    }
-
-    function confirmarReinicio() {
-        palabras = [];
-        jugadores = [];
-        resetGameData();
-        renderPalabras();
-        renderJugadores();
-        mostrarSeccion('admin');
-        cerrarConfirmacion();
-    }
+    /* -----------------------------------------------------------
+       LÓGICA DEL JUEGO
+    ----------------------------------------------------------- */
     
-    // --- FUNCIÓN NUEVA: Volver al inicio desde la alerta de fin ---
-    function irAlInicio(){
-        const ov = document.getElementById('alertFinOverlay');
-        ov.classList.remove('active');
-        setTimeout(() => {
-            ov.style.display = 'none';
-            mostrarSeccion('admin');
-        }, 300);
-    }
-
-    /* --- NUEVAS FUNCIONES PARA LA ALERTA DE TIEMPO TERMINADO --- */
-    function mostrarAlertaTiempo() {
-        const ov = document.getElementById('timeOutOverlay');
-        ov.style.display = 'flex';
-        ov.offsetHeight; 
-        ov.classList.add('active');
-    }
-
-    function finalizarTiempoYContinuar() {
-        const ov = document.getElementById('timeOutOverlay');
-        ov.classList.remove('active');
-        setTimeout(() => {
-            ov.style.display = 'none';
-            saltarAPuesta();
-        }, 300);
-    }
-    /* ------------------------------------------------------------ */
-
-    /* --- NUEVAS FUNCIONES: Alerta genérica (usa mismas clases/styles) --- */
-    function showAlertMessage(title, msg){
-        const ov = document.getElementById('genericAlertOverlay');
-        const t = document.getElementById('genericAlertTitle');
-        const m = document.getElementById('genericAlertMsg');
-        t.innerText = title;
-        m.innerText = msg;
-        ov.style.display = 'flex';
-        ov.offsetHeight; // reflow for animation
-        ov.classList.add('active');
-        if(navigator.vibrate) navigator.vibrate(50);
-    }
-
-    function cerrarAlertaGenerica(){
-        const ov = document.getElementById('genericAlertOverlay');
-        ov.classList.remove('active');
-        setTimeout(() => {
-            ov.style.display = 'none';
-            mostrarSeccion('admin'); // volver al admin para corregir faltantes
-        }, 300);
-    }
-    /* ------------------------------------------------------------ */
-
-    /* --- LÓGICA DEL JUEGO --- */
-    let palabras = [];
-    let palabrasDisponibles = []; // <--- NUEVA VARIABLE PARA CONTROLAR REPETICIONES
-    let jugadores = [];
-    let jugadoresMezclados = [];
-    let impostor = null;
+    // VARIABLES GLOBALES
+    let jugadores = JSON.parse(localStorage.getItem('jugadores_impostor')) || [];
+    let palabras = JSON.parse(localStorage.getItem('palabras_impostor')) || [];
+    let impostor = "";
     let palabraSeleccionada = "";
-    let indiceActual = 0;
+    let turnoActual = 0;
+    let jugadoresBarajados = [];
+    let timerInterval;
+    let timeLeft = 60;
+    let totalTime = 60;
     let votos = {};
-    let duracion = 60; 
-    let timer = null;
-    let tiempoRestante = 0;
-    let timerRunning = false;
 
-    const SVG_PLAY = '<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
-    const SVG_PAUSE = '<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
+    // INICIO
+    actualizarListas();
 
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.documentElement.classList.add('dark');
+    function mostrarSeccion(id) {
+        document.querySelectorAll('.card').forEach(c => c.style.display = 'none');
+        const s = document.getElementById(id);
+        if(s) s.style.display = 'block';
     }
 
-    function toggleDarkMode(){
+    function toggleDarkMode() {
         document.documentElement.classList.toggle('dark');
     }
 
-    function mostrarSeccion(id) {
-        const secciones = ['admin','asignacion','pistas','votacion','resultado'];
-        secciones.forEach(s => {
-            const el = document.getElementById(s);
-            if(s === id) {
-                el.style.display = 'block';
-                el.style.animation = 'none';
-                el.offsetHeight; 
-                el.style.animation = null; 
-            } else {
-                el.style.display = 'none';
-            }
-        });
-    }
-
-    function agregarPalabra(){
+    /* --- ADMIN --- */
+    function agregarPalabra() {
         const input = document.getElementById('nuevaPalabra');
-        const p = input.value.trim();
-        if(!p) return;
-        palabras.push(p);
-        renderPalabras();
-        input.value = '';
-        input.focus();
-    }
-
-    function eliminarPalabra(index){
-        palabras.splice(index, 1);
-        renderPalabras();
-    }
-
-    function renderPalabras(){
-        const ul = document.getElementById('listaPalabras');
-        ul.innerHTML = '';
-        if(palabras.length === 0) {
-            ul.innerHTML = '<li style="justify-content:center; color:var(--text-muted); font-style:italic; background:transparent; border:none">No hay palabras</li>';
+        const val = input.value.trim();
+        if(val) {
+            palabras.push(val);
+            localStorage.setItem('palabras_impostor', JSON.stringify(palabras));
+            input.value = '';
+            actualizarListas();
         }
-        palabras.forEach((p, index) => {
-            const li = document.createElement('li');
-            li.innerHTML = `<span>${p}</span><button class="btn-icon btn-delete" onclick="eliminarPalabra(${index})">&times;</button>`;
-            ul.appendChild(li);
-        });
     }
 
-    function agregarJugador(){
+    function agregarJugador() {
         const input = document.getElementById('nombreJugador');
-        const name = input.value.trim();
-        if(!name) return;
-        jugadores.push(name);
-        renderJugadores();
-        input.value = '';
-        input.focus();
-    }
-
-    function eliminarJugador(index){
-        jugadores.splice(index, 1);
-        renderJugadores();
-    }
-
-    function renderJugadores(){
-        const ul = document.getElementById('listaJugadores');
-        ul.innerHTML = '';
-        if(jugadores.length === 0) {
-            ul.innerHTML = '<li style="justify-content:center; color:var(--text-muted); font-style:italic; background:transparent; border:none">No hay jugadores</li>';
+        const val = input.value.trim();
+        if(val) {
+            jugadores.push(val);
+            localStorage.setItem('jugadores_impostor', JSON.stringify(jugadores));
+            input.value = '';
+            actualizarListas();
         }
-        jugadores.forEach((j, index) => {
-            const li = document.createElement('li');
-            li.innerHTML = `<span>${j}</span><button class="btn-icon btn-delete" onclick="eliminarJugador(${index})">&times;</button>`;
-            ul.appendChild(li);
+    }
+
+    function actualizarListas() {
+        const ulP = document.getElementById('listaPalabras');
+        ulP.innerHTML = '';
+        palabras.forEach((p, i) => {
+            ulP.innerHTML += `
+                <li>
+                    <span>${p}</span>
+                    <button class="btn-icon btn-delete" onclick="borrarPalabra(${i})">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                    </button>
+                </li>`;
+        });
+
+        const ulJ = document.getElementById('listaJugadores');
+        ulJ.innerHTML = '';
+        jugadores.forEach((j, i) => {
+            ulJ.innerHTML += `
+                <li>
+                    <span>${j}</span>
+                    <button class="btn-icon btn-delete" onclick="borrarJugador(${i})">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                    </button>
+                </li>`;
         });
     }
 
-    function reiniciarTodo(){
-        mostrarConfirmacion();
+    function borrarPalabra(i) {
+        palabras.splice(i, 1);
+        localStorage.setItem('palabras_impostor', JSON.stringify(palabras));
+        actualizarListas();
+    }
+    function borrarJugador(i) {
+        jugadores.splice(i, 1);
+        localStorage.setItem('jugadores_impostor', JSON.stringify(jugadores));
+        actualizarListas();
     }
 
-    function resetGameData() {
-        jugadoresMezclados = [];
-        impostor = null;
-        palabraSeleccionada = '';
-        votos = {};
-        stopTemporizador();
+    /* --- RESET --- */
+    function mostrarConfirmacion() {
+        document.getElementById('confirmToast').classList.add('active');
+    }
+    function cerrarToast() {
+        document.getElementById('confirmToast').classList.remove('active');
+    }
+    function resetTotal() {
+        jugadores = [];
+        palabras = [];
+        localStorage.removeItem('jugadores_impostor');
+        localStorage.removeItem('palabras_impostor');
+        actualizarListas();
+        cerrarToast();
     }
 
-    function iniciarJuego(){
-        // Reemplazamos alert() por overlay reutilizable (mismo diseño)
-        if(jugadores.length < 3){
-            showAlertMessage('Faltan jugadores', 'Se requieren mínimo 3 jugadores.');
-            return;
-        }
-        if(palabras.length === 0){
-            showAlertMessage('Faltan palabras', 'Agrega al menos una palabra.');
-            return;
-        }
+    /* --- JUEGO --- */
+    function iniciarJuego() {
+        if(jugadores.length < 3) { alert("Mínimo 3 jugadores."); return; }
+        if(palabras.length < 1) { alert("Mínimo 1 palabra."); return; }
 
-        duracion = Number(document.getElementById('duracionSelect').value || 60);
-        const label = document.getElementById('duracionLabel');
-        if(label) label.innerText = duracion + 's';
-
-        // --- CAMBIO: Inicializamos la lista de palabras disponibles ---
-        palabrasDisponibles = [...palabras];
-
-        requestWakeLock();
-        nuevaRonda();
-    }
-
-    function nuevaRonda(){
-        votos = {};
-        document.getElementById('guessFeedback').innerText = '';
-        document.getElementById('guessInput').value = '';
-        document.getElementById('impostorGuessSection').style.display = 'none';
-
-        // --- CAMBIO: Verificamos si hay palabras disponibles ---
-        if(palabrasDisponibles.length === 0){
-             const ov = document.getElementById('alertFinOverlay');
-             ov.style.display = 'flex';
-             ov.offsetHeight; // Forzar render
-             ov.classList.add('active');
-             return;
-        }
-
-        // --- CAMBIO: Seleccionamos de disponibles y eliminamos ---
-        const randomIndex = Math.floor(Math.random() * palabrasDisponibles.length);
-        palabraSeleccionada = palabrasDisponibles[randomIndex];
-        palabrasDisponibles.splice(randomIndex, 1);
-        // ---------------------------------------------------------
-
-        jugadoresMezclados = [...jugadores].sort(()=>Math.random()-0.5);
-        impostor = jugadoresMezclados[Math.floor(Math.random()*jugadoresMezclados.length)];
-
-        indiceActual = 0;
-        document.getElementById('totalAsignacion').innerText = jugadoresMezclados.length;
-        cargarJugador();
+        palabraSeleccionada = palabras[Math.floor(Math.random() * palabras.length)];
+        // Barajar jugadores
+        jugadoresBarajados = [...jugadores].sort(() => Math.random() - 0.5);
+        // Elegir impostor
+        impostor = jugadoresBarajados[Math.floor(Math.random() * jugadoresBarajados.length)];
+        
+        turnoActual = 0;
+        document.getElementById('totalAsignacion').innerText = jugadoresBarajados.length;
+        
+        prepararTurno();
         mostrarSeccion('asignacion');
-        stopTemporizador();
-        tiempoRestante = duracion;
-        actualizarTimerUI(duracion);
     }
 
-    function cargarJugador(){
-        const jugador = jugadoresMezclados[indiceActual];
-        document.getElementById('nombreJugadorAsignacion').innerText = jugador;
-        document.getElementById('indiceAsignacion').innerText = (indiceActual+1);
+    function prepararTurno() {
+        const j = jugadoresBarajados[turnoActual];
+        document.getElementById('nombreJugadorAsignacion').innerText = j;
+        document.getElementById('indiceAsignacion').innerText = turnoActual + 1;
         
-        const elem = document.getElementById('textoPalabra');
-        elem.style.display = 'none';
-        elem.className = 'reveal'; 
+        const btnReveal = document.getElementById('btnReveal');
+        const textoPalabra = document.getElementById('textoPalabra');
+        const btnSiguiente = document.getElementById('btnSiguiente');
         
-        const btn = document.getElementById('btnReveal');
-        btn.style.display = 'flex';
-        btn.style.opacity = '1';
-
-        document.getElementById('btnSiguiente').classList.add('btn-locked');
-    }
-
-    function siguienteJugador(){
-        document.getElementById('textoPalabra').style.display = 'none';
-        indiceActual++;
-        if(indiceActual >= jugadoresMezclados.length){
-            document.getElementById('botonIniciarTimer').innerHTML = SVG_PLAY + " Iniciar";
-            prepararVotacion();
-            mostrarSeccion('pistas');
-            return;
-        }
-        cargarJugador();
-    }
-
-    const btnReveal = document.getElementById('btnReveal');
-    const revealBox = document.getElementById('textoPalabra');
-
-    /* ----------------------------------------------------------------------
-       SOLUCIÓN DEL BUG DE BRAVE / MOBILE
-       
-       Problema: Al hacer btnReveal.style.display='none', el botón desaparece
-       y el evento "touchend" o "mouseleave" se rompe o se dispara de inmediato.
-       
-       Solución: Al iniciar el toque, agregamos los listeners de "soltar"
-       al DOCUMENTO entero (window), no al botón. Así, aunque el botón
-       desaparezca, el sistema detecta que levantaste el dedo en cualquier
-       parte de la pantalla.
-    ---------------------------------------------------------------------- */
-    
-    function showContent(e){
-        // Prevenir menú contextual o comportamientos extraños del navegador (zoom, etc)
-        // Solo si es cancelable para evitar warnings en consola
-        if(e.cancelable && e.type === 'touchstart') e.preventDefault();
-
-        const jugador = jugadoresMezclados[indiceActual];
-        if(jugador === impostor){
-            revealBox.className = 'reveal impostor-mode'; 
-            revealBox.innerHTML = `<div class="reveal-title">Tu misión</div><div class="reveal-impostor-text">IMPOSTOR</div><div style="font-size:13px; margin-top:8px; opacity:0.8; color:var(--danger)">Engaña a todos</div>`;
-        } else {
-            revealBox.className = 'reveal'; 
-            revealBox.innerHTML = `<div class="reveal-title">La palabra es</div><div class="reveal-word">${palabraSeleccionada}</div>`;
-        }
-        
-        // Ocultar botón y mostrar caja
-        btnReveal.style.display = 'none'; 
-        revealBox.style.display = 'flex';
-
-        document.getElementById('btnSiguiente').classList.remove('btn-locked');
-
-        // AGREGAR listeners globales para detectar cuando sueltas
-        document.addEventListener('mouseup', hideContent);
-        document.addEventListener('touchend', hideContent);
-        document.addEventListener('touchcancel', hideContent);
-    }
-
-    function hideContent(){
-        // Restaurar estado
-        revealBox.style.display = 'none';
+        // Reset estados
+        textoPalabra.style.display = 'none';
         btnReveal.style.display = 'flex';
+        btnSiguiente.classList.add('btn-locked');
         
-        // LIMPIAR listeners globales
-        document.removeEventListener('mouseup', hideContent);
-        document.removeEventListener('touchend', hideContent);
-        document.removeEventListener('touchcancel', hideContent);
-    }
-
-    // Listeners solo para INICIAR la acción
-    btnReveal.addEventListener('mousedown', showContent);
-    // { passive: false } es CRÍTICO para que e.preventDefault() funcione en Brave/Chrome móvil
-    btnReveal.addEventListener('touchstart', showContent, { passive: false });
-
-
-    function iniciarTemporizador(){
-        const btn = document.getElementById('botonIniciarTimer');
-        if(timerRunning) {
-            stopTemporizador();
-            btn.innerHTML = SVG_PLAY + " Reanudar";
-            return;
-        }
-        if(tiempoRestante <= 0 && !timer) tiempoRestante = duracion;
-        actualizarTimerUI(tiempoRestante);
-        btn.innerHTML = SVG_PAUSE + " Pausar";
-        timerRunning = true;
-        timer = setInterval(()=> {
-            tiempoRestante -= 0.1; 
-            if(tiempoRestante <= 0){
-                tiempoRestante = 0;
-                actualizarTimerUI(0);
-                stopTemporizador();
-                if(navigator.vibrate) navigator.vibrate([200, 100, 200]);
-                
-                // --- CAMBIO: Aquí se llamaba al alert() y a saltarAPuesta()
-                // Ahora llamamos al overlay personalizado
-                mostrarAlertaTiempo();
-                
+        // Logica Hold
+        let holdTimer;
+        
+        const showRole = () => {
+            btnReveal.style.display = 'none';
+            textoPalabra.style.display = 'flex';
+            
+            // Configurar contenido revelado
+            textoPalabra.className = 'reveal'; // reset class
+            if(j === impostor) {
+                textoPalabra.classList.add('impostor-mode');
+                textoPalabra.innerHTML = `<div class="reveal-title">TÚ ERES EL</div><div class="reveal-impostor-text">IMPOSTOR</div>`;
             } else {
-                actualizarTimerUI(tiempoRestante);
+                textoPalabra.innerHTML = `<div class="reveal-title">LA PALABRA ES</div><div class="reveal-word">${palabraSeleccionada}</div>`;
             }
-        }, 100);
+            
+            // Desbloquear siguiente
+            setTimeout(() => {
+                btnSiguiente.classList.remove('btn-locked');
+            }, 500); // Pequeño delay para asegurar que vieron
+        };
+
+        // Eventos mouse/touch
+        const startHold = (e) => {
+            e.preventDefault();
+            holdTimer = setTimeout(showRole, 600); // 600ms hold
+            btnReveal.style.transform = "scale(0.98)";
+        };
+        const endHold = (e) => {
+            e.preventDefault();
+            clearTimeout(holdTimer);
+            btnReveal.style.transform = "scale(1)";
+        };
+
+        btnReveal.onmousedown = startHold;
+        btnReveal.onmouseup = endHold;
+        btnReveal.onmouseleave = endHold;
+        btnReveal.ontouchstart = startHold;
+        btnReveal.ontouchend = endHold;
     }
 
-    function stopTemporizador(){
-        if(timer) clearInterval(timer);
-        timer = null;
-        timerRunning = false;
+    function siguienteJugador() {
+        turnoActual++;
+        if(turnoActual < jugadoresBarajados.length) {
+            prepararTurno();
+        } else {
+            // Fin de asignación, ir a pistas
+            configurarTimer();
+            mostrarSeccion('pistas');
+        }
     }
 
-    function actualizarTimerUI(segundos){
-        document.getElementById('timerNumber').innerText = Math.ceil(segundos);
-        const pct = Math.max(0, Math.min(1, segundos / duracion));
-        document.getElementById('timerBar').style.width = (pct*100) + '%';
+    /* --- TIMER --- */
+    function configurarTimer() {
+        const val = document.getElementById('duracionSelect').value;
+        totalTime = parseInt(val);
+        timeLeft = totalTime;
+        actualizarVisualTimer();
+        
+        document.getElementById('botonIniciarTimer').style.display = 'flex';
+        // Reset bar
+        document.getElementById('timerBar').style.width = '100%';
     }
 
-    function saltarAPuesta(){
-        stopTemporizador();
-        prepararVotacion();
+    function actualizarVisualTimer() {
+        const min = Math.floor(timeLeft / 60);
+        const sec = timeLeft % 60;
+        document.getElementById('timerNumber').innerText = `${min}:${sec < 10 ? '0' : ''}${sec}`;
+        
+        const pct = (timeLeft / totalTime) * 100;
+        document.getElementById('timerBar').style.width = `${pct}%`;
+    }
+
+    function iniciarTemporizador() {
+        document.getElementById('botonIniciarTimer').style.display = 'none';
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            actualizarVisualTimer();
+            if(timeLeft <= 0) {
+                clearInterval(timerInterval);
+                navigator.vibrate([200, 100, 200]);
+                saltarAPuesta();
+            }
+        }, 1000);
+    }
+
+    /* --- VOTACIÓN --- */
+    function saltarAPuesta() {
+        clearInterval(timerInterval);
         mostrarSeccion('votacion');
+        generarGrillaVotacion();
     }
 
-    function prepararVotacion(){
-        const container = document.getElementById('voteContainer');
-        container.innerHTML = ''; 
-        container.classList.remove('has-selection'); 
-        votos = {}; 
-        jugadores.forEach(jugador => {
-            const btn = document.createElement('button');
+    function generarGrillaVotacion() {
+        const grid = document.getElementById('grillaVotacion');
+        grid.innerHTML = '';
+        grid.className = 'vote-grid'; // reset
+        votos = {};
+
+        jugadoresBarajados.forEach(j => {
+            const btn = document.createElement('div');
             btn.className = 'vote-card';
-            btn.innerText = jugador;
-            btn.dataset.originalName = jugador;
-            btn.onclick = function() { registrarVotoUnico(jugador, btn); };
-            container.appendChild(btn);
+            btn.innerText = j;
+            btn.onclick = () => votarPor(j, btn);
+            grid.appendChild(btn);
         });
     }
 
-    function registrarVotoUnico(elegido, btnElement){
-        votos = {}; 
-        votos[elegido] = 1;
-        const container = document.getElementById('voteContainer');
-        container.classList.add('has-selection'); 
-        const allBtns = container.querySelectorAll('.vote-card');
-        allBtns.forEach(b => { b.classList.remove('voted'); b.innerText = b.dataset.originalName; });
-        btnElement.classList.add('voted');
-        btnElement.innerText = "Eliminar a\n" + elegido; 
-        if(navigator.vibrate) navigator.vibrate(50);
+    function votarPor(sospechoso, btnElem) {
+        // En este modo simple, al hacer click se revela si era o no
+        const esImpostor = (sospechoso === impostor);
+        
+        const grid = document.getElementById('grillaVotacion');
+        grid.classList.add('has-selection');
+        btnElem.classList.add('voted');
+        
+        // Pequeño delay dramático
+        setTimeout(() => {
+            mostrarResultadoFinal(esImpostor, sospechoso);
+        }, 800);
     }
 
-    function mostrarResultado(){
-        let masVotado = null;
-        let max = -1;
-        for(const k in votos){ if(votos[k] > max){ max = votos[k]; masVotado = k; } }
+    function finalizarJuegoSinVotos() {
+        mostrarResultadoFinal(false, null); // Gana impostor por default si saltan
+    }
 
-        const res = document.getElementById('textoResultado');
+    /* --- RESULTADOS --- */
+    function mostrarResultadoFinal(impostorAtrapado, sospechosoElegido) {
+        const titulo = document.getElementById('resultadoTitulo');
+        const mensaje = document.getElementById('resultadoMensaje');
+        const icono = document.getElementById('resultadoIcono');
         const guessSection = document.getElementById('impostorGuessSection');
-        
-        if(!masVotado){
-            res.innerHTML = `Nadie fue expulsado.<br>El impostor era <span style="color:var(--danger)">${impostor}</span>.
-            <div style="margin-top:12px; font-size:18px; color:var(--text-muted)">La palabra era <strong style="color:var(--text-main)">${palabraSeleccionada}</strong></div>`;
-            guessSection.style.display = 'none';
-        } 
-        else if(masVotado === impostor){
-            res.innerHTML = `¡Atraparon al Impostor! era <strong>${impostor}</strong>.
-            <div style="margin-top:12px; font-size:18px; color:var(--text-muted)">La palabra era <strong style="color:var(--text-main)">${palabraSeleccionada}</strong></div>`;
-            guessSection.style.display = 'none';
+        const res = document.getElementById('resultadoMensaje'); // reusando variable para feedback visual
+
+        if(impostorAtrapado) {
+            titulo.innerText = "¡ATRAPADO!";
+            titulo.style.color = "var(--accent)";
+            icono.innerText = "🎉";
+            mensaje.innerHTML = `¡Bien hecho! <strong>${impostor}</strong> era el impostor.<br><br>Pero espera... <br>Si el impostor adivina la palabra, ¡GANA!`;
+            
+            // Mostrar input para que el impostor intente salvarse
+            guessSection.style.display = 'block';
+            document.getElementById('guessFeedback').innerText = '';
+            document.getElementById('guessInput').value = '';
         } 
         else {
-            res.innerHTML = `Se equivocaron.<br>El impostor era <strong style="color:var(--danger)">${impostor}</strong>.`;
-            document.getElementById('impostorGuessLabel').innerText = `¡No te me emociones ${impostor}!`;
-            guessSection.style.display = 'block';
+            titulo.innerText = "GANÓ EL IMPOSTOR";
+            titulo.style.color = "var(--danger)";
+            icono.innerText = "🤫";
+            
+            if(sospechosoElegido) {
+                mensaje.innerHTML = `Votaron por <strong>${sospechosoElegido}</strong>, pero era inocente.<br>El impostor era <strong style="color:var(--danger)">${impostor}</strong>.`;
+            } else {
+                mensaje.innerHTML = `El tiempo se acabó (o saltaron).<br>El impostor era <strong style="color:var(--danger)">${impostor}</strong>.`;
+            }
+            guessSection.style.display = 'none';
         }
+        
         mostrarSeccion('resultado');
     }
 
     function impostorAdivina(){
         const intento = document.getElementById('guessInput').value.trim();
         const feed = document.getElementById('guessFeedback');
+        
         if(!intento){ feed.innerText = 'Escribe algo primero.'; return; }
+        
         if(intento.toLowerCase() === palabraSeleccionada.toLowerCase()){
-            feed.style.color = '#10b981';
-            feed.innerText = '¡INCREÍBLE! Ganaste.';
+            feed.style.color = '#10b981'; // Green success
+            feed.innerText = '¡INCREÍBLE! El Impostor adivinó y GANA LA PARTIDA.';
+            document.getElementById('resultadoTitulo').innerText = "EL IMPOSTOR ROBÓ LA VICTORIA";
+            document.getElementById('resultadoTitulo').style.color = "var(--danger)";
         } else {
             feed.style.color = 'var(--danger)';
-            feed.innerText = `Nop. Era "${palabraSeleccionada}".`;
+            feed.innerText = `Nop. Era "${palabraSeleccionada}". Ganaron los civiles.`;
         }
     }
 
+    /* --- PROTECCIÓN CONTEXTUAL (CLICK DERECHO) --- */
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+    });
+
+    // ATAJOS DE TECLADO
     document.addEventListener('keydown', e => {
         if(e.key === 'Enter'){
             const f = document.activeElement;
@@ -1232,9 +1044,6 @@
         }
     });
 
-    mostrarSeccion('admin');
-    renderPalabras();
-    renderJugadores();
 </script>
 </body>
 </html>
