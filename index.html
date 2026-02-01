@@ -323,6 +323,16 @@
         transform: scale(0.98);
     }
 
+    /* --- ESTADO BLOQUEADO PARA EL BOTÓN DE SIGUIENTE --- */
+    .btn-locked {
+        background: var(--input-bg) !important;
+        border-color: var(--input-bg) !important;
+        color: var(--text-muted) !important;
+        pointer-events: none; /* Evita clicks */
+        box-shadow: none !important;
+        opacity: 0.6;
+    }
+
     .row { display: flex; gap: 10px; }
     
     .smallbtn { 
@@ -600,7 +610,7 @@
                 <button id="btnReveal" class="hold-btn" oncontextmenu="return false;">MANTÉN PARA VER TU ROL</button>
                 <div id="textoPalabra" class="reveal"></div>
             </div>
-            <button onclick="siguienteJugador()" style="margin-top:8px; width:100%">Entendido, siguiente</button>
+            <button id="btnSiguiente" onclick="siguienteJugador()" style="margin-top:8px; width:100%">Entendido, siguiente</button>
         </div>
     </div>
 
@@ -921,6 +931,9 @@
         const btn = document.getElementById('btnReveal');
         btn.style.display = 'flex';
         btn.style.opacity = '1';
+
+        // --- CAMBIO AQUÍ: Bloqueamos el botón siguiente al iniciar el turno ---
+        document.getElementById('btnSiguiente').classList.add('btn-locked');
     }
 
     function siguienteJugador(){
@@ -949,11 +962,16 @@
         }
         btnReveal.style.display = 'none'; 
         revealBox.style.display = 'flex';
+
+        // --- CAMBIO AQUÍ: Desbloqueamos el botón siguiente al revelar ---
+        document.getElementById('btnSiguiente').classList.remove('btn-locked');
     }
 
     function hideContent(){
         revealBox.style.display = 'none';
         btnReveal.style.display = 'flex';
+        // Opcional: Si quieres que se vuelva a bloquear si sueltan (aunque puede ser molesto), descomenta esto:
+        // document.getElementById('btnSiguiente').classList.add('btn-locked');
     }
 
     btnReveal.addEventListener('mousedown', showContent);
