@@ -1168,16 +1168,33 @@
         });
     }
 
+    // --- FUNCIÓN MODIFICADA: Permite DESELECCIONAR si tocas el mismo ---
     function registrarVotoUnico(elegido, btnElement){
-        votos = {}; 
-        votos[elegido] = 1;
         const container = document.getElementById('voteContainer');
-        container.classList.add('has-selection'); 
+        const yaEstabaSeleccionado = btnElement.classList.contains('voted');
+
+        // 1. Limpiar estado visual de todos (incluyendo el actual por ahora)
         const allBtns = container.querySelectorAll('.vote-card');
-        allBtns.forEach(b => { b.classList.remove('voted'); b.innerText = b.dataset.originalName; });
-        btnElement.classList.add('voted');
-        btnElement.innerText = "Eliminar a\n" + elegido; 
-        if(navigator.vibrate) navigator.vibrate(50);
+        allBtns.forEach(b => { 
+            b.classList.remove('voted'); 
+            b.innerText = b.dataset.originalName; 
+        });
+        
+        // 2. Limpiar votos lógicos
+        votos = {};
+
+        // 3. Si NO estaba seleccionado previamente, lo seleccionamos.
+        // Si YA estaba seleccionado, no hacemos nada (quedará deseleccionado por el paso 1)
+        if (!yaEstabaSeleccionado) {
+            votos[elegido] = 1;
+            container.classList.add('has-selection'); 
+            btnElement.classList.add('voted');
+            btnElement.innerText = "Eliminar a\n" + elegido; 
+            if(navigator.vibrate) navigator.vibrate(50);
+        } else {
+            // Si deseleccionamos, quitamos la clase del contenedor para que todos recuperen opacidad
+            container.classList.remove('has-selection');
+        }
     }
 
     function mostrarResultado(){
