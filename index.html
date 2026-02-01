@@ -678,6 +678,14 @@
     </div>
 </div>
 
+<div id="alertFinOverlay" class="toast-overlay" style="z-index: 1000;">
+    <div class="toast-content" onclick="event.stopPropagation()">
+        <div class="toast-title">¡Se acabaron!</div>
+        <div class="toast-msg">Ya no quedan palabras nuevas en la lista.</div>
+        <button style="width:100%" onclick="irAlInicio()">Volver al menú</button>
+    </div>
+</div>
+
 <script>
     /* --------------------------------------------------------------------------------
        SEGURIDAD BÁSICA (ANTI INSPECTOR)
@@ -779,9 +787,20 @@
         mostrarSeccion('admin');
         cerrarConfirmacion();
     }
+    
+    // --- FUNCIÓN NUEVA: Volver al inicio desde la alerta de fin ---
+    function irAlInicio(){
+        const ov = document.getElementById('alertFinOverlay');
+        ov.classList.remove('active');
+        setTimeout(() => {
+            ov.style.display = 'none';
+            mostrarSeccion('admin');
+        }, 300);
+    }
 
     /* --- LÓGICA DEL JUEGO --- */
     let palabras = [];
+    let palabrasDisponibles = []; // <--- NUEVA VARIABLE PARA CONTROLAR REPETICIONES
     let jugadores = [];
     let jugadoresMezclados = [];
     let impostor = null;
@@ -876,7 +895,6 @@
     }
 
     function reiniciarTodo(){
-        // Función Legacy reemplazada por mostrarConfirmacion()
         mostrarConfirmacion();
     }
 
@@ -896,6 +914,9 @@
         const label = document.getElementById('duracionLabel');
         if(label) label.innerText = duracion + 's';
 
+        // --- CAMBIO: Inicializamos la lista de palabras disponibles ---
+        palabrasDisponibles = [...palabras];
+
         requestWakeLock();
         nuevaRonda();
     }
@@ -906,7 +927,21 @@
         document.getElementById('guessInput').value = '';
         document.getElementById('impostorGuessSection').style.display = 'none';
 
-        palabraSeleccionada = palabras[Math.floor(Math.random()*palabras.length)];
+        // --- CAMBIO: Verificamos si hay palabras disponibles ---
+        if(palabrasDisponibles.length === 0){
+             const ov = document.getElementById('alertFinOverlay');
+             ov.style.display = 'flex';
+             ov.offsetHeight; // Forzar render
+             ov.classList.add('active');
+             return;
+        }
+
+        // --- CAMBIO: Seleccionamos de disponibles y eliminamos ---
+        const randomIndex = Math.floor(Math.random() * palabrasDisponibles.length);
+        palabraSeleccionada = palabrasDisponibles[randomIndex];
+        palabrasDisponibles.splice(randomIndex, 1);
+        // ---------------------------------------------------------
+
         jugadoresMezclados = [...jugadores].sort(()=>Math.random()-0.5);
         impostor = jugadoresMezclados[Math.floor(Math.random()*jugadoresMezclados.length)];
 
@@ -932,7 +967,6 @@
         btn.style.display = 'flex';
         btn.style.opacity = '1';
 
-        // --- CAMBIO AQUÍ: Bloqueamos el botón siguiente al iniciar el turno ---
         document.getElementById('btnSiguiente').classList.add('btn-locked');
     }
 
@@ -963,15 +997,12 @@
         btnReveal.style.display = 'none'; 
         revealBox.style.display = 'flex';
 
-        // --- CAMBIO AQUÍ: Desbloqueamos el botón siguiente al revelar ---
         document.getElementById('btnSiguiente').classList.remove('btn-locked');
     }
 
     function hideContent(){
         revealBox.style.display = 'none';
         btnReveal.style.display = 'flex';
-        // Opcional: Si quieres que se vuelva a bloquear si sueltan (aunque puede ser molesto), descomenta esto:
-        // document.getElementById('btnSiguiente').classList.add('btn-locked');
     }
 
     btnReveal.addEventListener('mousedown', showContent);
