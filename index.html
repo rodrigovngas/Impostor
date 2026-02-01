@@ -84,7 +84,7 @@
     img, a {
         -webkit-user-drag: none;
         user-drag: none;
-        pointer-events: none; /* Bloquea interacción extraña */
+        pointer-events: none; 
     }
     /* Reactivar pointer events para botones interactivos si usan a o img dentro */
     button svg { pointer-events: none; }
@@ -179,7 +179,7 @@
         transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
         box-shadow: var(--card-shadow);
     }
-    /* Estilos active para feedback inmediato en móvil */
+    /* Feedback inmediato en móvil */
     .dark-toggle:active { transform: scale(0.95); }
 
     .dark-toggle svg {
@@ -267,25 +267,19 @@
         box-sizing: border-box;
     }
     
-    /* SOLUCIÓN PARA MÓVIL:
-       Usamos :active para dar feedback inmediato al tocar,
-       pero NO usamos :hover en móvil (se hace con media query más abajo) 
-       para evitar que el color se quede pegado al soltar.
-    */
+    /* ACTIVE PARA MÓVIL: Se activa solo al tocar */
     button:active { 
         transform: scale(0.96); 
         background: var(--accent-soft);
         box-shadow: 0 8px 25px var(--accent-soft);
     }
     
-    /* Active específico para botones secundarios (ghost) */
     button.ghost:active {
         border-color: var(--text-muted);
         color: var(--text-main);
         background: var(--input-bg);
     }
     
-    /* Active específico para botones de peligro */
     button.danger:active {
         background: var(--danger-soft);
         box-shadow: 0 8px 25px var(--danger-soft);
@@ -331,9 +325,7 @@
         transform: scale(0.98);
     }
 
-    /* --- ESTADOS DE HOVER (SOLO PARA PC / MOUSE) --- 
-       Esto evita que el color se quede pegado en celulares.
-    */
+    /* HOVER SOLO PARA PC/MOUSE */
     @media (hover: hover) {
         button:hover {
             background: var(--accent-soft);
@@ -359,7 +351,7 @@
         background: var(--input-bg) !important;
         border-color: var(--input-bg) !important;
         color: var(--text-muted) !important;
-        pointer-events: none; /* Evita clicks */
+        pointer-events: none; 
         box-shadow: none !important;
         opacity: 0.6;
     }
@@ -409,7 +401,7 @@
         width: auto; height: auto;
         min-height: auto;
     }
-    /* Estilos active para iconos en móvil */
+    /* Active para iconos */
     .btn-icon:active { background: var(--input-bg); color: var(--text-main); }
     .btn-delete:active { background: var(--danger-soft); color: var(--danger); }
 
@@ -529,7 +521,7 @@
     }
 
     /* ----------------------------------------------------
-       ESTILOS DEL "CUSTOM TOAST CONFIRMATION" (ACTION SHEET)
+       ALERTAS (TOAST / ACTION SHEET)
     ---------------------------------------------------- */
     .toast-overlay {
         position: fixed;
@@ -539,7 +531,7 @@
         backdrop-filter: blur(4px);
         z-index: 999;
         display: none;
-        align-items: flex-end; /* Alineado abajo como Action Sheet */
+        align-items: flex-end; 
         justify-content: center;
         opacity: 0;
         transition: opacity 0.3s ease;
@@ -785,7 +777,7 @@
         if (wakeLock !== null && document.visibilityState === 'visible') { await requestWakeLock(); }
     });
 
-    /* --- LÓGICA CONFIRMACIÓN (TOAST) --- */
+    /* --- LÓGICA ALERTAS --- */
     function mostrarConfirmacion() {
         const overlay = document.getElementById('toastOverlay');
         overlay.style.display = 'flex';
@@ -875,10 +867,19 @@
     const SVG_PLAY = '<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
     const SVG_PAUSE = '<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
 
+    // --- MODO OSCURO AUTOMÁTICO Y MANUAL ---
+    // 1. Chequeo inicial
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         document.documentElement.classList.add('dark');
     }
-
+    // 2. Escuchar cambios del sistema en tiempo real
+    if(window.matchMedia){
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+            if(e.matches) document.documentElement.classList.add('dark');
+            else document.documentElement.classList.remove('dark');
+        });
+    }
+    // 3. Toggle manual
     function toggleDarkMode(){
         document.documentElement.classList.toggle('dark');
     }
@@ -1136,7 +1137,6 @@
         });
     }
 
-    // --- FUNCIÓN TOGGLE: Permite seleccionar y deseleccionar ---
     function registrarVotoUnico(elegido, btnElement){
         const container = document.getElementById('voteContainer');
         const yaEstabaSeleccionado = btnElement.classList.contains('voted');
