@@ -74,19 +74,15 @@
         -ms-user-select: none;
         user-select: none;
     }
-    /* Permitir selección solo en inputs para poder escribir */
     input, select { 
         -webkit-user-select: text; 
         user-select: text; 
     }
-    
-    /* Prevenir arrastre de imágenes y enlaces */
     img, a {
         -webkit-user-drag: none;
         user-drag: none;
-        pointer-events: none; /* Bloquea interacción extraña */
+        pointer-events: none;
     }
-    /* Reactivar pointer events para botones interactivos si usan a o img dentro (aquí usamos SVG así que ok) */
     button svg { pointer-events: none; }
 
     html::-webkit-scrollbar, body::-webkit-scrollbar, .app::-webkit-scrollbar, ul::-webkit-scrollbar, *::-webkit-scrollbar { 
@@ -111,12 +107,7 @@
         -webkit-overflow-scrolling: touch; 
         transition: color 0.4s ease, background-color 0.4s ease;
         cursor: default; 
-        
-        /* -----------------------------------------------------------
-           MODIFICACIÓN 1: BLOQUEO DE ZOOM EN CSS
-           Esto le dice al navegador que solo permita scroll (pan), no zoom.
-        ----------------------------------------------------------- */
-        touch-action: pan-x pan-y;
+        touch-action: pan-x pan-y; /* Bloqueo de zoom CSS */
     }
 
     .app {
@@ -301,15 +292,6 @@
         box-shadow: 0 8px 25px var(--danger-soft);
     }
 
-    button.dark-toggle {
-        border: 1px solid var(--card-border);
-        padding: 0;
-        background: var(--card-bg);
-        box-shadow: var(--card-shadow);
-        color: var(--text-main);
-        min-height: 44px;
-    }
-
     .hold-btn {
         width: 100%;
         padding: 40px 20px;
@@ -329,12 +311,11 @@
         transform: scale(0.98);
     }
 
-    /* --- ESTADO BLOQUEADO PARA EL BOTÓN DE SIGUIENTE --- */
     .btn-locked {
         background: var(--input-bg) !important;
         border-color: var(--input-bg) !important;
         color: var(--text-muted) !important;
-        pointer-events: none; /* Evita clicks */
+        pointer-events: none;
         box-shadow: none !important;
         opacity: 0.6;
     }
@@ -386,7 +367,6 @@
     }
     .btn-icon:hover { background: var(--input-bg); color: var(--text-main); }
     .btn-delete:hover { background: var(--danger-soft); color: var(--danger); }
-    .btn-edit:hover { color: var(--accent); background: transparent; }
 
     .assign-name { 
         font-size: 42px; 
@@ -504,7 +484,7 @@
     }
 
     /* ----------------------------------------------------
-       ESTILOS DEL "CUSTOM TOAST CONFIRMATION" (ACTION SHEET)
+       ESTILOS DEL "TOAST" (ACTION SHEET & NOTIFICACIÓN)
     ---------------------------------------------------- */
     .toast-overlay {
         position: fixed;
@@ -514,16 +494,12 @@
         backdrop-filter: blur(4px);
         z-index: 999;
         display: none;
-        align-items: flex-end; /* Alineado abajo como Action Sheet */
+        align-items: flex-end; /* Alineado abajo */
         justify-content: center;
         opacity: 0;
         transition: opacity 0.3s ease;
     }
-    
-    .toast-overlay.active {
-        display: flex;
-        opacity: 1;
-    }
+    .toast-overlay.active { display: flex; opacity: 1; }
 
     .toast-content {
         width: 100%;
@@ -538,13 +514,38 @@
         transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         text-align: center;
     }
-
-    .toast-overlay.active .toast-content {
-        transform: translateY(0);
-    }
+    .toast-overlay.active .toast-content { transform: translateY(0); }
 
     .toast-title { font-size: 22px; font-weight: 800; margin-bottom: 8px; color: var(--text-main); }
     .toast-msg { font-size: 15px; color: var(--text-muted); margin-bottom: 24px; }
+
+    /* NUEVO: Notificación flotante superior (estilo píldora) */
+    .toast-notification {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%) translateY(-150%);
+        background: var(--text-main);
+        color: var(--bg-color);
+        padding: 14px 24px;
+        border-radius: 99px;
+        font-weight: 700;
+        font-size: 14px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        z-index: 2000;
+        opacity: 0;
+        transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        pointer-events: none;
+        white-space: nowrap;
+    }
+    .toast-notification.show {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+    .toast-icon { font-size: 18px; }
 
 </style>
 </head>
@@ -685,28 +686,23 @@
     </div>
 </div>
 
+<div id="notificationToast" class="toast-notification">
+    <span id="toastIcon" class="toast-icon">⚠️</span>
+    <span id="toastMessage">Mensaje de alerta</span>
+</div>
+
 <script>
     /* -----------------------------------------------------------
-       MODIFICACIÓN 2: BLOQUEO DE ZOOM TOTAL (JS)
-       Esto previene gestos de pinza y doble tap rápido.
+       BLOQUEO DE ZOOM TOTAL (iOS y Android)
     ----------------------------------------------------------- */
     (function() {
-        // 1. Prevenir el gesto de "Pellizcar" (Pinch-to-zoom) en iOS
-        document.addEventListener('gesturestart', function(e) {
-            e.preventDefault();
-        });
-
-        // 2. Prevenir el zoom por doble toque rápido
+        document.addEventListener('gesturestart', function(e) { e.preventDefault(); });
         let lastTouchEnd = 0;
         document.addEventListener('touchend', function(event) {
             const now = (new Date()).getTime();
-            if (now - lastTouchEnd <= 300) {
-                event.preventDefault();
-            }
+            if (now - lastTouchEnd <= 300) { event.preventDefault(); }
             lastTouchEnd = now;
         }, false);
-
-        // 3. Prevenir zoom con teclas (Ctrl + / Ctrl -)
         document.addEventListener('keydown', function(event) {
             if (event.ctrlKey && (event.key === '+' || event.key === '-' || event.key === '0')) {
                 event.preventDefault();
@@ -718,7 +714,6 @@
        LÓGICA DEL JUEGO
     ----------------------------------------------------------- */
     
-    // VARIABLES GLOBALES
     let jugadores = JSON.parse(localStorage.getItem('jugadores_impostor')) || [];
     let palabras = JSON.parse(localStorage.getItem('palabras_impostor')) || [];
     let impostor = "";
@@ -728,7 +723,6 @@
     let timerInterval;
     let timeLeft = 60;
     let totalTime = 60;
-    let votos = {};
 
     // INICIO
     actualizarListas();
@@ -743,6 +737,23 @@
         document.documentElement.classList.toggle('dark');
     }
 
+    /* --- TOAST SYSTEM --- */
+    function showToast(msg, icon = '⚠️') {
+        const t = document.getElementById('notificationToast');
+        const m = document.getElementById('toastMessage');
+        const i = document.getElementById('toastIcon');
+        
+        m.innerText = msg;
+        i.innerText = icon;
+        
+        t.classList.add('show');
+        if(navigator.vibrate) navigator.vibrate(50);
+        
+        setTimeout(() => {
+            t.classList.remove('show');
+        }, 3000);
+    }
+
     /* --- ADMIN --- */
     function agregarPalabra() {
         const input = document.getElementById('nuevaPalabra');
@@ -752,6 +763,9 @@
             localStorage.setItem('palabras_impostor', JSON.stringify(palabras));
             input.value = '';
             actualizarListas();
+            showToast("Palabra guardada", "✅");
+        } else {
+            showToast("Escribe una palabra", "✍️");
         }
     }
 
@@ -763,6 +777,9 @@
             localStorage.setItem('jugadores_impostor', JSON.stringify(jugadores));
             input.value = '';
             actualizarListas();
+            showToast("Jugador añadido", "👤");
+        } else {
+            showToast("Escribe un nombre", "✍️");
         }
     }
 
@@ -817,17 +834,22 @@
         localStorage.removeItem('palabras_impostor');
         actualizarListas();
         cerrarToast();
+        showToast("Todo borrado", "🗑️");
     }
 
     /* --- JUEGO --- */
     function iniciarJuego() {
-        if(jugadores.length < 3) { alert("Mínimo 3 jugadores."); return; }
-        if(palabras.length < 1) { alert("Mínimo 1 palabra."); return; }
+        if(jugadores.length < 3) { 
+            showToast("Mínimo 3 jugadores", "👥"); 
+            return; 
+        }
+        if(palabras.length < 1) { 
+            showToast("Faltan palabras", "📝"); 
+            return; 
+        }
 
         palabraSeleccionada = palabras[Math.floor(Math.random() * palabras.length)];
-        // Barajar jugadores
         jugadoresBarajados = [...jugadores].sort(() => Math.random() - 0.5);
-        // Elegir impostor
         impostor = jugadoresBarajados[Math.floor(Math.random() * jugadoresBarajados.length)];
         
         turnoActual = 0;
@@ -846,20 +868,17 @@
         const textoPalabra = document.getElementById('textoPalabra');
         const btnSiguiente = document.getElementById('btnSiguiente');
         
-        // Reset estados
         textoPalabra.style.display = 'none';
         btnReveal.style.display = 'flex';
         btnSiguiente.classList.add('btn-locked');
         
-        // Logica Hold
         let holdTimer;
         
         const showRole = () => {
             btnReveal.style.display = 'none';
             textoPalabra.style.display = 'flex';
             
-            // Configurar contenido revelado
-            textoPalabra.className = 'reveal'; // reset class
+            textoPalabra.className = 'reveal'; 
             if(j === impostor) {
                 textoPalabra.classList.add('impostor-mode');
                 textoPalabra.innerHTML = `<div class="reveal-title">TÚ ERES EL</div><div class="reveal-impostor-text">IMPOSTOR</div>`;
@@ -867,16 +886,14 @@
                 textoPalabra.innerHTML = `<div class="reveal-title">LA PALABRA ES</div><div class="reveal-word">${palabraSeleccionada}</div>`;
             }
             
-            // Desbloquear siguiente
             setTimeout(() => {
                 btnSiguiente.classList.remove('btn-locked');
-            }, 500); // Pequeño delay para asegurar que vieron
+            }, 500);
         };
 
-        // Eventos mouse/touch
         const startHold = (e) => {
             e.preventDefault();
-            holdTimer = setTimeout(showRole, 600); // 600ms hold
+            holdTimer = setTimeout(showRole, 600);
             btnReveal.style.transform = "scale(0.98)";
         };
         const endHold = (e) => {
@@ -897,7 +914,6 @@
         if(turnoActual < jugadoresBarajados.length) {
             prepararTurno();
         } else {
-            // Fin de asignación, ir a pistas
             configurarTimer();
             mostrarSeccion('pistas');
         }
@@ -909,9 +925,7 @@
         totalTime = parseInt(val);
         timeLeft = totalTime;
         actualizarVisualTimer();
-        
         document.getElementById('botonIniciarTimer').style.display = 'flex';
-        // Reset bar
         document.getElementById('timerBar').style.width = '100%';
     }
 
@@ -919,7 +933,6 @@
         const min = Math.floor(timeLeft / 60);
         const sec = timeLeft % 60;
         document.getElementById('timerNumber').innerText = `${min}:${sec < 10 ? '0' : ''}${sec}`;
-        
         const pct = (timeLeft / totalTime) * 100;
         document.getElementById('timerBar').style.width = `${pct}%`;
     }
@@ -931,7 +944,7 @@
             actualizarVisualTimer();
             if(timeLeft <= 0) {
                 clearInterval(timerInterval);
-                navigator.vibrate([200, 100, 200]);
+                if(navigator.vibrate) navigator.vibrate([200, 100, 200]);
                 saltarAPuesta();
             }
         }, 1000);
@@ -947,9 +960,8 @@
     function generarGrillaVotacion() {
         const grid = document.getElementById('grillaVotacion');
         grid.innerHTML = '';
-        grid.className = 'vote-grid'; // reset
-        votos = {};
-
+        grid.className = 'vote-grid'; 
+        
         jugadoresBarajados.forEach(j => {
             const btn = document.createElement('div');
             btn.className = 'vote-card';
@@ -960,21 +972,18 @@
     }
 
     function votarPor(sospechoso, btnElem) {
-        // En este modo simple, al hacer click se revela si era o no
         const esImpostor = (sospechoso === impostor);
-        
         const grid = document.getElementById('grillaVotacion');
         grid.classList.add('has-selection');
         btnElem.classList.add('voted');
         
-        // Pequeño delay dramático
         setTimeout(() => {
             mostrarResultadoFinal(esImpostor, sospechoso);
         }, 800);
     }
 
     function finalizarJuegoSinVotos() {
-        mostrarResultadoFinal(false, null); // Gana impostor por default si saltan
+        mostrarResultadoFinal(false, null);
     }
 
     /* --- RESULTADOS --- */
@@ -983,7 +992,6 @@
         const mensaje = document.getElementById('resultadoMensaje');
         const icono = document.getElementById('resultadoIcono');
         const guessSection = document.getElementById('impostorGuessSection');
-        const res = document.getElementById('resultadoMensaje'); // reusando variable para feedback visual
 
         if(impostorAtrapado) {
             titulo.innerText = "¡ATRAPADO!";
@@ -991,7 +999,6 @@
             icono.innerText = "🎉";
             mensaje.innerHTML = `¡Bien hecho! <strong>${impostor}</strong> era el impostor.<br><br>Pero espera... <br>Si el impostor adivina la palabra, ¡GANA!`;
             
-            // Mostrar input para que el impostor intente salvarse
             guessSection.style.display = 'block';
             document.getElementById('guessFeedback').innerText = '';
             document.getElementById('guessInput').value = '';
@@ -1008,7 +1015,6 @@
             }
             guessSection.style.display = 'none';
         }
-        
         mostrarSeccion('resultado');
     }
 
@@ -1016,10 +1022,10 @@
         const intento = document.getElementById('guessInput').value.trim();
         const feed = document.getElementById('guessFeedback');
         
-        if(!intento){ feed.innerText = 'Escribe algo primero.'; return; }
+        if(!intento){ showToast('Escribe algo primero', '🤔'); return; }
         
         if(intento.toLowerCase() === palabraSeleccionada.toLowerCase()){
-            feed.style.color = '#10b981'; // Green success
+            feed.style.color = '#10b981'; 
             feed.innerText = '¡INCREÍBLE! El Impostor adivinó y GANA LA PARTIDA.';
             document.getElementById('resultadoTitulo').innerText = "EL IMPOSTOR ROBÓ LA VICTORIA";
             document.getElementById('resultadoTitulo').style.color = "var(--danger)";
@@ -1029,12 +1035,7 @@
         }
     }
 
-    /* --- PROTECCIÓN CONTEXTUAL (CLICK DERECHO) --- */
-    document.addEventListener('contextmenu', function(e) {
-        e.preventDefault();
-    });
-
-    // ATAJOS DE TECLADO
+    document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
     document.addEventListener('keydown', e => {
         if(e.key === 'Enter'){
             const f = document.activeElement;
