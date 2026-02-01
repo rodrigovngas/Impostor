@@ -389,8 +389,14 @@
         transition: filter 0.2s;
         cursor: pointer;
         user-select: none;
+        
+        /* QUITAR RESALTADO Y CONTORNO AL TOCAR */
+        -webkit-tap-highlight-color: transparent; 
+        outline: none;
+        
+        display: inline-block;
+        border-radius: 4px; /* Un poco de borde redondeado por si acaso */
     }
-    /* Al presionar o si tiene clase revealed, se muestra */
     .secret-word:active, .secret-word.revealed {
         filter: blur(0);
     }
@@ -915,7 +921,6 @@
         }
         palabras.forEach((p, index) => {
             const li = document.createElement('li');
-            // AQUI APLICAMOS LA CLASE PARA CENSURA
             li.innerHTML = `<span class="secret-word" onclick="this.classList.toggle('revealed')">${p}</span><button class="btn-icon btn-delete" onclick="eliminarPalabra(${index})">&times;</button>`;
             ul.appendChild(li);
         });
