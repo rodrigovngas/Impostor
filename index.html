@@ -86,7 +86,7 @@
         user-drag: none;
         pointer-events: none; /* Bloquea interacción extraña */
     }
-    /* Reactivar pointer events para botones interactivos si usan a o img dentro (aquí usamos SVG así que ok) */
+    /* Reactivar pointer events para botones interactivos si usan a o img dentro */
     button svg { pointer-events: none; }
 
     html::-webkit-scrollbar, body::-webkit-scrollbar, .app::-webkit-scrollbar, ul::-webkit-scrollbar, *::-webkit-scrollbar { 
@@ -110,7 +110,7 @@
         scroll-behavior: smooth;
         -webkit-overflow-scrolling: touch; 
         transition: color 0.4s ease, background-color 0.4s ease;
-        cursor: default; /* Forzar cursor por defecto */
+        cursor: default;
     }
 
     .app {
@@ -179,7 +179,7 @@
         transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
         box-shadow: var(--card-shadow);
     }
-    .dark-toggle:hover { transform: scale(1.05); }
+    /* Estilos active para feedback inmediato en móvil */
     .dark-toggle:active { transform: scale(0.95); }
 
     .dark-toggle svg {
@@ -267,32 +267,40 @@
         box-sizing: border-box;
     }
     
-    button:active { transform: scale(0.96); }
-    
-    button:hover {
+    /* SOLUCIÓN PARA MÓVIL:
+       Usamos :active para dar feedback inmediato al tocar,
+       pero NO usamos :hover en móvil (se hace con media query más abajo) 
+       para evitar que el color se quede pegado al soltar.
+    */
+    button:active { 
+        transform: scale(0.96); 
         background: var(--accent-soft);
         box-shadow: 0 8px 25px var(--accent-soft);
     }
-
+    
+    /* Active específico para botones secundarios (ghost) */
+    button.ghost:active {
+        border-color: var(--text-muted);
+        color: var(--text-main);
+        background: var(--input-bg);
+    }
+    
+    /* Active específico para botones de peligro */
+    button.danger:active {
+        background: var(--danger-soft);
+        box-shadow: 0 8px 25px var(--danger-soft);
+    }
+    
     button.ghost {
         border-color: var(--card-border);
         color: var(--text-muted);
         box-shadow: none;
-    }
-    button.ghost:hover {
-        border-color: var(--text-muted);
-        color: var(--text-main);
-        background: var(--input-bg);
     }
     
     button.danger {
         border-color: var(--danger);
         color: var(--danger);
         box-shadow: 0 4px 15px var(--danger-soft);
-    }
-    button.danger:hover {
-        background: var(--danger-soft);
-        box-shadow: 0 8px 25px var(--danger-soft);
     }
 
     button.dark-toggle {
@@ -321,6 +329,29 @@
         color: white;
         border-style: solid;
         transform: scale(0.98);
+    }
+
+    /* --- ESTADOS DE HOVER (SOLO PARA PC / MOUSE) --- 
+       Esto evita que el color se quede pegado en celulares.
+    */
+    @media (hover: hover) {
+        button:hover {
+            background: var(--accent-soft);
+            box-shadow: 0 8px 25px var(--accent-soft);
+        }
+        button.ghost:hover {
+            border-color: var(--text-muted);
+            color: var(--text-main);
+            background: var(--input-bg);
+        }
+        button.danger:hover {
+            background: var(--danger-soft);
+            box-shadow: 0 8px 25px var(--danger-soft);
+        }
+        .dark-toggle:hover { transform: scale(1.05); }
+        .btn-icon:hover { background: var(--input-bg); color: var(--text-main); }
+        .btn-delete:hover { background: var(--danger-soft); color: var(--danger); }
+        .btn-edit:hover { color: var(--accent); background: transparent; }
     }
 
     /* --- ESTADO BLOQUEADO PARA EL BOTÓN DE SIGUIENTE --- */
@@ -378,9 +409,9 @@
         width: auto; height: auto;
         min-height: auto;
     }
-    .btn-icon:hover { background: var(--input-bg); color: var(--text-main); }
-    .btn-delete:hover { background: var(--danger-soft); color: var(--danger); }
-    .btn-edit:hover { color: var(--accent); background: transparent; }
+    /* Estilos active para iconos en móvil */
+    .btn-icon:active { background: var(--input-bg); color: var(--text-main); }
+    .btn-delete:active { background: var(--danger-soft); color: var(--danger); }
 
     .assign-name { 
         font-size: 42px; 
@@ -706,38 +737,14 @@
 
 <script>
     /* --------------------------------------------------------------------------------
-       SEGURIDAD BÁSICA (ANTI INSPECTOR)
-       Previene click derecho y atajos de teclado comunes (F12, Ctrl+U, Ctrl+Shift+I)
+       SEGURIDAD BÁSICA
     -------------------------------------------------------------------------------- */
     (function() {
-        // 1. Deshabilitar Menú Contextual (Click Derecho)
-        document.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-            return false;
-        }, false);
-
-        // 2. Deshabilitar Atajos de Teclado de Desarrollo
+        document.addEventListener('contextmenu', function(e) { e.preventDefault(); return false; }, false);
         document.onkeydown = function(e) {
-            // F12
-            if(e.keyCode == 123) {
-                return false;
-            }
-            // Ctrl+Shift+I (Inspector)
-            if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) {
-                return false;
-            }
-            // Ctrl+Shift+C (Inspector Elemento)
-            if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) {
-                return false;
-            }
-            // Ctrl+Shift+J (Consola)
-            if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) {
-                return false;
-            }
-            // Ctrl+U (Ver Fuente)
-            if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) {
-                return false;
-            }
+            if(e.keyCode == 123) return false;
+            if(e.ctrlKey && e.shiftKey && (e.keyCode == 'I'.charCodeAt(0) || e.keyCode == 'C'.charCodeAt(0) || e.keyCode == 'J'.charCodeAt(0))) return false;
+            if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
         }
     })();
     /* -------------------------------------------------------------------------------- */
@@ -782,7 +789,6 @@
     function mostrarConfirmacion() {
         const overlay = document.getElementById('toastOverlay');
         overlay.style.display = 'flex';
-        // Forzar reflow para animación
         overlay.offsetHeight; 
         overlay.classList.add('active');
         if(navigator.vibrate) navigator.vibrate(50);
@@ -806,7 +812,6 @@
         cerrarConfirmacion();
     }
     
-    // --- FUNCIÓN NUEVA: Volver al inicio desde la alerta de fin ---
     function irAlInicio(){
         const ov = document.getElementById('alertFinOverlay');
         ov.classList.remove('active');
@@ -816,7 +821,6 @@
         }, 300);
     }
 
-    /* --- NUEVAS FUNCIONES PARA LA ALERTA DE TIEMPO TERMINADO --- */
     function mostrarAlertaTiempo() {
         const ov = document.getElementById('timeOutOverlay');
         ov.style.display = 'flex';
@@ -832,9 +836,7 @@
             saltarAPuesta();
         }, 300);
     }
-    /* ------------------------------------------------------------ */
 
-    /* --- NUEVAS FUNCIONES: Alerta genérica (usa mismas clases/styles) --- */
     function showAlertMessage(title, msg){
         const ov = document.getElementById('genericAlertOverlay');
         const t = document.getElementById('genericAlertTitle');
@@ -842,7 +844,7 @@
         t.innerText = title;
         m.innerText = msg;
         ov.style.display = 'flex';
-        ov.offsetHeight; // reflow for animation
+        ov.offsetHeight; 
         ov.classList.add('active');
         if(navigator.vibrate) navigator.vibrate(50);
     }
@@ -852,14 +854,13 @@
         ov.classList.remove('active');
         setTimeout(() => {
             ov.style.display = 'none';
-            mostrarSeccion('admin'); // volver al admin para corregir faltantes
+            mostrarSeccion('admin'); 
         }, 300);
     }
-    /* ------------------------------------------------------------ */
 
     /* --- LÓGICA DEL JUEGO --- */
     let palabras = [];
-    let palabrasDisponibles = []; // <--- NUEVA VARIABLE PARA CONTROLAR REPETICIONES
+    let palabrasDisponibles = []; 
     let jugadores = [];
     let jugadoresMezclados = [];
     let impostor = null;
@@ -966,7 +967,6 @@
     }
 
     function iniciarJuego(){
-        // Reemplazamos alert() por overlay reutilizable (mismo diseño)
         if(jugadores.length < 3){
             showAlertMessage('Faltan jugadores', 'Se requieren mínimo 3 jugadores.');
             return;
@@ -977,10 +977,6 @@
         }
 
         duracion = Number(document.getElementById('duracionSelect').value || 60);
-        const label = document.getElementById('duracionLabel');
-        if(label) label.innerText = duracion + 's';
-
-        // --- CAMBIO: Inicializamos la lista de palabras disponibles ---
         palabrasDisponibles = [...palabras];
 
         requestWakeLock();
@@ -993,20 +989,17 @@
         document.getElementById('guessInput').value = '';
         document.getElementById('impostorGuessSection').style.display = 'none';
 
-        // --- CAMBIO: Verificamos si hay palabras disponibles ---
         if(palabrasDisponibles.length === 0){
              const ov = document.getElementById('alertFinOverlay');
              ov.style.display = 'flex';
-             ov.offsetHeight; // Forzar render
+             ov.offsetHeight; 
              ov.classList.add('active');
              return;
         }
 
-        // --- CAMBIO: Seleccionamos de disponibles y eliminamos ---
         const randomIndex = Math.floor(Math.random() * palabrasDisponibles.length);
         palabraSeleccionada = palabrasDisponibles[randomIndex];
         palabrasDisponibles.splice(randomIndex, 1);
-        // ---------------------------------------------------------
 
         jugadoresMezclados = [...jugadores].sort(()=>Math.random()-0.5);
         impostor = jugadoresMezclados[Math.floor(Math.random()*jugadoresMezclados.length)];
@@ -1050,22 +1043,8 @@
 
     const btnReveal = document.getElementById('btnReveal');
     const revealBox = document.getElementById('textoPalabra');
-
-    /* ----------------------------------------------------------------------
-       SOLUCIÓN DEL BUG DE BRAVE / MOBILE
-       
-       Problema: Al hacer btnReveal.style.display='none', el botón desaparece
-       y el evento "touchend" o "mouseleave" se rompe o se dispara de inmediato.
-       
-       Solución: Al iniciar el toque, agregamos los listeners de "soltar"
-       al DOCUMENTO entero (window), no al botón. Así, aunque el botón
-       desaparezca, el sistema detecta que levantaste el dedo en cualquier
-       parte de la pantalla.
-    ---------------------------------------------------------------------- */
     
     function showContent(e){
-        // Prevenir menú contextual o comportamientos extraños del navegador (zoom, etc)
-        // Solo si es cancelable para evitar warnings en consola
         if(e.cancelable && e.type === 'touchstart') e.preventDefault();
 
         const jugador = jugadoresMezclados[indiceActual];
@@ -1077,32 +1056,25 @@
             revealBox.innerHTML = `<div class="reveal-title">La palabra es</div><div class="reveal-word">${palabraSeleccionada}</div>`;
         }
         
-        // Ocultar botón y mostrar caja
         btnReveal.style.display = 'none'; 
         revealBox.style.display = 'flex';
 
         document.getElementById('btnSiguiente').classList.remove('btn-locked');
 
-        // AGREGAR listeners globales para detectar cuando sueltas
         document.addEventListener('mouseup', hideContent);
         document.addEventListener('touchend', hideContent);
         document.addEventListener('touchcancel', hideContent);
     }
 
     function hideContent(){
-        // Restaurar estado
         revealBox.style.display = 'none';
         btnReveal.style.display = 'flex';
-        
-        // LIMPIAR listeners globales
         document.removeEventListener('mouseup', hideContent);
         document.removeEventListener('touchend', hideContent);
         document.removeEventListener('touchcancel', hideContent);
     }
 
-    // Listeners solo para INICIAR la acción
     btnReveal.addEventListener('mousedown', showContent);
-    // { passive: false } es CRÍTICO para que e.preventDefault() funcione en Brave/Chrome móvil
     btnReveal.addEventListener('touchstart', showContent, { passive: false });
 
 
@@ -1124,11 +1096,7 @@
                 actualizarTimerUI(0);
                 stopTemporizador();
                 if(navigator.vibrate) navigator.vibrate([200, 100, 200]);
-                
-                // --- CAMBIO: Aquí se llamaba al alert() y a saltarAPuesta()
-                // Ahora llamamos al overlay personalizado
                 mostrarAlertaTiempo();
-                
             } else {
                 actualizarTimerUI(tiempoRestante);
             }
@@ -1168,23 +1136,19 @@
         });
     }
 
-    // --- FUNCIÓN MODIFICADA: Permite DESELECCIONAR si tocas el mismo ---
+    // --- FUNCIÓN TOGGLE: Permite seleccionar y deseleccionar ---
     function registrarVotoUnico(elegido, btnElement){
         const container = document.getElementById('voteContainer');
         const yaEstabaSeleccionado = btnElement.classList.contains('voted');
 
-        // 1. Limpiar estado visual de todos (incluyendo el actual por ahora)
         const allBtns = container.querySelectorAll('.vote-card');
         allBtns.forEach(b => { 
             b.classList.remove('voted'); 
             b.innerText = b.dataset.originalName; 
         });
         
-        // 2. Limpiar votos lógicos
         votos = {};
 
-        // 3. Si NO estaba seleccionado previamente, lo seleccionamos.
-        // Si YA estaba seleccionado, no hacemos nada (quedará deseleccionado por el paso 1)
         if (!yaEstabaSeleccionado) {
             votos[elegido] = 1;
             container.classList.add('has-selection'); 
@@ -1192,7 +1156,6 @@
             btnElement.innerText = "Eliminar a\n" + elegido; 
             if(navigator.vibrate) navigator.vibrate(50);
         } else {
-            // Si deseleccionamos, quitamos la clase del contenedor para que todos recuperen opacidad
             container.classList.remove('has-selection');
         }
     }
@@ -1201,7 +1164,6 @@
         let masVotado = null;
         let max = -1;
         
-        // Determinar quién recibió el voto (si es que hubo alguno)
         for(const k in votos){ 
             if(votos[k] > max){ 
                 max = votos[k]; 
@@ -1212,24 +1174,18 @@
         const res = document.getElementById('textoResultado');
         const guessSection = document.getElementById('impostorGuessSection');
         
-        // Bloque HTML común para mostrar la palabra en todos los casos
         const htmlPalabra = `<div style="margin-top:12px; font-size:18px; color:var(--text-muted)">La palabra era <strong style="color:var(--text-main)">${palabraSeleccionada}</strong></div>`;
 
-        // CASO 1: No seleccionaron a nadie (Solo dieron click a "Ver Resultados")
         if(!masVotado){
             res.innerHTML = `El impostor era <span style="color:var(--danger)">${impostor}</span>.${htmlPalabra}`;
         } 
-        // CASO 2: Seleccionaron al correcto (Atraparon al impostor)
         else if(masVotado === impostor){
             res.innerHTML = `Efectivamente el impostor era <strong style="color:var(--danger)">${impostor}</strong>.${htmlPalabra}`;
         } 
-        // CASO 3: Seleccionaron al incorrecto
         else {
             res.innerHTML = `Jaja fallaron, el impostor era <strong style="color:var(--danger)">${impostor}</strong>.${htmlPalabra}`;
         }
 
-        // En todos los casos ocultamos la sección de adivinar, 
-        // porque la palabra ya fue revelada arriba.
         guessSection.style.display = 'none';
         
         mostrarSeccion('resultado');
@@ -1270,17 +1226,10 @@
 </style>
 
 <script>
-  document.addEventListener('gesturestart', function(e) {
-    e.preventDefault();
-  });
-
+  document.addEventListener('gesturestart', function(e) { e.preventDefault(); });
   document.addEventListener('touchmove', function(e) {
-    if (e.touches && e.touches.length > 1) {
-      e.preventDefault();
-    }
-    if (typeof e.scale === 'number' && e.scale !== 1) {
-      e.preventDefault();
-    }
+    if (e.touches && e.touches.length > 1) e.preventDefault();
+    if (typeof e.scale === 'number' && e.scale !== 1) e.preventDefault();
   }, { passive: false });
 
   (function() {
@@ -1288,16 +1237,12 @@
     document.addEventListener('touchend', function(e) {
       const now = Date.now();
       const dt = now - lastTouch;
-      if (dt > 0 && dt <= 300) {
-        e.preventDefault();
-      }
+      if (dt > 0 && dt <= 300) e.preventDefault();
       lastTouch = now;
     }, { passive: false });
   })();
 
-  window.addEventListener('wheel', function(e) {
-    if (e.ctrlKey) e.preventDefault();
-  }, { passive: false });
+  window.addEventListener('wheel', function(e) { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
 </script>
 </body>
 </html>
