@@ -67,13 +67,22 @@
        COMPORTAMIENTO NATIVO Y PROTECCIÓN CSS
     ---------------------------------------------------- */
     * { 
-        -webkit-tap-highlight-color: transparent; 
-        -webkit-touch-callout: none;
+        /* ELIMINA RESALTADO AZUL/GRIS AL TOCAR EN CUALQUIER ELEMENTO */
+        -webkit-tap-highlight-color: rgba(0,0,0,0) !important;
+        -webkit-touch-callout: none !important;
+        
+        /* PREVIENE SELECCIÓN MANUAL (excepto inputs) */
         -webkit-user-select: none;
         -moz-user-select: none;
         -ms-user-select: none;
         user-select: none;
     }
+    
+    /* ELIMINA EL CUADRO DE FOCO NATIVO (EL RECUADRO NEGRO O AZUL) */
+    *:focus {
+        outline: none !important;
+    }
+
     input, select { 
         -webkit-user-select: text; 
         user-select: text; 
@@ -383,35 +392,44 @@
         to { opacity: 1; transform: translateX(0); }
     }
 
-    /* --- CLASE PARA LA CENSURA (BLUR) DE PALABRAS --- */
+    /* --- CLASE PARA LA CENSURA (BLUR) ---
+       Corrección: Eliminación total de outline y highlight tap.
+    */
     .secret-word {
         filter: blur(5px);
         transition: filter 0.2s ease;
         cursor: pointer;
         
-        /* Evitar selección de texto que pueda generar cuadros azules */
+        /* Previene selección de texto accidental */
         -webkit-user-select: none;
         -moz-user-select: none;
         -ms-user-select: none;
         user-select: none;
         
-        /* QUITAR RESALTADO (tap color) Y BORDE DE FOCO (outline) */
-        -webkit-tap-highlight-color: transparent; 
-        -webkit-tap-highlight-color: rgba(0,0,0,0);
-        outline: none;
+        /* FUERZA LA ELIMINACIÓN DEL RECUADRO EN TODOS LOS NAVEGADORES */
+        -webkit-tap-highlight-color: transparent !important; 
+        -webkit-tap-highlight-color: rgba(0,0,0,0) !important;
+        -webkit-focus-ring-color: transparent !important;
         
-        /* Estructura para que el blur se vea bien y suave */
+        outline: none !important;
+        border: none !important;
+        box-shadow: none !important;
+        background-color: transparent !important;
+        
         display: inline-block;
         border-radius: 6px; 
         padding: 0 4px;
     }
 
-    /* Refuerzo para eliminar outline al enfocar */
-    .secret-word:focus {
-        outline: none;
+    /* Refuerzo adicional para estado focus y active */
+    .secret-word:focus, 
+    .secret-word:active,
+    .secret-word:hover {
+        outline: none !important;
+        background: transparent !important;
+        box-shadow: none !important;
     }
 
-    /* Estado revelado */
     .secret-word:active, .secret-word.revealed {
         filter: blur(0);
     }
