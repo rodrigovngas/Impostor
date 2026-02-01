@@ -540,35 +540,6 @@
     .toast-title { font-size: 22px; font-weight: 800; margin-bottom: 8px; color: var(--text-main); }
     .toast-msg { font-size: 15px; color: var(--text-muted); margin-bottom: 24px; }
 
-
-    /* ====================================================
-       FIX: EFECTO SOLO MIENTRAS SE PRESIONA (NO PERSISTE)
-    ==================================================== */
-    * {
-        -webkit-tap-highlight-color: transparent;
-    }
-
-    button {
-        outline: none !important;
-        box-shadow: none !important;
-        transform: none !important;
-        filter: none !important;
-        transition: none !important;
-    }
-
-    button:active {
-        filter: brightness(1.1);
-    }
-
-    button:not(:active),
-    button:focus,
-    button:focus-visible,
-    button:hover {
-        filter: none !important;
-        box-shadow: none !important;
-        transform: none !important;
-    }
-
 </style>
 </head>
 <body>
@@ -1272,35 +1243,6 @@
     touch-action: manipulation;
     -ms-touch-action: manipulation;
   }
-
-    /* ====================================================
-       FIX: EFECTO SOLO MIENTRAS SE PRESIONA (NO PERSISTE)
-    ==================================================== */
-    * {
-        -webkit-tap-highlight-color: transparent;
-    }
-
-    button {
-        outline: none !important;
-        box-shadow: none !important;
-        transform: none !important;
-        filter: none !important;
-        transition: none !important;
-    }
-
-    button:active {
-        filter: brightness(1.1);
-    }
-
-    button:not(:active),
-    button:focus,
-    button:focus-visible,
-    button:hover {
-        filter: none !important;
-        box-shadow: none !important;
-        transform: none !important;
-    }
-
 </style>
 
 <script>
