@@ -667,7 +667,6 @@
 
 </div>
 
-<!-- CONFIRMACION (reset) -->
 <div id="toastOverlay" class="toast-overlay" onclick="cerrarConfirmacion(event)">
     <div class="toast-content" onclick="event.stopPropagation()">
         <div class="toast-title">¿Reiniciar todo?</div>
@@ -679,7 +678,6 @@
     </div>
 </div>
 
-<!-- ALERTA: No quedan palabras nuevas (usa las mismas clases) -->
 <div id="alertFinOverlay" class="toast-overlay" style="z-index: 1000;" onclick="irAlInicio()">
     <div class="toast-content" onclick="event.stopPropagation()">
         <div class="toast-title">¡Se acabaron!</div>
@@ -688,7 +686,6 @@
     </div>
 </div>
 
-<!-- ALERTA: Tiempo terminado (usa las mismas clases) -->
 <div id="timeOutOverlay" class="toast-overlay" style="z-index: 1000;" onclick="finalizarTiempoYContinuar()">
     <div class="toast-content" onclick="event.stopPropagation()">
         <div class="toast-title">¡Tiempo terminado!</div>
@@ -697,7 +694,6 @@
     </div>
 </div>
 
-<!-- NUEVA: Alerta genérica reutilizable para "faltan jugadores" / "faltan palabras" -->
 <div id="genericAlertOverlay" class="toast-overlay" style="z-index: 1001;" onclick="cerrarAlertaGenerica()">
     <div class="toast-content" onclick="event.stopPropagation()">
         <div id="genericAlertTitle" class="toast-title">Título</div>
@@ -1187,26 +1183,38 @@
     function mostrarResultado(){
         let masVotado = null;
         let max = -1;
-        for(const k in votos){ if(votos[k] > max){ max = votos[k]; masVotado = k; } }
+        
+        // Determinar quién recibió el voto (si es que hubo alguno)
+        for(const k in votos){ 
+            if(votos[k] > max){ 
+                max = votos[k]; 
+                masVotado = k; 
+            } 
+        }
 
         const res = document.getElementById('textoResultado');
         const guessSection = document.getElementById('impostorGuessSection');
         
+        // Bloque HTML común para mostrar la palabra en todos los casos
+        const htmlPalabra = `<div style="margin-top:12px; font-size:18px; color:var(--text-muted)">La palabra era <strong style="color:var(--text-main)">${palabraSeleccionada}</strong></div>`;
+
+        // CASO 1: No seleccionaron a nadie (Solo dieron click a "Ver Resultados")
         if(!masVotado){
-            res.innerHTML = `Nadie fue expulsado.<br>El impostor era <span style="color:var(--danger)">${impostor}</span>.
-            <div style="margin-top:12px; font-size:18px; color:var(--text-muted)">La palabra era <strong style="color:var(--text-main)">${palabraSeleccionada}</strong></div>`;
-            guessSection.style.display = 'none';
+            res.innerHTML = `El impostor era <span style="color:var(--danger)">${impostor}</span>.${htmlPalabra}`;
         } 
+        // CASO 2: Seleccionaron al correcto (Atraparon al impostor)
         else if(masVotado === impostor){
-            res.innerHTML = `¡Atraparon al Impostor! era <strong>${impostor}</strong>.
-            <div style="margin-top:12px; font-size:18px; color:var(--text-muted)">La palabra era <strong style="color:var(--text-main)">${palabraSeleccionada}</strong></div>`;
-            guessSection.style.display = 'none';
+            res.innerHTML = `Efectivamente el impostor era <strong style="color:var(--danger)">${impostor}</strong>.${htmlPalabra}`;
         } 
+        // CASO 3: Seleccionaron al incorrecto
         else {
-            res.innerHTML = `Se equivocaron.<br>El impostor era <strong style="color:var(--danger)">${impostor}</strong>.`;
-            document.getElementById('impostorGuessLabel').innerText = `¡No te me emociones ${impostor}!`;
-            guessSection.style.display = 'block';
+            res.innerHTML = `Jaja fallaron, el impostor era <strong style="color:var(--danger)">${impostor}</strong>.${htmlPalabra}`;
         }
+
+        // En todos los casos ocultamos la sección de adivinar, 
+        // porque la palabra ya fue revelada arriba.
+        guessSection.style.display = 'none';
+        
         mostrarSeccion('resultado');
     }
 
@@ -1237,7 +1245,6 @@
     renderJugadores();
 </script>
 
-<!-- --- START: bloqueo de zoom móvil (agregado automáticamente) --- -->
 <style>
   html, body {
     touch-action: manipulation;
@@ -1275,7 +1282,5 @@
     if (e.ctrlKey) e.preventDefault();
   }, { passive: false });
 </script>
-<!-- --- END: bloqueo de zoom móvil --- -->
-
 </body>
 </html>
