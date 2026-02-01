@@ -267,7 +267,6 @@
         box-sizing: border-box;
     }
     
-    /* ACTIVE PARA MÓVIL: Se activa solo al tocar */
     button:active { 
         transform: scale(0.96); 
         background: var(--accent-soft);
@@ -325,7 +324,6 @@
         transform: scale(0.98);
     }
 
-    /* HOVER SOLO PARA PC/MOUSE */
     @media (hover: hover) {
         button:hover {
             background: var(--accent-soft);
@@ -346,7 +344,6 @@
         .btn-edit:hover { color: var(--accent); background: transparent; }
     }
 
-    /* --- ESTADO BLOQUEADO PARA EL BOTÓN DE SIGUIENTE --- */
     .btn-locked {
         background: var(--input-bg) !important;
         border-color: var(--input-bg) !important;
@@ -401,7 +398,6 @@
         width: auto; height: auto;
         min-height: auto;
     }
-    /* Active para iconos */
     .btn-icon:active { background: var(--input-bg); color: var(--text-main); }
     .btn-delete:active { background: var(--danger-soft); color: var(--danger); }
 
@@ -415,7 +411,6 @@
         letter-spacing: -1.5px;
     }
     
-    /* CAJA DE REVELAR */
     .reveal {
         margin-top: 0; 
         padding: 40px 24px;
@@ -520,9 +515,6 @@
         opacity: 0.7;
     }
 
-    /* ----------------------------------------------------
-       ALERTAS (TOAST / ACTION SHEET)
-    ---------------------------------------------------- */
     .toast-overlay {
         position: fixed;
         top: 0; left: 0;
@@ -564,18 +556,23 @@
     .toast-msg { font-size: 15px; color: var(--text-muted); margin-bottom: 24px; }
 
     /* ----------------------------------------------------
-       MODIFICACIÓN: EFECTO BLUR PARA PALABRAS
+       MODIFICACIÓN: BLUR MEJORADO (SIN CUADROS)
     ---------------------------------------------------- */
     #listaPalabras li span {
-        filter: blur(8px);       /* Desenfoque fuerte */
-        cursor: help;            /* Icono de ayuda */
-        transition: filter 0.2s; /* Transición suave */
-        user-select: none;       /* Evita selección */
+        display: inline-block;        /* Evita problemas de renderizado inline */
+        color: transparent;           /* Texto invisible de base */
+        text-shadow: 0 0 10px var(--text-main); /* La sombra es la que se ve borrosa */
+        cursor: help;
+        transition: all 0.3s ease;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent; /* Quita el cuadro azul al tocar */
+        padding: 0 4px; /* Un poco de aire para que no se corte el difuminado */
     }
 
     #listaPalabras li span:hover,
     #listaPalabras li span:active {
-        filter: blur(0);
+        color: var(--text-main);      /* Muestra el color real */
+        text-shadow: none;            /* Quita el difuminado */
     }
 
 </style>
@@ -883,18 +880,15 @@
     const SVG_PAUSE = '<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
 
     // --- MODO OSCURO AUTOMÁTICO Y MANUAL ---
-    // 1. Chequeo inicial
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         document.documentElement.classList.add('dark');
     }
-    // 2. Escuchar cambios del sistema en tiempo real
     if(window.matchMedia){
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
             if(e.matches) document.documentElement.classList.add('dark');
             else document.documentElement.classList.remove('dark');
         });
     }
-    // 3. Toggle manual
     function toggleDarkMode(){
         document.documentElement.classList.toggle('dark');
     }
@@ -937,6 +931,7 @@
         }
         palabras.forEach((p, index) => {
             const li = document.createElement('li');
+            // Nota: El span ahora aplica la clase blur/shadow automáticamente por CSS
             li.innerHTML = `<span>${p}</span><button class="btn-icon btn-delete" onclick="eliminarPalabra(${index})">&times;</button>`;
             ul.appendChild(li);
         });
