@@ -1006,8 +1006,14 @@
         }
 
         function confirmarReinicio() {
+            // Limpia arrays en memoria
             palabras = [];
             jugadores = [];
+            
+            // Limpia localStorage (NUEVO)
+            localStorage.removeItem('impostor_palabras');
+            localStorage.removeItem('impostor_jugadores');
+            
             resetGameData();
             renderPalabras();
             renderJugadores();
@@ -1059,6 +1065,28 @@
                 ov.style.display = 'none';
                 mostrarSeccion('admin');
             }, 300);
+        }
+
+        /* --- FUNCIÓN AUXILIAR: FISHER-YATES SHUFFLE (NUEVO) --- */
+        function mezclarArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        /* --- GESTIÓN DE DATOS CON LOCALSTORAGE (NUEVO) --- */
+        function guardarDatos() {
+            localStorage.setItem('impostor_palabras', JSON.stringify(palabras));
+            localStorage.setItem('impostor_jugadores', JSON.stringify(jugadores));
+        }
+
+        function cargarDatos() {
+            const p = localStorage.getItem('impostor_palabras');
+            const j = localStorage.getItem('impostor_jugadores');
+            if (p) palabras = JSON.parse(p);
+            if (j) jugadores = JSON.parse(j);
         }
 
         /* --- LÓGICA DEL JUEGO --- */
@@ -1113,6 +1141,7 @@
             const p = input.value.trim();
             if (!p) return;
             palabras.push(p);
+            guardarDatos(); // Guardar en LocalStorage
             renderPalabras();
             input.value = '';
             input.focus();
@@ -1120,6 +1149,7 @@
 
         function eliminarPalabra(index) {
             palabras.splice(index, 1);
+            guardarDatos(); // Guardar en LocalStorage
             renderPalabras();
         }
 
@@ -1142,6 +1172,7 @@
             const name = input.value.trim();
             if (!name) return;
             jugadores.push(name);
+            guardarDatos(); // Guardar en LocalStorage
             renderJugadores();
             input.value = '';
             input.focus();
@@ -1149,6 +1180,7 @@
 
         function eliminarJugador(index) {
             jugadores.splice(index, 1);
+            guardarDatos(); // Guardar en LocalStorage
             renderJugadores();
         }
 
@@ -1212,7 +1244,9 @@
             palabraSeleccionada = palabrasDisponibles[randomIndex];
             palabrasDisponibles.splice(randomIndex, 1);
 
-            jugadoresMezclados = [...jugadores].sort(() => Math.random() - 0.5);
+            // USO DE FISHER-YATES EN LUGAR DE SORT ALEATORIO
+            jugadoresMezclados = mezclarArray([...jugadores]);
+            
             impostor = jugadoresMezclados[Math.floor(Math.random() * jugadoresMezclados.length)];
 
             indiceActual = 0;
@@ -1429,6 +1463,9 @@
         });
 
         mostrarSeccion('admin');
+        
+        // --- INICIALIZACIÓN: CARGAR DATOS GUARDADOS ---
+        cargarDatos();
         renderPalabras();
         renderJugadores();
     </script>
