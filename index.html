@@ -637,31 +637,34 @@
             box-shadow: 0 0 12px 2px #ffffff, 0 0 20px var(--accent-glow);
         }
 
-        /* MODO CRÍTICO: LA BARRA PARPADEA
+        /* MODO CRÍTICO: LA BARRA "LATE" AL RITMO (1s)
         */
         .bar-inner.critical {
-            animation: barFlash 0.3s infinite alternate;
-            /* Eliminamos el glow de la barra para que no se vea difusa */
+            /* Duración de 1s para coincidir con el cambio de números (60, 59...) */
+            animation: barPulse 1s infinite ease-in-out;
             box-shadow: none;
         }
 
         .bar-inner.critical::after {
             background: #ffffff; /* Punta blanca sólida */
-            /* RESPLANDOR ROJO PURO: Eliminamos el blanco del box-shadow */
-            box-shadow: 0 0 15px 2px var(--danger);
+            /* RESPLANDOR ROJO PURO: Sin blanco en el glow */
+            box-shadow: 0 0 15px 3px var(--danger);
             opacity: 1;
         }
 
-        @keyframes barFlash {
-            from { 
+        @keyframes barPulse {
+            0% { 
                 background: var(--danger); 
-                /* Glow muy sutil rojo */
                 box-shadow: 0 0 5px var(--danger);
             }
-            to { 
-                background: #ff4d4d; /* Rojo un poco más claro, no blanco */
-                /* Glow moderado rojo */
-                box-shadow: 0 0 12px var(--danger);
+            50% { 
+                /* El punto máximo del "latido" - Más brillo */
+                background: #ff4d4d; 
+                box-shadow: 0 0 20px var(--danger);
+            }
+            100% { 
+                background: var(--danger); 
+                box-shadow: 0 0 5px var(--danger);
             }
         }
 
