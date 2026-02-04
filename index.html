@@ -36,9 +36,8 @@
 
             --danger: #ef4444;
             --danger-soft: rgba(239, 68, 68, 0.1);
-            
-            /* Eliminamos danger-glow para esta versión más limpia */
-            
+            --danger-glow: rgba(239, 68, 68, 0.5); /* Glow rojo para el pánico */
+
             --dot-color: #cbd5e1;
         }
 
@@ -588,23 +587,16 @@
             display: inline-block;
         }
         
-        /* MODO CRÍTICO: NÚMEROS (PULSO SUTIL)
-           - Sin glow (sombras)
-           - Escala pequeña (1.05) para ser notorio pero no exagerado
+        /* MODO CRÍTICO: NÚMEROS
+           - Sin animación de parpadeo ni escala
+           - Solo cambio de color
         */
         .timer-number.critical {
             color: var(--danger);
-            animation: subtlePulse 1s infinite ease-in-out;
-        }
-        
-        @keyframes subtlePulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.05); opacity: 0.8; }
-            100% { transform: scale(1); opacity: 1; }
         }
 
         /* ----------------------------------------------------
-           BARRA DE ENERGÍA SÓLIDA (SIN GLOW)
+           BARRA DE ENERGÍA SÓLIDA CON PUNTA BRILLANTE
         ---------------------------------------------------- */
         .bar-outer {
             width: 100%;
@@ -627,11 +619,10 @@
             background: var(--accent);
             position: relative;
             transition: width 0.1s linear, background-color 0.4s ease, box-shadow 0.4s ease;
-            /* Eliminamos la sombra difusa por defecto para un look más "flat" */
             box-shadow: none; 
         }
 
-        /* Punta blanca sólida */
+        /* PUNTA BLANCA CON RESPLANDOR FUERTE */
         .bar-inner::after {
             content: '';
             position: absolute;
@@ -643,21 +634,30 @@
             border-radius: 100px;
             opacity: 1; 
             z-index: 2;
+            /* Resplandor blanco + un toque del color del tema */
+            box-shadow: 0 0 12px 2px #ffffff, 0 0 20px var(--accent-glow);
         }
 
-        /* MODO CRÍTICO: BARRA (SÓLIDA)
-           - Sin parpadeo
-           - Sin resplandor
-           - Solo cambio de color
+        /* MODO CRÍTICO: LA BARRA PARPADEA
         */
         .bar-inner.critical {
-            background: var(--danger);
+            animation: barFlash 0.3s infinite alternate;
         }
 
-        /* La punta se mantiene blanca y limpia */
         .bar-inner.critical::after {
-            background: #ffffff;
-            box-shadow: none;
+            /* La punta se mantiene blanca con resplandor rojo */
+            box-shadow: 0 0 12px 2px #ffffff, 0 0 20px var(--danger);
+        }
+
+        @keyframes barFlash {
+            from { 
+                background: var(--danger); 
+                box-shadow: 0 0 10px var(--danger-soft);
+            }
+            to { 
+                background: #ff7777; /* Rojo más claro/brillante */
+                box-shadow: 0 0 25px var(--danger);
+            }
         }
 
         /* ---------------------------------------------------- */
@@ -1422,7 +1422,7 @@
             
             barInner.style.width = (pct * 100) + '%';
             
-            // Si queda menos del 25%, se activa el modo "crítico"
+            // Si queda menos del 25%, se activa el modo "crítico" (rojo respirando)
             if (pct < 0.25) {
                 barInner.classList.add('critical');
                 numElement.classList.add('critical');
