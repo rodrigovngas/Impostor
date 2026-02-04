@@ -29,14 +29,14 @@
             --item-bg: #ffffff;
             --item-border: #f1f5f9;
 
-            /* MODO CLARO (#00ABE4) */
+            /* MODO CLARO */
             --accent: #00ABE4;
             --accent-soft: rgba(0, 171, 228, 0.08);
             --accent-glow: rgba(0, 171, 228, 0.4);
 
             --danger: #ef4444;
             --danger-soft: rgba(239, 68, 68, 0.1);
-            --danger-glow: rgba(239, 68, 68, 0.4);
+            --danger-glow: rgba(239, 68, 68, 0.6);
 
             --dot-color: #cbd5e1;
         }
@@ -56,10 +56,10 @@
             --item-bg: #1e293b;
             --item-border: #334155;
 
-            /* MODO OSCURO (#2272FF) */
+            /* MODO OSCURO */
             --accent: #3b82f6;
             --accent-soft: rgba(59, 130, 246, 0.15);
-            --accent-glow: rgba(59, 130, 246, 0.5);
+            --accent-glow: rgba(59, 130, 246, 0.6);
 
             --dot-color: #1e293b;
         }
@@ -232,7 +232,6 @@
         button.primary { background: var(--accent); color: #fff; box-shadow: 0 10px 20px var(--accent-soft); }
         button.danger { border-color: var(--danger); color: var(--danger); }
         
-        /* Listas */
         ul { padding: 0; margin: 10px 0 0 0; list-style: none; }
         li {
             margin-bottom: 8px;
@@ -249,7 +248,6 @@
         .smallbtn { width: 50px; min-width: 50px; padding: 0; margin-left: 8px; font-size: 20px; }
         .row { display: flex; align-items: center; }
 
-        /* --- BLUR EN PALABRAS (FEATURE) --- */
         #listaPalabras li span {
             color: transparent;
             text-shadow: 0 0 10px var(--text-main);
@@ -261,8 +259,8 @@
             text-shadow: none;
         }
 
-        /* --- GAME SCREENS --- */
-        .screen { display: none; } /* Ocultar pantallas por defecto */
+        /* --- SCREENS --- */
+        .screen { display: none; }
         
         .hold-btn {
             height: 200px;
@@ -286,37 +284,70 @@
             box-shadow: 0 10px 40px var(--accent-soft);
         }
 
-        /* --- NUEVO TIMER CIRCULAR --- */
-        .circular-timer {
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 140px;
-            height: 140px;
-            margin: 20px auto 30px auto;
-        }
-
-        .progress-ring { transform: rotate(-90deg); transform-origin: 50% 50%; }
-        
-        .progress-ring__circle {
-            transition: stroke-dashoffset 0.1s linear, stroke 0.3s ease;
-            stroke-linecap: round;
-            transform-origin: 50% 50%;
-            stroke-dasharray: 326.72 326.72; /* Para radio 52 */
-            stroke-dashoffset: 0;
-        }
-
-        .timer-number-centered {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 3.5rem;
+        /* --------------------------------------------------------------------------------
+           NUEVO DISEÑO: BARRA DE ENERGÍA (ESTILO CYBERPUNK)
+        -------------------------------------------------------------------------------- */
+        .timer-digital-display {
+            text-align: center;
+            font-size: 4rem;
             font-weight: 800;
-            color: var(--text-main);
             line-height: 1;
+            margin: 10px 0 5px 0;
             font-variant-numeric: tabular-nums;
+            letter-spacing: -2px;
+            text-shadow: 0 0 20px var(--accent-soft);
+            transition: color 0.3s ease;
         }
+
+        .energy-bar-container {
+            width: 100%;
+            height: 26px; /* Barra robusta */
+            background: var(--input-bg);
+            border-radius: 99px;
+            padding: 4px; /* Espacio entre el borde y la barra de color */
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.1);
+            border: 1px solid var(--item-border);
+            margin-bottom: 30px;
+            box-sizing: border-box;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .energy-bar-fill {
+            height: 100%;
+            width: 100%;
+            border-radius: 99px;
+            /* Gradiente animado */
+            background: linear-gradient(90deg, var(--danger) 0%, var(--accent) 50%, #8b5cf6 100%);
+            background-size: 200% 100%;
+            
+            /* Resplandor */
+            box-shadow: 0 0 15px var(--accent-glow);
+            
+            transition: width 0.1s linear, box-shadow 0.3s ease;
+            animation: flowGradient 3s infinite linear;
+        }
+
+        /* Animación del flujo de colores */
+        @keyframes flowGradient {
+            0% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Estado CRÍTICO (Poco tiempo) */
+        .energy-bar-fill.critical {
+            background: var(--danger);
+            background-size: 100%;
+            box-shadow: 0 0 25px var(--danger);
+            animation: pulseCritical 0.5s infinite alternate;
+        }
+
+        @keyframes pulseCritical {
+            from { opacity: 1; box-shadow: 0 0 10px var(--danger); }
+            to { opacity: 0.8; box-shadow: 0 0 30px var(--danger); }
+        }
+
+        /* -------------------------------------------------------------------------------- */
 
         .secret-word {
             font-size: 2rem;
@@ -409,12 +440,10 @@
         <div id="pistas" class="card screen">
             <h2 style="text-align:center; margin:0; color:var(--text-muted); font-size:16px;">Tiempo Restante</h2>
             
-            <div class="circular-timer">
-                <svg class="progress-ring" width="120" height="120">
-                    <circle class="progress-ring__circle-bg" stroke="var(--input-bg)" stroke-width="8" fill="transparent" r="52" cx="60" cy="60"/>
-                    <circle class="progress-ring__circle" stroke="var(--accent)" stroke-width="8" fill="transparent" r="52" cx="60" cy="60"/>
-                </svg>
-                <div class="timer-number-centered" id="timerValue">60</div>
+            <div class="timer-digital-display" id="timerValue">60</div>
+            
+            <div class="energy-bar-container">
+                <div class="energy-bar-fill" id="energyBar"></div>
             </div>
 
             <div style="text-align:center;">
@@ -444,7 +473,7 @@
         let palabras = JSON.parse(localStorage.getItem('palabras')) || ['Pizza', 'Tacos', 'Sushi'];
         let jugadores = JSON.parse(localStorage.getItem('jugadores')) || ['Jugador 1', 'Jugador 2', 'Jugador 3'];
         let turnoActual = 0;
-        let roles = []; // { nombre: "Juan", esImpostor: false, palabra: "Pizza" }
+        let roles = [];
         let palabraDeLaRonda = "";
         let impostorIndex = -1;
         let timerInterval;
@@ -510,11 +539,9 @@
             if(jugadores.length < 3) return alert("Mínimo 3 jugadores");
             if(palabras.length < 1) return alert("Añade palabras");
 
-            // Fisher-Yates shuffle para aleatoriedad real
             palabraDeLaRonda = palabras[Math.floor(Math.random() * palabras.length)];
             impostorIndex = Math.floor(Math.random() * jugadores.length);
             
-            // Crear roles mezclando jugadores
             let indices = jugadores.map((_, i) => i);
             for (let i = indices.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -530,9 +557,6 @@
                     palabra: esImpostor ? "IMPOSTOR" : palabraDeLaRonda
                 });
             });
-
-            // Reordenar roles para que no coincida el orden de ingreso
-            // (Opcional, pero bueno para evitar trampas visuales)
             
             turnoActual = 0;
             prepararTurno();
@@ -545,7 +569,7 @@
             document.getElementById('cajaRevelacion').style.display = 'none';
         }
 
-        /* --- REVELACIÓN DE ROL (HOLD BUTTON) --- */
+        /* --- REVELACIÓN DE ROL --- */
         let pressTimer;
         function empezarRevelar() {
             pressTimer = setTimeout(() => {
@@ -564,7 +588,7 @@
                     pRol.style.color = 'var(--text-main)';
                     box.style.borderColor = 'var(--accent)';
                 }
-            }, 800); // 800ms para revelar
+            }, 800); 
         }
         function terminarRevelar() {
             clearTimeout(pressTimer);
@@ -579,43 +603,33 @@
             }
         }
 
-        /* --- RONDA DE DISCUSIÓN & TIMER CIRCULAR --- */
+        /* --- RONDA DE DISCUSIÓN & ENERGY BAR TIMER --- */
         function iniciarRondaDiscusion() {
             mostrarSeccion('pistas');
             iniciarTemporizador();
-            
-            // Asignar palabra secreta al recordatorio (borrosa por CSS)
-            // Nota: Aquí no sabemos quién está mirando, así que ponemos la palabra
-            // o un texto genérico. Lo ideal es que cada uno recuerde su palabra.
-            // Para evitar trampas, mostraremos "?????" y solo si eres el ciudadano...
-            // Simplificación: Mostramos la palabra CIUDADANA. El impostor debe fingir que esa es su palabra.
             document.getElementById('palabraRecordatorio').innerText = palabraDeLaRonda; 
         }
 
+        // LÓGICA DE BARRA DE ENERGÍA
         function actualizarTimerUI(tiempoRestante, duracionTotal) {
             const timerVal = document.getElementById('timerValue');
-            const circle = document.querySelector('.progress-ring__circle');
+            const bar = document.getElementById('energyBar');
             
-            if (!timerVal || !circle) return;
+            if (!timerVal || !bar) return;
 
-            // 1. Texto
+            // 1. Texto Digital
             timerVal.innerText = Math.ceil(tiempoRestante);
 
-            // 2. Progreso SVG
-            const radio = 52;
-            const circunferencia = 2 * Math.PI * radio; 
-            // Clamp entre 0 y 1
-            const pct = Math.max(0, Math.min(1, tiempoRestante / duracionTotal));
-            const offset = circunferencia - (pct * circunferencia);
-            
-            circle.style.strokeDashoffset = offset;
+            // 2. Ancho de la barra (porcentaje)
+            const pct = (tiempoRestante / duracionTotal) * 100;
+            bar.style.width = pct + '%';
 
-            // 3. Color
-            if (pct <= 0.25) {
-                circle.style.stroke = 'var(--danger)';
+            // 3. Estados de color (Normal vs Crítico)
+            if (pct <= 25) {
+                bar.classList.add('critical'); // Añade parpadeo rojo
                 timerVal.style.color = 'var(--danger)';
             } else {
-                circle.style.stroke = 'var(--accent)';
+                bar.classList.remove('critical'); // Mantiene gradiente normal
                 timerVal.style.color = 'var(--text-main)';
             }
         }
@@ -635,7 +649,7 @@
 
                 if (tiempoRestante <= 0) {
                     clearInterval(timerInterval);
-                    navigator.vibrate([200, 100, 200]); // Vibrar si es móvil
+                    navigator.vibrate([200, 100, 200]); 
                     alert("¡Tiempo Agotado! A votar.");
                     finalizarDiscusion();
                 }
