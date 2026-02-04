@@ -614,13 +614,12 @@
             border-radius: 100px;
             background: var(--accent);
             position: relative;
+            /* Transición fluida del ancho, pero "rápida" para los colores del flash */
             transition: width 0.1s linear, background-color 0.4s ease-out, box-shadow 0.4s ease-out;
             box-shadow: none; 
         }
 
-        /* PUNTA BLANCA CON RESPLANDOR (Estado Permanente) 
-           - No hay reglas .critical para ::after, así que se mantiene siempre igual.
-        */
+        /* PUNTA BLANCA CON RESPLANDOR (Estado Normal) */
         .bar-inner::after {
             content: '';
             position: absolute;
@@ -628,11 +627,11 @@
             right: 0;
             width: 5px; 
             height: 100%;
-            background: #ffffff; 
+            background: #ffffff; /* Punta siempre blanca */
             border-radius: 100px;
             opacity: 1; 
             z-index: 2;
-            /* Resplandor blanco/brillante original */
+            /* Resplandor blanco original */
             box-shadow: 0 0 12px 2px #ffffff, 0 0 20px var(--accent-glow);
             transition: box-shadow 0.4s ease-out;
         }
@@ -643,12 +642,23 @@
             box-shadow: none;
         }
 
-        /* ESTADO "BEAT" (Solo la barra) - Destello Rojo tenue en la barra */
+        /* ESTADO CRÍTICO: PUNTA BLANCA SÓLIDA SIN RESPLANDOR 
+           (Esto evita que el blanco se mezcle con el rojo de la barra) */
+        .bar-inner.critical::after {
+            background: #ffffff !important;
+            box-shadow: none !important; /* ELIMINAMOS EL BRILLO BLANCO */
+        }
+
+        /* ESTADO "BEAT" (Latido) - Flash Rojo en la barra */
         .bar-inner.critical.beat {
-            background: #ff6666; /* Rojo un poco más claro para el destello */
-            box-shadow: 0 0 15px var(--danger); /* Glow rojo externo en la barra */
+            /* Destello rojo más claro en la barra */
+            background: #ff5555; 
+            /* Glow rojo fuerte alrededor de la barra */
+            box-shadow: 0 0 25px 5px var(--danger); 
             transition: all 0.05s ease-in;
         }
+        
+        /* El latido NO afecta a la punta, se queda blanca sólida y sin sombra */
 
         /* ---------------------------------------------------- */
 
