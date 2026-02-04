@@ -586,7 +586,7 @@
             display: inline-block;
         }
         
-        /* MODO CRÍTICO: NÚMEROS */
+        /* MODO CRÍTICO: NÚMEROS ROJOS */
         .timer-number.critical {
             color: var(--danger);
         }
@@ -614,12 +614,13 @@
             border-radius: 100px;
             background: var(--accent);
             position: relative;
-            /* Transición fluida del ancho, pero "rápida" para los colores del flash */
-            transition: width 0.1s linear, background-color 0.4s ease-out, box-shadow 0.4s ease-out;
+            transition: width 0.1s linear, background-color 0.4s ease-out;
             box-shadow: none; 
         }
 
-        /* PUNTA BLANCA CON RESPLANDOR (Estado Normal) */
+        /* PUNTA BLANCA CON RESPLANDOR (Estado Normal y Permanente) 
+           - La punta es blanca y brillante SIEMPRE, sin importar el modo.
+        */
         .bar-inner::after {
             content: '';
             position: absolute;
@@ -627,38 +628,24 @@
             right: 0;
             width: 5px; 
             height: 100%;
-            background: #ffffff; /* Punta siempre blanca */
+            background: #ffffff; 
             border-radius: 100px;
             opacity: 1; 
             z-index: 2;
-            /* Resplandor blanco original */
+            /* Resplandor blanco/brillante original */
             box-shadow: 0 0 12px 2px #ffffff, 0 0 20px var(--accent-glow);
-            transition: box-shadow 0.4s ease-out;
         }
 
-        /* ESTADO CRÍTICO (Solo la barra) - Fondo Rojo */
+        /* ESTADO CRÍTICO (Solo la barra) 
+           - Fondo Rojo sólido.
+           - SIN parpadeo (beat).
+           - SIN glow en la barra.
+           - La punta (::after) no se toca, por lo que sigue blanca y brillante.
+        */
         .bar-inner.critical {
             background: var(--danger);
             box-shadow: none;
         }
-
-        /* ESTADO CRÍTICO: PUNTA BLANCA SÓLIDA SIN RESPLANDOR 
-           (Esto evita que el blanco se mezcle con el rojo de la barra) */
-        .bar-inner.critical::after {
-            background: #ffffff !important;
-            box-shadow: none !important; /* ELIMINAMOS EL BRILLO BLANCO */
-        }
-
-        /* ESTADO "BEAT" (Latido) - Flash Rojo en la barra */
-        .bar-inner.critical.beat {
-            /* Destello rojo más claro en la barra */
-            background: #ff5555; 
-            /* Glow rojo fuerte alrededor de la barra */
-            box-shadow: 0 0 25px 5px var(--danger); 
-            transition: all 0.05s ease-in;
-        }
-        
-        /* El latido NO afecta a la punta, se queda blanca sólida y sin sombra */
 
         /* ---------------------------------------------------- */
 
@@ -1150,8 +1137,6 @@
         let timer = null;
         let tiempoRestante = 0;
         let timerRunning = false;
-        // VARIABLE NUEVA PARA SINCRONIZACIÓN PERFECTA
-        let ultimoSegundoEntero = -1;
 
         const SVG_PLAY = '<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
         const SVG_PAUSE = '<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
@@ -1255,7 +1240,6 @@
             palabraSeleccionada = '';
             votos = {};
             stopTemporizador();
-            ultimoSegundoEntero = -1;
         }
 
         function iniciarJuego() {
@@ -1280,7 +1264,6 @@
             document.getElementById('guessFeedback').innerText = '';
             document.getElementById('guessInput').value = '';
             document.getElementById('impostorGuessSection').style.display = 'none';
-            ultimoSegundoEntero = -1;
 
             if (palabrasDisponibles.length === 0) {
                 const ov = document.getElementById('alertFinOverlay');
@@ -1400,7 +1383,9 @@
         }
 
         /* -------------------------------------------------------------------------
-           MODIFICACIÓN DE UI: DETECCIÓN DE ENERGÍA CRÍTICA (SINCRONIZADA)
+           MODIFICACIÓN DE UI: DETECCIÓN DE ENERGÍA CRÍTICA
+           - Barra Roja Sólida (Sin latido, sin glow).
+           - Punta siempre Blanca + Glow.
         ------------------------------------------------------------------------- */
         function actualizarTimerUI(segundos) {
             const segundosEnteros = Math.ceil(segundos);
@@ -1412,31 +1397,13 @@
             
             barInner.style.width = (pct * 100) + '%';
             
-            // Si queda menos del 25%, se activa el modo "crítico"
+            // Si queda menos del 25%, se activa el modo "crítico" (barra roja sólida)
             if (pct < 0.25) {
                 barInner.classList.add('critical');
                 numElement.classList.add('critical');
-
-                // LÓGICA DE SINCRONIZACIÓN PERFECTA (LATIDO)
-                // Si el número entero cambió en este tick, dispara el latido visual
-                if (segundosEnteros !== ultimoSegundoEntero) {
-                    ultimoSegundoEntero = segundosEnteros;
-                    
-                    // Añadimos la clase para el destello
-                    barInner.classList.add('beat');
-                    
-                    // La quitamos rápidamente para que empiece el "decay"
-                    // 150ms es suficiente para que se registre el "ataque" visual
-                    setTimeout(() => {
-                        barInner.classList.remove('beat');
-                    }, 150);
-                }
-
             } else {
                 barInner.classList.remove('critical');
                 numElement.classList.remove('critical');
-                barInner.classList.remove('beat'); // Limpiar por si acaso
-                ultimoSegundoEntero = segundosEnteros;
             }
         }
 
