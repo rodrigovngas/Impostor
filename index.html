@@ -586,10 +586,6 @@
             display: inline-block;
         }
         
-        /* MODO CRÍTICO: NÚMEROS
-           - Sin animación de parpadeo ni escala
-           - Solo cambio de color
-        */
         .timer-number.critical {
             color: var(--danger);
         }
@@ -617,11 +613,12 @@
             border-radius: 100px;
             background: var(--accent);
             position: relative;
-            transition: width 0.1s linear, background-color 0.4s ease, box-shadow 0.4s ease;
+            /* La transición de width es fluida, la de background es más lenta para el "decay" del latido */
+            transition: width 0.1s linear, background-color 0.4s ease-out, box-shadow 0.4s ease-out;
             box-shadow: none; 
         }
 
-        /* PUNTA BLANCA CON RESPLANDOR FUERTE */
+        /* PUNTA BLANCA CON RESPLANDOR (Estado Normal) */
         .bar-inner::after {
             content: '';
             position: absolute;
@@ -633,39 +630,33 @@
             border-radius: 100px;
             opacity: 1; 
             z-index: 2;
-            /* Resplandor blanco + un toque del color del tema */
             box-shadow: 0 0 12px 2px #ffffff, 0 0 20px var(--accent-glow);
+            transition: box-shadow 0.4s ease-out;
         }
 
-        /* MODO CRÍTICO: LA BARRA "LATE" AL RITMO (1s)
-        */
+        /* ESTADO CRÍTICO (Base) - Rojo Oscuro, Glow tenue */
         .bar-inner.critical {
-            /* Duración de 1s para coincidir con el cambio de números (60, 59...) */
-            animation: barPulse 1s infinite ease-in-out;
+            background: var(--danger);
             box-shadow: none;
         }
 
         .bar-inner.critical::after {
-            background: #ffffff; /* Punta blanca sólida */
-            /* RESPLANDOR ROJO PURO: Sin blanco en el glow */
-            box-shadow: 0 0 15px 3px var(--danger);
-            opacity: 1;
+            background: #ffffff;
+            /* Punta blanca, resplandor rojo puro base */
+            box-shadow: 0 0 10px 1px var(--danger);
         }
 
-        @keyframes barPulse {
-            0% { 
-                background: var(--danger); 
-                box-shadow: 0 0 5px var(--danger);
-            }
-            50% { 
-                /* El punto máximo del "latido" - Más brillo */
-                background: #ff4d4d; 
-                box-shadow: 0 0 20px var(--danger);
-            }
-            100% { 
-                background: var(--danger); 
-                box-shadow: 0 0 5px var(--danger);
-            }
+        /* ESTADO "BEAT" (Latido) - Se activa por JS exactamente al cambiar el segundo */
+        .bar-inner.critical.beat {
+            background: #ff5555; /* Rojo brillante instantáneo */
+            /* Resplandor rojo intenso en la barra */
+            transition: background-color 0.05s ease-in, box-shadow 0.05s ease-in;
+        }
+
+        .bar-inner.critical.beat::after {
+            /* Resplandor rojo explosivo en la punta */
+            box-shadow: 0 0 25px 4px var(--danger);
+            transition: box-shadow 0.05s ease-in;
         }
 
         /* ---------------------------------------------------- */
@@ -1068,14 +1059,10 @@
         }
 
         function confirmarReinicio() {
-            // Limpia arrays en memoria
             palabras = [];
             jugadores = [];
-
-            // Limpia localStorage
             localStorage.removeItem('impostor_palabras');
             localStorage.removeItem('impostor_jugadores');
-
             resetGameData();
             renderPalabras();
             renderJugadores();
@@ -1129,7 +1116,6 @@
             }, 300);
         }
 
-        /* --- FUNCIÓN AUXILIAR: FISHER-YATES SHUFFLE --- */
         function mezclarArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -1138,7 +1124,6 @@
             return array;
         }
 
-        /* --- GESTIÓN DE DATOS CON LOCALSTORAGE --- */
         function guardarDatos() {
             localStorage.setItem('impostor_palabras', JSON.stringify(palabras));
             localStorage.setItem('impostor_jugadores', JSON.stringify(jugadores));
@@ -1164,11 +1149,12 @@
         let timer = null;
         let tiempoRestante = 0;
         let timerRunning = false;
+        // VARIABLE NUEVA PARA SINCRONIZACIÓN PERFECTA
+        let ultimoSegundoEntero = -1;
 
         const SVG_PLAY = '<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
         const SVG_PAUSE = '<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
 
-        // --- MODO OSCURO AUTOMÁTICO Y MANUAL ---
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
             document.documentElement.classList.add('dark');
         }
@@ -1203,7 +1189,7 @@
             const p = input.value.trim();
             if (!p) return;
             palabras.push(p);
-            guardarDatos(); // Guardar en LocalStorage
+            guardarDatos();
             renderPalabras();
             input.value = '';
             input.focus();
@@ -1211,7 +1197,7 @@
 
         function eliminarPalabra(index) {
             palabras.splice(index, 1);
-            guardarDatos(); // Guardar en LocalStorage
+            guardarDatos();
             renderPalabras();
         }
 
@@ -1223,7 +1209,6 @@
             }
             palabras.forEach((p, index) => {
                 const li = document.createElement('li');
-                // Nota: El span ahora aplica la clase blur/shadow automáticamente por CSS
                 li.innerHTML = `<span>${p}</span><button class="btn-icon btn-delete" onclick="eliminarPalabra(${index})">&times;</button>`;
                 ul.appendChild(li);
             });
@@ -1234,7 +1219,7 @@
             const name = input.value.trim();
             if (!name) return;
             jugadores.push(name);
-            guardarDatos(); // Guardar en LocalStorage
+            guardarDatos();
             renderJugadores();
             input.value = '';
             input.focus();
@@ -1242,7 +1227,7 @@
 
         function eliminarJugador(index) {
             jugadores.splice(index, 1);
-            guardarDatos(); // Guardar en LocalStorage
+            guardarDatos();
             renderJugadores();
         }
 
@@ -1269,6 +1254,7 @@
             palabraSeleccionada = '';
             votos = {};
             stopTemporizador();
+            ultimoSegundoEntero = -1;
         }
 
         function iniciarJuego() {
@@ -1293,6 +1279,7 @@
             document.getElementById('guessFeedback').innerText = '';
             document.getElementById('guessInput').value = '';
             document.getElementById('impostorGuessSection').style.display = 'none';
+            ultimoSegundoEntero = -1;
 
             if (palabrasDisponibles.length === 0) {
                 const ov = document.getElementById('alertFinOverlay');
@@ -1306,9 +1293,7 @@
             palabraSeleccionada = palabrasDisponibles[randomIndex];
             palabrasDisponibles.splice(randomIndex, 1);
 
-            // USO DE FISHER-YATES EN LUGAR DE SORT ALEATORIO
             jugadoresMezclados = mezclarArray([...jugadores]);
-
             impostor = jugadoresMezclados[Math.floor(Math.random() * jugadoresMezclados.length)];
 
             indiceActual = 0;
@@ -1353,7 +1338,6 @@
 
         function showContent(e) {
             if (e.cancelable && e.type === 'touchstart') e.preventDefault();
-
             const jugador = jugadoresMezclados[indiceActual];
             if (jugador === impostor) {
                 revealBox.className = 'reveal impostor-mode';
@@ -1362,12 +1346,9 @@
                 revealBox.className = 'reveal';
                 revealBox.innerHTML = `<div class="reveal-title">La palabra es</div><div class="reveal-word">${palabraSeleccionada}</div>`;
             }
-
             btnReveal.style.display = 'none';
             revealBox.style.display = 'flex';
-
             document.getElementById('btnSiguiente').classList.remove('btn-locked');
-
             document.addEventListener('mouseup', hideContent);
             document.addEventListener('touchend', hideContent);
             document.addEventListener('touchcancel', hideContent);
@@ -1385,7 +1366,6 @@
         btnReveal.addEventListener('touchstart', showContent, {
             passive: false
         });
-
 
         function iniciarTemporizador() {
             const btn = document.getElementById('botonIniciarTimer');
@@ -1419,24 +1399,43 @@
         }
 
         /* -------------------------------------------------------------------------
-           MODIFICACIÓN DE UI: DETECCIÓN DE ENERGÍA CRÍTICA
+           MODIFICACIÓN DE UI: DETECCIÓN DE ENERGÍA CRÍTICA (SINCRONIZADA)
         ------------------------------------------------------------------------- */
         function actualizarTimerUI(segundos) {
+            const segundosEnteros = Math.ceil(segundos);
             const numElement = document.getElementById('timerNumber');
-            numElement.innerText = Math.ceil(segundos);
+            numElement.innerText = segundosEnteros;
             
             const pct = Math.max(0, Math.min(1, segundos / duracion));
             const barInner = document.getElementById('timerBar');
             
             barInner.style.width = (pct * 100) + '%';
             
-            // Si queda menos del 25%, se activa el modo "crítico" (rojo respirando)
+            // Si queda menos del 25%, se activa el modo "crítico"
             if (pct < 0.25) {
                 barInner.classList.add('critical');
                 numElement.classList.add('critical');
+
+                // LÓGICA DE SINCRONIZACIÓN PERFECTA (LATIDO)
+                // Si el número entero cambió en este tick, dispara el latido visual
+                if (segundosEnteros !== ultimoSegundoEntero) {
+                    ultimoSegundoEntero = segundosEnteros;
+                    
+                    // Añadimos la clase para el destello
+                    barInner.classList.add('beat');
+                    
+                    // La quitamos rápidamente para que empiece el "decay"
+                    // 150ms es suficiente para que se registre el "ataque" visual
+                    setTimeout(() => {
+                        barInner.classList.remove('beat');
+                    }, 150);
+                }
+
             } else {
                 barInner.classList.remove('critical');
                 numElement.classList.remove('critical');
+                barInner.classList.remove('beat'); // Limpiar por si acaso
+                ultimoSegundoEntero = segundosEnteros;
             }
         }
 
