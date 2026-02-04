@@ -593,7 +593,6 @@
         .timer-number.critical {
             color: var(--danger);
             text-shadow: 0 0 15px var(--danger-soft);
-            /* Animación suave, sin glitch */
             animation: textBreath 1s infinite alternate;
         }
         
@@ -603,14 +602,14 @@
         }
 
         /* ----------------------------------------------------
-           NUEVO ESTILO: BARRA DE ENERGÍA FLUIDA (MINIMAL)
+           BARRA DE ENERGÍA SÓLIDA
         ---------------------------------------------------- */
         .bar-outer {
             width: 100%;
-            height: 14px; /* Un poco más fina y elegante */
+            height: 14px; 
             background: rgba(0,0,0,0.06); 
-            border-radius: 100px; /* Redondeado completo */
-            overflow: visible; /* Permitir brillo externo */
+            border-radius: 100px;
+            overflow: visible; 
             position: relative;
             border: none;
         }
@@ -623,42 +622,37 @@
             height: 100%;
             width: 100%;
             border-radius: 100px;
-            
-            /* COLOR SÓLIDO (Sin gradientes extraños) */
             background: var(--accent);
-            
             position: relative;
             transition: width 0.1s linear, background-color 0.4s ease, box-shadow 0.4s ease;
-            
-            /* Glow suave y elegante */
             box-shadow: 0 0 15px var(--accent-soft);
         }
 
-        /* Destello en la punta (Leading Spark) */
+        /* CORRECCIÓN: Destello SÓLIDO (Sin transparencia) */
         .bar-inner::after {
             content: '';
             position: absolute;
             top: 0;
             right: 0;
-            width: 4px;
+            width: 5px; /* Un poco más visible */
             height: 100%;
             background: #ffffff;
             border-radius: 100px;
-            box-shadow: 0 0 10px #ffffff;
-            opacity: 0.8;
+            /* Glow más intenso y sólido alrededor */
+            box-shadow: 0 0 12px 1px #ffffff; 
+            opacity: 1; /* Sólido al 100% */
             z-index: 2;
         }
 
-        /* ESTADO CRÍTICO (Poco tiempo) */
+        /* ESTADO CRÍTICO */
         .bar-inner.critical {
             background: var(--danger);
-            /* Animación de "respiración" en el glow */
             animation: glowBreath 1s infinite alternate ease-in-out;
         }
 
         .bar-inner.critical::after {
-            background: #ffebeb;
-            box-shadow: 0 0 8px #fff;
+            background: #ffffff; /* Mantiene el centro blanco */
+            box-shadow: 0 0 10px #ffffff, 0 0 20px var(--danger); /* Glow blanco y rojo */
         }
 
         @keyframes glowBreath {
@@ -789,30 +783,23 @@
         }
 
         /* ----------------------------------------------------
-           MODIFICACIÓN: BLUR MEJORADO (SIN CUADROS)
+           BLUR MEJORADO
         ---------------------------------------------------- */
         #listaPalabras li span {
             display: inline-block;
-            /* Evita problemas de renderizado inline */
             color: transparent;
-            /* Texto invisible de base */
             text-shadow: 0 0 10px var(--text-main);
-            /* La sombra es la que se ve borrosa */
             cursor: help;
             transition: all 0.3s ease;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
-            /* Quita el cuadro azul al tocar */
             padding: 0 4px;
-            /* Un poco de aire para que no se corte el difuminado */
         }
 
         #listaPalabras li span:hover,
         #listaPalabras li span:active {
             color: var(--text-main);
-            /* Muestra el color real */
             text-shadow: none;
-            /* Quita el difuminado */
         }
     </style>
 </head>
