@@ -614,12 +614,13 @@
             border-radius: 100px;
             background: var(--accent);
             position: relative;
-            /* La transición de width es fluida, la de background es más lenta para el "decay" del latido */
             transition: width 0.1s linear, background-color 0.4s ease-out, box-shadow 0.4s ease-out;
             box-shadow: none; 
         }
 
-        /* PUNTA BLANCA CON RESPLANDOR (Estado Normal y Permanente) */
+        /* PUNTA BLANCA CON RESPLANDOR (Estado Permanente) 
+           - No hay reglas .critical para ::after, así que se mantiene siempre igual.
+        */
         .bar-inner::after {
             content: '';
             position: absolute;
@@ -627,41 +628,26 @@
             right: 0;
             width: 5px; 
             height: 100%;
-            /* ESTO ASEGURA QUE LA PUNTA SEA SIEMPRE BLANCA */
-            background: #ffffff !important; 
+            background: #ffffff; 
             border-radius: 100px;
             opacity: 1; 
             z-index: 2;
-            /* Resplandor original blanco/azulado */
+            /* Resplandor blanco/brillante original */
             box-shadow: 0 0 12px 2px #ffffff, 0 0 20px var(--accent-glow);
             transition: box-shadow 0.4s ease-out;
         }
 
-        /* ESTADO CRÍTICO: Barra Roja */
+        /* ESTADO CRÍTICO (Solo la barra) - Fondo Rojo */
         .bar-inner.critical {
             background: var(--danger);
             box-shadow: none;
         }
 
-        /* En estado crítico, la punta sigue siendo BLANCA con glow BLANCO (forzado) */
-        .bar-inner.critical::after {
-            background: #ffffff !important;
-            box-shadow: 0 0 12px 2px #ffffff, 0 0 20px rgba(255,255,255,0.8) !important;
-        }
-
-        /* ESTADO "BEAT" (Latido) - Solo afecta a la BARRA (Fondo) */
+        /* ESTADO "BEAT" (Solo la barra) - Destello Rojo tenue en la barra */
         .bar-inner.critical.beat {
-            /* Destello tenue: Aclaramos el rojo un poco */
-            background: #ff6666; 
-            /* Glow suave alrededor de la barra roja */
-            box-shadow: 0 0 15px var(--danger); 
+            background: #ff6666; /* Rojo un poco más claro para el destello */
+            box-shadow: 0 0 15px var(--danger); /* Glow rojo externo en la barra */
             transition: all 0.05s ease-in;
-        }
-
-        /* El latido NO toca la punta */
-        .bar-inner.critical.beat::after {
-            background: #ffffff !important;
-            box-shadow: 0 0 12px 2px #ffffff, 0 0 20px rgba(255,255,255,0.8) !important;
         }
 
         /* ---------------------------------------------------- */
