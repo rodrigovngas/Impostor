@@ -586,6 +586,7 @@
             display: inline-block;
         }
         
+        /* MODO CRÍTICO: NÚMEROS */
         .timer-number.critical {
             color: var(--danger);
         }
@@ -626,7 +627,8 @@
             right: 0;
             width: 5px; 
             height: 100%;
-            background: #ffffff;
+            /* ESTO ASEGURA QUE LA PUNTA SEA SIEMPRE BLANCA */
+            background: #ffffff !important; 
             border-radius: 100px;
             opacity: 1; 
             z-index: 2;
@@ -634,27 +636,26 @@
             transition: box-shadow 0.4s ease-out;
         }
 
-        /* ESTADO CRÍTICO (Base) - Rojo Oscuro, Glow tenue */
+        /* ESTADO CRÍTICO (Base) - Rojo Oscuro */
         .bar-inner.critical {
             background: var(--danger);
             box-shadow: none;
         }
 
+        /* ESTADO CRÍTICO: Punta blanca + Glow Rojo */
         .bar-inner.critical::after {
-            background: #ffffff;
-            /* Punta blanca, resplandor rojo puro base */
-            box-shadow: 0 0 10px 1px var(--danger);
+            background: #ffffff !important; /* Punta BLANCA sólida */
+            box-shadow: 0 0 10px 1px var(--danger); /* Glow ROJO */
         }
 
-        /* ESTADO "BEAT" (Latido) - Se activa por JS exactamente al cambiar el segundo */
+        /* ESTADO "BEAT" (Latido) - Flash de luz */
         .bar-inner.critical.beat {
-            background: #ff5555; /* Rojo brillante instantáneo */
-            /* Resplandor rojo intenso en la barra */
-            transition: background-color 0.05s ease-in, box-shadow 0.05s ease-in;
+            background: #ff5555; /* Rojo más claro (flash) */
         }
 
         .bar-inner.critical.beat::after {
-            /* Resplandor rojo explosivo en la punta */
+            background: #ffffff !important; /* Mantiene el blanco */
+            /* Glow ROJO intenso (flash) */
             box-shadow: 0 0 25px 4px var(--danger);
             transition: box-shadow 0.05s ease-in;
         }
