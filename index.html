@@ -36,8 +36,7 @@
 
             --danger: #ef4444;
             --danger-soft: rgba(239, 68, 68, 0.1);
-            --danger-glow: rgba(239, 68, 68, 0.5); /* Glow rojo para el pánico */
-
+            
             --dot-color: #cbd5e1;
         }
 
@@ -642,21 +641,27 @@
         */
         .bar-inner.critical {
             animation: barFlash 0.3s infinite alternate;
+            /* Eliminamos el glow de la barra para que no se vea difusa */
+            box-shadow: none;
         }
 
         .bar-inner.critical::after {
-            /* La punta se mantiene blanca con resplandor rojo */
-            box-shadow: 0 0 12px 2px #ffffff, 0 0 20px var(--danger);
+            background: #ffffff; /* Punta blanca sólida */
+            /* RESPLANDOR ROJO PURO: Eliminamos el blanco del box-shadow */
+            box-shadow: 0 0 15px 2px var(--danger);
+            opacity: 1;
         }
 
         @keyframes barFlash {
             from { 
                 background: var(--danger); 
-                box-shadow: 0 0 10px var(--danger-soft);
+                /* Glow muy sutil rojo */
+                box-shadow: 0 0 5px var(--danger);
             }
             to { 
-                background: #ff7777; /* Rojo más claro/brillante */
-                box-shadow: 0 0 25px var(--danger);
+                background: #ff4d4d; /* Rojo un poco más claro, no blanco */
+                /* Glow moderado rojo */
+                box-shadow: 0 0 12px var(--danger);
             }
         }
 
