@@ -67,6 +67,28 @@
         /* ----------------------------------------------------
            COMPORTAMIENTO NATIVO Y PROTECCIÓN CSS
         ---------------------------------------------------- */
+        html,
+        body {
+            height: 100dvh;
+            width: 100vw;
+            margin: 0;
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(var(--dot-color) 1.5px, transparent 1.5px);
+            background-size: 32px 32px;
+            background-attachment: fixed;
+            color: var(--text-main);
+            overflow-x: hidden;
+            overflow-y: auto;
+            overscroll-behavior-y: none;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            transition: color 0.4s ease, background-color 0.4s ease;
+            cursor: default;
+            touch-action: manipulation;
+            -ms-touch-action: manipulation;
+        }
+
         * {
             -webkit-tap-highlight-color: transparent;
             -webkit-touch-callout: none;
@@ -114,26 +136,6 @@
         ul {
             scrollbar-width: none;
             -ms-overflow-style: none;
-        }
-
-        html,
-        body {
-            height: 100dvh;
-            width: 100vw;
-            margin: 0;
-            font-family: 'Outfit', sans-serif;
-            background-color: var(--bg-color);
-            background-image: radial-gradient(var(--dot-color) 1.5px, transparent 1.5px);
-            background-size: 32px 32px;
-            background-attachment: fixed;
-            color: var(--text-main);
-            overflow-x: hidden;
-            overflow-y: auto;
-            overscroll-behavior-y: none;
-            scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch;
-            transition: color 0.4s ease, background-color 0.4s ease;
-            cursor: default;
         }
 
         .app {
@@ -247,7 +249,6 @@
             opacity: 1;
             transform: translate(-50%, -50%) rotate(0deg) scale(1);
         }
-
 
         /* --- TARJETAS --- */
         .card {
@@ -946,8 +947,10 @@
                 if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
             }
         })();
-        /* -------------------------------------------------------------------------------- */
 
+        /* --------------------------------------------------------------------------------
+           LÓGICA PRINCIPAL DEL JUEGO
+        -------------------------------------------------------------------------------- */
         const titleElement = document.querySelector('h1');
         const textToType = "El Impostor";
         let charIndex = 0;
@@ -1009,11 +1012,11 @@
             // Limpia arrays en memoria
             palabras = [];
             jugadores = [];
-            
+
             // Limpia localStorage (NUEVO)
             localStorage.removeItem('impostor_palabras');
             localStorage.removeItem('impostor_jugadores');
-            
+
             resetGameData();
             renderPalabras();
             renderJugadores();
@@ -1246,7 +1249,7 @@
 
             // USO DE FISHER-YATES EN LUGAR DE SORT ALEATORIO
             jugadoresMezclados = mezclarArray([...jugadores]);
-            
+
             impostor = jugadoresMezclados[Math.floor(Math.random() * jugadoresMezclados.length)];
 
             indiceActual = 0;
@@ -1462,23 +1465,15 @@
             }
         });
 
-        mostrarSeccion('admin');
-        
         // --- INICIALIZACIÓN: CARGAR DATOS GUARDADOS ---
         cargarDatos();
         renderPalabras();
         renderJugadores();
-    </script>
+        mostrarSeccion('admin');
 
-    <style>
-        html,
-        body {
-            touch-action: manipulation;
-            -ms-touch-action: manipulation;
-        }
-    </style>
-
-    <script>
+        /* --------------------------------------------------------------------------------
+           EVENTOS TÁCTILES Y GESTOS
+        -------------------------------------------------------------------------------- */
         document.addEventListener('gesturestart', function(e) {
             e.preventDefault();
         });
