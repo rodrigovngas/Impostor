@@ -619,7 +619,7 @@
             box-shadow: none; 
         }
 
-        /* PUNTA BLANCA CON RESPLANDOR (Estado Normal) */
+        /* PUNTA BLANCA CON RESPLANDOR (Estado Normal y Permanente) */
         .bar-inner::after {
             content: '';
             position: absolute;
@@ -632,32 +632,36 @@
             border-radius: 100px;
             opacity: 1; 
             z-index: 2;
+            /* Resplandor original blanco/azulado */
             box-shadow: 0 0 12px 2px #ffffff, 0 0 20px var(--accent-glow);
             transition: box-shadow 0.4s ease-out;
         }
 
-        /* ESTADO CRÍTICO (Base) - Rojo Oscuro */
+        /* ESTADO CRÍTICO: Barra Roja */
         .bar-inner.critical {
             background: var(--danger);
             box-shadow: none;
         }
 
-        /* ESTADO CRÍTICO: Punta blanca + Glow Rojo */
+        /* En estado crítico, la punta sigue siendo BLANCA con glow BLANCO (forzado) */
         .bar-inner.critical::after {
-            background: #ffffff !important; /* Punta BLANCA sólida */
-            box-shadow: 0 0 10px 1px var(--danger); /* Glow ROJO */
+            background: #ffffff !important;
+            box-shadow: 0 0 12px 2px #ffffff, 0 0 20px rgba(255,255,255,0.8) !important;
         }
 
-        /* ESTADO "BEAT" (Latido) - Flash de luz */
+        /* ESTADO "BEAT" (Latido) - Solo afecta a la BARRA (Fondo) */
         .bar-inner.critical.beat {
-            background: #ff5555; /* Rojo más claro (flash) */
+            /* Destello tenue: Aclaramos el rojo un poco */
+            background: #ff6666; 
+            /* Glow suave alrededor de la barra roja */
+            box-shadow: 0 0 15px var(--danger); 
+            transition: all 0.05s ease-in;
         }
 
+        /* El latido NO toca la punta */
         .bar-inner.critical.beat::after {
-            background: #ffffff !important; /* Mantiene el blanco */
-            /* Glow ROJO intenso (flash) */
-            box-shadow: 0 0 25px 4px var(--danger);
-            transition: box-shadow 0.05s ease-in;
+            background: #ffffff !important;
+            box-shadow: 0 0 12px 2px #ffffff, 0 0 20px rgba(255,255,255,0.8) !important;
         }
 
         /* ---------------------------------------------------- */
