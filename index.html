@@ -567,12 +567,30 @@
             100% { box-shadow: 0 0 0 15px transparent; transform: scale(1); }
         }
 
+        /* ----------------------------------------------------
+           ANIMACIÓN DE LATIDO (PANIC MODE)
+        ---------------------------------------------------- */
+        @keyframes latido {
+            0% { transform: scale(1); }
+            15% { transform: scale(1.03); }
+            30% { transform: scale(1); }
+            45% { transform: scale(1.03); }
+            60% { transform: scale(1); }
+            100% { transform: scale(1); }
+        }
+
         .timer-wrap {
             display: flex;
             flex-direction: column;
             gap: 12px;
             align-items: center;
             margin: 20px 0;
+            transition: all 0.3s ease;
+        }
+        
+        /* Cuando entra en pánico (<= 15s), todo el contenedor late */
+        .timer-wrap.panic-mode {
+            animation: latido 1.2s infinite;
         }
 
         .timer-number {
@@ -586,13 +604,13 @@
             display: inline-block;
         }
         
-        /* MODO CRÍTICO: NÚMEROS ROJOS */
-        .timer-number.critical {
+        /* En pánico, el número se pone rojo */
+        .timer-wrap.panic-mode .timer-number {
             color: var(--danger);
         }
 
         /* ----------------------------------------------------
-           BARRA DE ENERGÍA SÓLIDA CON PUNTA BRILLANTE
+           BARRA DE ENERGÍA
         ---------------------------------------------------- */
         .bar-outer {
             width: 100%;
@@ -614,38 +632,17 @@
             border-radius: 100px;
             background: var(--accent);
             position: relative;
-            transition: width 0.1s linear, background-color 0.4s ease-out;
+            transition: width 0.1s linear, background-color 0.3s ease;
             box-shadow: none; 
         }
 
-        /* PUNTA BLANCA CON RESPLANDOR (Estado Normal y Permanente) 
-           - La punta es blanca y brillante SIEMPRE, sin importar el modo.
-        */
-        .bar-inner::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 5px; 
-            height: 100%;
-            background: #ffffff; 
-            border-radius: 100px;
-            opacity: 1; 
-            z-index: 2;
-            /* Resplandor blanco/brillante original */
-            box-shadow: 0 0 12px 2px #ffffff, 0 0 20px var(--accent-glow);
+        /* En pánico, la barra se pone roja y brilla */
+        .timer-wrap.panic-mode .bar-inner {
+            background: var(--danger);
+            box-shadow: 0 0 15px var(--danger-soft);
         }
 
-        /* ESTADO CRÍTICO (Solo la barra) 
-           - Fondo Rojo sólido.
-           - SIN parpadeo (beat).
-           - SIN glow en la barra.
-           - La punta (::after) no se toca, por lo que sigue blanca y brillante.
-        */
-        .bar-inner.critical {
-            background: var(--danger);
-            box-shadow: none;
-        }
+        /* NOTA: He eliminado el ::after que generaba la punta blanca brillante */
 
         /* ---------------------------------------------------- */
 
@@ -883,7 +880,7 @@
                     <div style="font-weight:800; font-size:18px; color:var(--text-main)">Describan la palabra</div>
                 </div>
             </div>
-            <div class="timer-wrap">
+            <div id="mainTimerContainer" class="timer-wrap">
                 <div class="timer-number" id="timerNumber">60</div>
                 <div class="bar-outer">
                     <div id="timerBar" class="bar-inner"></div>
@@ -1346,11 +1343,6 @@
             document.removeEventListener('touchcancel', hideContent);
         }
 
-        btnReveal.addEventListener('mousedown', showContent);
-        btnReveal.addEventListener('touchstart', showContent, {
-            passive: false
-        });
-
         function iniciarTemporizador() {
             const btn = document.getElementById('botonIniciarTimer');
             if (timerRunning) {
@@ -1383,9 +1375,9 @@
         }
 
         /* -------------------------------------------------------------------------
-           MODIFICACIÓN DE UI: DETECCIÓN DE ENERGÍA CRÍTICA
-           - Barra Roja Sólida (Sin latido, sin glow).
-           - Punta siempre Blanca + Glow.
+           MODIFICACIÓN DE UI: DETECCIÓN DE ENERGÍA CRÍTICA (15 Segundos)
+           - Sin punta blanca.
+           - Latido en contenedor y barra.
         ------------------------------------------------------------------------- */
         function actualizarTimerUI(segundos) {
             const segundosEnteros = Math.ceil(segundos);
@@ -1394,16 +1386,20 @@
             
             const pct = Math.max(0, Math.min(1, segundos / duracion));
             const barInner = document.getElementById('timerBar');
+            const timerContainer = document.getElementById('mainTimerContainer');
             
             barInner.style.width = (pct * 100) + '%';
             
-            // Si queda menos del 25%, se activa el modo "crítico" (barra roja sólida)
-            if (pct < 0.25) {
-                barInner.classList.add('critical');
-                numElement.classList.add('critical');
+            // Si quedan 15 segundos o menos (y no es 0 aun o estamos en juego)
+            if (segundos <= 15 && segundos > 0) {
+                timerContainer.classList.add('panic-mode');
             } else {
-                barInner.classList.remove('critical');
-                numElement.classList.remove('critical');
+                timerContainer.classList.remove('panic-mode');
+            }
+            
+            // Limpieza si el tiempo llega a 0 absoluto (opcional, pero estético)
+            if (segundos <= 0) {
+                 timerContainer.classList.remove('panic-mode');
             }
         }
 
