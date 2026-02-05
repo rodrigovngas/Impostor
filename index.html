@@ -572,53 +572,37 @@
             100% { box-shadow: 0 0 0 15px transparent; transform: scale(1); }
         }
 
-        /* --- NUEVO CSS PARA TIMER CIRCULAR (Smartwatch) --- */
         .timer-wrap {
-            position: relative;
-            width: 220px;
-            height: 220px;
-            margin: 10px auto 20px auto;
             display: flex;
+            flex-direction: column;
+            gap: 12px;
             align-items: center;
-            justify-content: center;
-        }
-
-        .timer-svg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            transform: rotate(-90deg); /* Para que empiece arriba */
-            pointer-events: none;
-        }
-
-        .circle-bg {
-            fill: none;
-            stroke: var(--input-bg);
-            stroke-width: 10;
-        }
-
-        .circle-fg {
-            fill: none;
-            stroke: var(--accent);
-            stroke-width: 10;
-            stroke-linecap: round;
-            stroke-dasharray: 283; /* 2 * pi * 45 ≈ 283 */
-            stroke-dashoffset: 0;
-            transition: stroke-dashoffset 0.1s linear, stroke 0.3s ease;
-            filter: drop-shadow(0 0 4px var(--accent-glow));
+            margin: 20px 0;
         }
 
         .timer-number {
             font-size: 72px;
             font-weight: 900;
             color: var(--text-main);
-            line-height: 1;
-            z-index: 2;
             font-variant-numeric: tabular-nums;
+            line-height: 1;
         }
-        /* ------------------------------------------------ */
+
+        .bar-outer {
+            width: 100%;
+            height: 12px;
+            background: var(--input-bg);
+            border-radius: 99px;
+            overflow: hidden;
+        }
+
+        .bar-inner {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, var(--danger) 0%, var(--accent) 100%);
+            border-radius: 99px;
+            transition: width 0.1s linear;
+        }
 
         .controls {
             display: flex;
@@ -741,21 +725,31 @@
             margin-bottom: 24px;
         }
 
+        /* ----------------------------------------------------
+           MODIFICACIÓN: BLUR MEJORADO (SIN CUADROS)
+        ---------------------------------------------------- */
         #listaPalabras li span {
             display: inline-block;
+            /* Evita problemas de renderizado inline */
             color: transparent;
+            /* Texto invisible de base */
             text-shadow: 0 0 10px var(--text-main);
+            /* La sombra es la que se ve borrosa */
             cursor: help;
             transition: all 0.3s ease;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
+            /* Quita el cuadro azul al tocar */
             padding: 0 4px;
+            /* Un poco de aire para que no se corte el difuminado */
         }
 
         #listaPalabras li span:hover,
         #listaPalabras li span:active {
             color: var(--text-main);
+            /* Muestra el color real */
             text-shadow: none;
+            /* Quita el difuminado */
         }
     </style>
 </head>
@@ -851,15 +845,12 @@
                     <div style="font-weight:800; font-size:18px; color:var(--text-main)">Describan la palabra</div>
                 </div>
             </div>
-            
             <div class="timer-wrap">
-                <svg class="timer-svg" viewBox="0 0 100 100">
-                    <circle class="circle-bg" cx="50" cy="50" r="45"></circle>
-                    <circle id="timerCircle" class="circle-fg" cx="50" cy="50" r="45"></circle>
-                </svg>
                 <div class="timer-number" id="timerNumber">60</div>
+                <div class="bar-outer">
+                    <div id="timerBar" class="bar-inner"></div>
+                </div>
             </div>
-
             <div class="controls">
                 <button id="botonIniciarTimer" style="flex:1.5" onclick="iniciarTemporizador()">
                     <svg viewBox="0 0 24 24">
@@ -1173,6 +1164,7 @@
             }
             palabras.forEach((p, index) => {
                 const li = document.createElement('li');
+                // Nota: El span ahora aplica la clase blur/shadow automáticamente por CSS
                 li.innerHTML = `<span>${p}</span><button class="btn-icon btn-delete" onclick="eliminarPalabra(${index})">&times;</button>`;
                 ul.appendChild(li);
             });
@@ -1255,6 +1247,7 @@
             palabraSeleccionada = palabrasDisponibles[randomIndex];
             palabrasDisponibles.splice(randomIndex, 1);
 
+            // USO DE FISHER-YATES EN LUGAR DE SORT ALEATORIO
             jugadoresMezclados = mezclarArray([...jugadores]);
 
             impostor = jugadoresMezclados[Math.floor(Math.random() * jugadoresMezclados.length)];
@@ -1366,30 +1359,11 @@
             timerRunning = false;
         }
 
-        /* --- NUEVA FUNCIÓN PARA TIMER CIRCULAR --- */
         function actualizarTimerUI(segundos) {
             document.getElementById('timerNumber').innerText = Math.ceil(segundos);
-            
             const pct = Math.max(0, Math.min(1, segundos / duracion));
-            
-            // Lógica del anillo SVG
-            const circle = document.getElementById('timerCircle');
-            const circumference = 283; 
-            const offset = circumference - (pct * circumference);
-            
-            if(circle) {
-                circle.style.strokeDashoffset = offset;
-
-                if (pct <= 0.2) {
-                    circle.style.stroke = 'var(--danger)';
-                    circle.style.filter = 'drop-shadow(0 0 6px var(--danger-glow))';
-                } else {
-                    circle.style.stroke = 'var(--accent)';
-                    circle.style.filter = 'drop-shadow(0 0 4px var(--accent-glow))';
-                }
-            }
+            document.getElementById('timerBar').style.width = (pct * 100) + '%';
         }
-        /* ----------------------------------------- */
 
         function saltarAPuesta() {
             stopTemporizador();
