@@ -590,6 +590,7 @@
             height: 100%;
             transform: rotate(-90deg); /* Para que empiece arriba */
             pointer-events: none;
+            overflow: visible; /* IMPORTANTE: Permite que el latido salga del borde */
         }
 
         .circle-bg {
@@ -630,7 +631,8 @@
         .circle-fg.critical {
             stroke: var(--danger) !important;
             filter: drop-shadow(0 0 10px var(--danger)) !important;
-            transform-origin: center;
+            transform-origin: center center; /* Asegura latido desde el centro */
+            transform-box: fill-box; /* Corrección para algunos navegadores */
             animation: heartBeat 1s infinite ease-in-out;
         }
 
