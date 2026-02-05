@@ -622,21 +622,23 @@
 
         /* --- ESTILOS DE PÁNICO (ÚLTIMOS 15 SEGUNDOS) --- */
         @keyframes heartBeat {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.05); opacity: 0.8; }
-            100% { transform: scale(1); opacity: 1; }
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); } /* Crece un 5% todo el conjunto */
+            100% { transform: scale(1); }
         }
 
-        /* Estado crítico del círculo: Rojo + Latido */
-        .circle-fg.critical {
-            stroke: var(--danger) !important;
-            filter: drop-shadow(0 0 10px var(--danger)) !important;
-            transform-origin: center center; /* Asegura latido desde el centro */
-            transform-box: fill-box; /* Corrección para algunos navegadores */
+        /* APLICAMOS EL LATIDO AL CONTENEDOR ENTERO */
+        .timer-wrap.critical {
             animation: heartBeat 1s infinite ease-in-out;
         }
 
-        /* Estado crítico del número: Solo Rojo */
+        /* El círculo solo cambia de color (ya no tiene la animación aquí) */
+        .circle-fg.critical {
+            stroke: var(--danger) !important;
+            filter: drop-shadow(0 0 10px var(--danger)) !important;
+        }
+
+        /* El número solo cambia de color */
         .timer-number.critical {
             color: var(--danger) !important;
         }
@@ -1389,19 +1391,18 @@
             timerRunning = false;
         }
 
-        /* --- NUEVA FUNCIÓN PARA TIMER CIRCULAR (CON PÁNICO A LOS 15S) --- */
+        /* --- NUEVA FUNCIÓN OPTIMIZADA (LATE TODO JUNTO) --- */
         function actualizarTimerUI(segundos) {
             const numElem = document.getElementById('timerNumber');
             const circle = document.getElementById('timerCircle');
+            const wrapper = document.querySelector('.timer-wrap'); // SELECCIONAMOS EL CONTENEDOR
+            
             const duracionSelect = document.getElementById('duracionSelect');
             const duracion = duracionSelect ? parseInt(duracionSelect.value) : 60;
             
             if(numElem) numElem.innerText = Math.ceil(segundos);
             
-            // Calculamos porcentaje del círculo
             const pct = Math.max(0, Math.min(1, segundos / duracion));
-            
-            // Lógica del anillo SVG
             const circumference = 283; 
             const offset = circumference - (pct * circumference);
             
@@ -1410,19 +1411,24 @@
 
                 // --- LÓGICA DE LOS 15 SEGUNDOS ---
                 if (segundos <= 15) {
-                    // ZONA DE PÁNICO: Agregamos la clase 'critical'
+                    // ACTIVAMOS PÁNICO EN EL CONTENEDOR (Todo late junto)
+                    if(wrapper) wrapper.classList.add('critical');
+                    
+                    // Cambios de color individuales
                     circle.classList.add('critical');
                     if(numElem) numElem.classList.add('critical');
                     
-                    // Limpiamos estilos inline para que la clase CSS mande
+                    // Limpiamos estilos inline
                     circle.style.stroke = ''; 
                     circle.style.filter = '';
                 } else {
-                    // ZONA NORMAL: Quitamos la clase
+                    // DESACTIVAMOS PÁNICO
+                    if(wrapper) wrapper.classList.remove('critical');
+                    
                     circle.classList.remove('critical');
                     if(numElem) numElem.classList.remove('critical');
                     
-                    // Aseguramos el color azul normal
+                    // Restauramos estilos normales
                     circle.style.stroke = 'var(--accent)';
                     circle.style.filter = 'drop-shadow(0 0 4px var(--accent-glow))';
                 }
