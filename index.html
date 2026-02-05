@@ -98,14 +98,12 @@
             user-select: none;
         }
 
-        /* Permitir selección solo en inputs para poder escribir */
         input,
         select {
             -webkit-user-select: text;
             user-select: text;
         }
 
-        /* Prevenir arrastre de imágenes y enlaces */
         img,
         a {
             -webkit-user-drag: none;
@@ -113,7 +111,6 @@
             pointer-events: none;
         }
 
-        /* Reactivar pointer events para botones interactivos si usan a o img dentro */
         button svg {
             pointer-events: none;
         }
@@ -571,78 +568,64 @@
             100% { box-shadow: 0 0 0 15px transparent; transform: scale(1); }
         }
 
-        /* --- NUEVO CSS PARA TIMER CIRCULAR (Smartwatch) --- */
-        .timer-wrap {
-            position: relative;
-            width: 220px;
-            height: 220px;
-            margin: 10px auto 20px auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .timer-svg {
-            position: absolute;
-            top: 0;
-            left: 0;
+        /* --- NUEVO CSS PARA TIMER DE BARRA HORIZONTAL --- */
+        .timer-container {
             width: 100%;
-            height: 100%;
-            transform: rotate(-90deg); /* Para que empiece arriba */
-            pointer-events: none;
-            overflow: visible; /* IMPORTANTE: Permite que el latido salga del borde */
-        }
-
-        .circle-bg {
-            fill: none;
-            stroke: var(--input-bg);
-            stroke-width: 10;
-        }
-
-        .circle-fg {
-            fill: none;
-            stroke: var(--accent);
-            stroke-width: 10;
-            stroke-linecap: round;
-            stroke-dasharray: 283; /* 2 * pi * 45 ≈ 283 */
-            stroke-dashoffset: 0;
-            transition: stroke-dashoffset 0.1s linear, stroke 0.3s ease;
-            filter: drop-shadow(0 0 4px var(--accent-glow));
+            margin: 20px 0 30px 0; /* Espaciado */
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
         }
 
         .timer-number {
-            font-size: 72px;
+            font-size: 80px;
             font-weight: 900;
             color: var(--text-main);
             line-height: 1;
-            z-index: 2;
             font-variant-numeric: tabular-nums;
             transition: color 0.3s ease;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 24px;
+            background: var(--input-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 100%;
+            background: var(--accent);
+            border-radius: 12px;
+            transition: width 0.1s linear, background-color 0.3s ease;
+            box-shadow: 0 0 15px var(--accent-glow);
         }
 
         /* --- ESTILOS DE PÁNICO (ÚLTIMOS 15 SEGUNDOS) --- */
         @keyframes heartBeat {
             0% { transform: scale(1); }
-            50% { transform: scale(1.05); } /* Crece un 5% todo el conjunto */
+            50% { transform: scale(1.02); }
             100% { transform: scale(1); }
         }
 
         /* APLICAMOS EL LATIDO AL CONTENEDOR ENTERO */
-        .timer-wrap.critical {
+        .timer-container.critical {
             animation: heartBeat 1s infinite ease-in-out;
         }
 
-        /* El círculo solo cambia de color (ya no tiene la animación aquí) */
-        .circle-fg.critical {
-            stroke: var(--danger) !important;
-            filter: drop-shadow(0 0 10px var(--danger)) !important;
-        }
-
-        /* El número solo cambia de color */
         .timer-number.critical {
             color: var(--danger) !important;
         }
 
+        .progress-fill.critical {
+            background: var(--danger) !important;
+            box-shadow: 0 0 20px var(--danger-glow) !important;
+        }
         /* ------------------------------------------------ */
 
         .controls {
@@ -877,12 +860,11 @@
                 </div>
             </div>
             
-            <div class="timer-wrap">
-                <svg class="timer-svg" viewBox="0 0 100 100">
-                    <circle class="circle-bg" cx="50" cy="50" r="45"></circle>
-                    <circle id="timerCircle" class="circle-fg" cx="50" cy="50" r="45"></circle>
-                </svg>
+            <div id="timerContainer" class="timer-container">
                 <div class="timer-number" id="timerNumber">60</div>
+                <div class="progress-track">
+                    <div id="timerBar" class="progress-fill"></div>
+                </div>
             </div>
 
             <div class="controls">
@@ -1043,14 +1025,10 @@
         }
 
         function confirmarReinicio() {
-            // Limpia arrays en memoria
             palabras = [];
             jugadores = [];
-
-            // Limpia localStorage (NUEVO)
             localStorage.removeItem('impostor_palabras');
             localStorage.removeItem('impostor_jugadores');
-
             resetGameData();
             renderPalabras();
             renderJugadores();
@@ -1104,7 +1082,7 @@
             }, 300);
         }
 
-        /* --- FUNCIÓN AUXILIAR: FISHER-YATES SHUFFLE (NUEVO) --- */
+        /* --- FUNCIÓN AUXILIAR: FISHER-YATES SHUFFLE --- */
         function mezclarArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -1113,7 +1091,7 @@
             return array;
         }
 
-        /* --- GESTIÓN DE DATOS CON LOCALSTORAGE (NUEVO) --- */
+        /* --- GESTIÓN DE DATOS --- */
         function guardarDatos() {
             localStorage.setItem('impostor_palabras', JSON.stringify(palabras));
             localStorage.setItem('impostor_jugadores', JSON.stringify(jugadores));
@@ -1143,7 +1121,7 @@
         const SVG_PLAY = '<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
         const SVG_PAUSE = '<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
 
-        // --- MODO OSCURO AUTOMÁTICO Y MANUAL ---
+        // --- MODO OSCURO ---
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
             document.documentElement.classList.add('dark');
         }
@@ -1178,7 +1156,7 @@
             const p = input.value.trim();
             if (!p) return;
             palabras.push(p);
-            guardarDatos(); // Guardar en LocalStorage
+            guardarDatos();
             renderPalabras();
             input.value = '';
             input.focus();
@@ -1186,7 +1164,7 @@
 
         function eliminarPalabra(index) {
             palabras.splice(index, 1);
-            guardarDatos(); // Guardar en LocalStorage
+            guardarDatos();
             renderPalabras();
         }
 
@@ -1208,7 +1186,7 @@
             const name = input.value.trim();
             if (!name) return;
             jugadores.push(name);
-            guardarDatos(); // Guardar en LocalStorage
+            guardarDatos();
             renderJugadores();
             input.value = '';
             input.focus();
@@ -1216,7 +1194,7 @@
 
         function eliminarJugador(index) {
             jugadores.splice(index, 1);
-            guardarDatos(); // Guardar en LocalStorage
+            guardarDatos();
             renderJugadores();
         }
 
@@ -1276,24 +1254,19 @@
                 return;
             }
 
-            // --- FIX DEFINITIVO PARA ANIMACIÓN (HARD RESET) ---
-            // Reemplazamos el elemento completo para que el navegador olvide 
-            // cualquier estado de animación anterior.
-            const oldWrapper = document.querySelector('.timer-wrap');
-            if (oldWrapper) {
-                const newWrapper = oldWrapper.cloneNode(true);
-                // Aseguramos que el clon nace limpio de clases críticas
-                newWrapper.classList.remove('critical');
-                const newCircle = newWrapper.querySelector('#timerCircle');
-                if(newCircle) {
-                    newCircle.classList.remove('critical');
-                    newCircle.style.stroke = 'var(--accent)';
-                    newCircle.style.filter = 'drop-shadow(0 0 4px var(--accent-glow))';
-                }
-                const newNum = newWrapper.querySelector('#timerNumber');
+            // --- HARD RESET DEL TIMER HORIZONTAL ---
+            // Clonamos el contenedor de la barra para eliminar cualquier estado corrupto de animación
+            const oldContainer = document.getElementById('timerContainer');
+            if (oldContainer) {
+                const newContainer = oldContainer.cloneNode(true);
+                // Limpiamos estados de pánico
+                newContainer.classList.remove('critical');
+                const newBar = newContainer.querySelector('#timerBar');
+                if(newBar) newBar.classList.remove('critical');
+                const newNum = newContainer.querySelector('#timerNumber');
                 if(newNum) newNum.classList.remove('critical');
 
-                oldWrapper.parentNode.replaceChild(newWrapper, oldWrapper);
+                oldContainer.parentNode.replaceChild(newContainer, oldContainer);
             }
             // --------------------------
 
@@ -1302,7 +1275,6 @@
             palabrasDisponibles.splice(randomIndex, 1);
 
             jugadoresMezclados = mezclarArray([...jugadores]);
-
             impostor = jugadoresMezclados[Math.floor(Math.random() * jugadoresMezclados.length)];
 
             indiceActual = 0;
@@ -1347,7 +1319,6 @@
 
         function showContent(e) {
             if (e.cancelable && e.type === 'touchstart') e.preventDefault();
-
             const jugador = jugadoresMezclados[indiceActual];
             if (jugador === impostor) {
                 revealBox.className = 'reveal impostor-mode';
@@ -1356,10 +1327,8 @@
                 revealBox.className = 'reveal';
                 revealBox.innerHTML = `<div class="reveal-title">La palabra es</div><div class="reveal-word">${palabraSeleccionada}</div>`;
             }
-
             btnReveal.style.display = 'none';
             revealBox.style.display = 'flex';
-
             document.getElementById('btnSiguiente').classList.remove('btn-locked');
 
             document.addEventListener('mouseup', hideContent);
@@ -1376,9 +1345,7 @@
         }
 
         btnReveal.addEventListener('mousedown', showContent);
-        btnReveal.addEventListener('touchstart', showContent, {
-            passive: false
-        });
+        btnReveal.addEventListener('touchstart', showContent, { passive: false });
 
 
         function iniciarTemporizador() {
@@ -1412,46 +1379,32 @@
             timerRunning = false;
         }
 
-        /* --- NUEVA FUNCIÓN OPTIMIZADA (LATE TODO JUNTO) --- */
+        /* --- ACTUALIZACIÓN UI BARRA HORIZONTAL --- */
         function actualizarTimerUI(segundos) {
             const numElem = document.getElementById('timerNumber');
-            const circle = document.getElementById('timerCircle');
-            const wrapper = document.querySelector('.timer-wrap'); // SELECCIONAMOS EL CONTENEDOR
+            const bar = document.getElementById('timerBar');
+            const container = document.getElementById('timerContainer');
             
             const duracionSelect = document.getElementById('duracionSelect');
             const duracion = duracionSelect ? parseInt(duracionSelect.value) : 60;
             
             if(numElem) numElem.innerText = Math.ceil(segundos);
             
-            const pct = Math.max(0, Math.min(1, segundos / duracion));
-            const circumference = 283; 
-            const offset = circumference - (pct * circumference);
+            // Calculamos el porcentaje
+            const pct = Math.max(0, Math.min(100, (segundos / duracion) * 100));
             
-            if(circle) {
-                circle.style.strokeDashoffset = offset;
+            if(bar) {
+                bar.style.width = pct + '%';
 
-                // --- LÓGICA DE LOS 15 SEGUNDOS ---
+                // Lógica de los últimos 15 segundos
                 if (segundos <= 15) {
-                    // ACTIVAMOS PÁNICO EN EL CONTENEDOR (Todo late junto)
-                    if(wrapper) wrapper.classList.add('critical');
-                    
-                    // Cambios de color individuales
-                    circle.classList.add('critical');
+                    if(container) container.classList.add('critical');
+                    if(bar) bar.classList.add('critical');
                     if(numElem) numElem.classList.add('critical');
-                    
-                    // Limpiamos estilos inline
-                    circle.style.stroke = ''; 
-                    circle.style.filter = '';
                 } else {
-                    // DESACTIVAMOS PÁNICO
-                    if(wrapper) wrapper.classList.remove('critical');
-                    
-                    circle.classList.remove('critical');
+                    if(container) container.classList.remove('critical');
+                    if(bar) bar.classList.remove('critical');
                     if(numElem) numElem.classList.remove('critical');
-                    
-                    // Restauramos estilos normales
-                    circle.style.stroke = 'var(--accent)';
-                    circle.style.filter = 'drop-shadow(0 0 4px var(--accent-glow))';
                 }
             }
         }
@@ -1483,15 +1436,12 @@
         function registrarVotoUnico(elegido, btnElement) {
             const container = document.getElementById('voteContainer');
             const yaEstabaSeleccionado = btnElement.classList.contains('voted');
-
             const allBtns = container.querySelectorAll('.vote-card');
             allBtns.forEach(b => {
                 b.classList.remove('voted');
                 b.innerText = b.dataset.originalName;
             });
-
             votos = {};
-
             if (!yaEstabaSeleccionado) {
                 votos[elegido] = 1;
                 container.classList.add('has-selection');
@@ -1506,19 +1456,15 @@
         function mostrarResultado() {
             let masVotado = null;
             let max = -1;
-
             for (const k in votos) {
                 if (votos[k] > max) {
                     max = votos[k];
                     masVotado = k;
                 }
             }
-
             const res = document.getElementById('textoResultado');
             const guessSection = document.getElementById('impostorGuessSection');
-
             const htmlPalabra = `<div style="margin-top:12px; font-size:18px; color:var(--text-muted)">La palabra era <strong style="color:var(--text-main)">${palabraSeleccionada}</strong></div>`;
-
             if (!masVotado) {
                 res.innerHTML = `El impostor era <span style="color:var(--danger)">${impostor}</span>.${htmlPalabra}`;
             } else if (masVotado === impostor) {
@@ -1526,9 +1472,7 @@
             } else {
                 res.innerHTML = `JAJAJA fallaron, el impostor era <strong style="color:var(--danger)">${impostor}</strong>.${htmlPalabra}`;
             }
-
             guessSection.style.display = 'none';
-
             mostrarSeccion('resultado');
         }
 
@@ -1557,7 +1501,7 @@
             }
         });
 
-        // --- INICIALIZACIÓN: CARGAR DATOS GUARDADOS ---
+        // --- INICIALIZACIÓN ---
         cargarDatos();
         renderPalabras();
         renderJugadores();
@@ -1575,7 +1519,6 @@
         }, {
             passive: false
         });
-
         (function() {
             let lastTouch = 0;
             document.addEventListener('touchend', function(e) {
@@ -1587,7 +1530,6 @@
                 passive: false
             });
         })();
-
         window.addEventListener('wheel', function(e) {
             if (e.ctrlKey) e.preventDefault();
         }, {
