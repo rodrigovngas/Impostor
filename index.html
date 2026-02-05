@@ -36,7 +36,8 @@
 
             --danger: #ef4444;
             --danger-soft: rgba(239, 68, 68, 0.1);
-            
+            --danger-glow: rgba(239, 68, 68, 0.4);
+
             --dot-color: #cbd5e1;
         }
 
@@ -97,12 +98,14 @@
             user-select: none;
         }
 
+        /* Permitir selección solo en inputs para poder escribir */
         input,
         select {
             -webkit-user-select: text;
             user-select: text;
         }
 
+        /* Prevenir arrastre de imágenes y enlaces */
         img,
         a {
             -webkit-user-drag: none;
@@ -110,6 +113,7 @@
             pointer-events: none;
         }
 
+        /* Reactivar pointer events para botones interactivos si usan a o img dentro */
         button svg {
             pointer-events: none;
         }
@@ -558,7 +562,7 @@
             font-weight: 900;
             color: var(--danger);
             letter-spacing: -1px;
-            text-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
+            text-shadow: 0 4px 20px var(--danger-glow);
         }
 
         @keyframes dangerPulse {
@@ -567,84 +571,79 @@
             100% { box-shadow: 0 0 0 15px transparent; transform: scale(1); }
         }
 
-        /* ----------------------------------------------------
-           ANIMACIÓN DE LATIDO (PANIC MODE)
-        ---------------------------------------------------- */
-        @keyframes latido {
-            0% { transform: scale(1); }
-            15% { transform: scale(1.03); }
-            30% { transform: scale(1); }
-            45% { transform: scale(1.03); }
-            60% { transform: scale(1); }
-            100% { transform: scale(1); }
+        /* --- NUEVO CSS PARA TIMER CIRCULAR (Smartwatch) --- */
+        .timer-wrap {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            margin: 10px auto 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .timer-wrap {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            align-items: center;
-            margin: 20px 0;
-            transition: all 0.3s ease;
+        .timer-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg); /* Para que empiece arriba */
+            pointer-events: none;
+            overflow: visible; /* IMPORTANTE: Permite que el latido salga del borde */
         }
-        
-        /* Cuando entra en pánico (<= 15s), todo el contenedor late */
-        .timer-wrap.panic-mode {
-            animation: latido 1.2s infinite;
+
+        .circle-bg {
+            fill: none;
+            stroke: var(--input-bg);
+            stroke-width: 10;
+        }
+
+        .circle-fg {
+            fill: none;
+            stroke: var(--accent);
+            stroke-width: 10;
+            stroke-linecap: round;
+            stroke-dasharray: 283; /* 2 * pi * 45 ≈ 283 */
+            stroke-dashoffset: 0;
+            transition: stroke-dashoffset 0.1s linear, stroke 0.3s ease;
+            filter: drop-shadow(0 0 4px var(--accent-glow));
         }
 
         .timer-number {
             font-size: 72px;
             font-weight: 900;
             color: var(--text-main);
-            font-variant-numeric: tabular-nums;
             line-height: 1;
+            z-index: 2;
+            font-variant-numeric: tabular-nums;
             transition: color 0.3s ease;
-            transform-origin: center center;
-            display: inline-block;
-        }
-        
-        /* En pánico, el número se pone rojo */
-        .timer-wrap.panic-mode .timer-number {
-            color: var(--danger);
         }
 
-        /* ----------------------------------------------------
-           BARRA DE ENERGÍA
-        ---------------------------------------------------- */
-        .bar-outer {
-            width: 100%;
-            height: 14px; 
-            background: rgba(0,0,0,0.06); 
-            border-radius: 100px;
-            overflow: visible; 
-            position: relative;
-            border: none;
-        }
-        
-        html.dark .bar-outer {
-            background: rgba(255, 255, 255, 0.1);
+        /* --- ESTILOS DE PÁNICO (ÚLTIMOS 15 SEGUNDOS) --- */
+        @keyframes heartBeat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); } /* Crece un 5% todo el conjunto */
+            100% { transform: scale(1); }
         }
 
-        .bar-inner {
-            height: 100%;
-            width: 100%;
-            border-radius: 100px;
-            background: var(--accent);
-            position: relative;
-            transition: width 0.1s linear, background-color 0.3s ease;
-            box-shadow: none; 
+        /* APLICAMOS EL LATIDO AL CONTENEDOR ENTERO */
+        .timer-wrap.critical {
+            animation: heartBeat 1s infinite ease-in-out;
         }
 
-        /* En pánico, la barra se pone roja y brilla */
-        .timer-wrap.panic-mode .bar-inner {
-            background: var(--danger);
-            box-shadow: 0 0 15px var(--danger-soft);
+        /* El círculo solo cambia de color (ya no tiene la animación aquí) */
+        .circle-fg.critical {
+            stroke: var(--danger) !important;
+            filter: drop-shadow(0 0 10px var(--danger)) !important;
         }
 
-        /* NOTA: He eliminado el ::after que generaba la punta blanca brillante */
+        /* El número solo cambia de color */
+        .timer-number.critical {
+            color: var(--danger) !important;
+        }
 
-        /* ---------------------------------------------------- */
+        /* ------------------------------------------------ */
 
         .controls {
             display: flex;
@@ -767,9 +766,6 @@
             margin-bottom: 24px;
         }
 
-        /* ----------------------------------------------------
-           BLUR MEJORADO
-        ---------------------------------------------------- */
         #listaPalabras li span {
             display: inline-block;
             color: transparent;
@@ -880,12 +876,15 @@
                     <div style="font-weight:800; font-size:18px; color:var(--text-main)">Describan la palabra</div>
                 </div>
             </div>
-            <div id="mainTimerContainer" class="timer-wrap">
+            
+            <div class="timer-wrap">
+                <svg class="timer-svg" viewBox="0 0 100 100">
+                    <circle class="circle-bg" cx="50" cy="50" r="45"></circle>
+                    <circle id="timerCircle" class="circle-fg" cx="50" cy="50" r="45"></circle>
+                </svg>
                 <div class="timer-number" id="timerNumber">60</div>
-                <div class="bar-outer">
-                    <div id="timerBar" class="bar-inner"></div>
-                </div>
             </div>
+
             <div class="controls">
                 <button id="botonIniciarTimer" style="flex:1.5" onclick="iniciarTemporizador()">
                     <svg viewBox="0 0 24 24">
@@ -1044,10 +1043,14 @@
         }
 
         function confirmarReinicio() {
+            // Limpia arrays en memoria
             palabras = [];
             jugadores = [];
+
+            // Limpia localStorage (NUEVO)
             localStorage.removeItem('impostor_palabras');
             localStorage.removeItem('impostor_jugadores');
+
             resetGameData();
             renderPalabras();
             renderJugadores();
@@ -1101,6 +1104,7 @@
             }, 300);
         }
 
+        /* --- FUNCIÓN AUXILIAR: FISHER-YATES SHUFFLE (NUEVO) --- */
         function mezclarArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -1109,6 +1113,7 @@
             return array;
         }
 
+        /* --- GESTIÓN DE DATOS CON LOCALSTORAGE (NUEVO) --- */
         function guardarDatos() {
             localStorage.setItem('impostor_palabras', JSON.stringify(palabras));
             localStorage.setItem('impostor_jugadores', JSON.stringify(jugadores));
@@ -1138,6 +1143,7 @@
         const SVG_PLAY = '<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
         const SVG_PAUSE = '<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
 
+        // --- MODO OSCURO AUTOMÁTICO Y MANUAL ---
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
             document.documentElement.classList.add('dark');
         }
@@ -1172,7 +1178,7 @@
             const p = input.value.trim();
             if (!p) return;
             palabras.push(p);
-            guardarDatos();
+            guardarDatos(); // Guardar en LocalStorage
             renderPalabras();
             input.value = '';
             input.focus();
@@ -1180,7 +1186,7 @@
 
         function eliminarPalabra(index) {
             palabras.splice(index, 1);
-            guardarDatos();
+            guardarDatos(); // Guardar en LocalStorage
             renderPalabras();
         }
 
@@ -1202,7 +1208,7 @@
             const name = input.value.trim();
             if (!name) return;
             jugadores.push(name);
-            guardarDatos();
+            guardarDatos(); // Guardar en LocalStorage
             renderJugadores();
             input.value = '';
             input.focus();
@@ -1210,7 +1216,7 @@
 
         function eliminarJugador(index) {
             jugadores.splice(index, 1);
-            guardarDatos();
+            guardarDatos(); // Guardar en LocalStorage
             renderJugadores();
         }
 
@@ -1275,6 +1281,7 @@
             palabrasDisponibles.splice(randomIndex, 1);
 
             jugadoresMezclados = mezclarArray([...jugadores]);
+
             impostor = jugadoresMezclados[Math.floor(Math.random() * jugadoresMezclados.length)];
 
             indiceActual = 0;
@@ -1319,6 +1326,7 @@
 
         function showContent(e) {
             if (e.cancelable && e.type === 'touchstart') e.preventDefault();
+
             const jugador = jugadoresMezclados[indiceActual];
             if (jugador === impostor) {
                 revealBox.className = 'reveal impostor-mode';
@@ -1327,9 +1335,12 @@
                 revealBox.className = 'reveal';
                 revealBox.innerHTML = `<div class="reveal-title">La palabra es</div><div class="reveal-word">${palabraSeleccionada}</div>`;
             }
+
             btnReveal.style.display = 'none';
             revealBox.style.display = 'flex';
+
             document.getElementById('btnSiguiente').classList.remove('btn-locked');
+
             document.addEventListener('mouseup', hideContent);
             document.addEventListener('touchend', hideContent);
             document.addEventListener('touchcancel', hideContent);
@@ -1342,6 +1353,12 @@
             document.removeEventListener('touchend', hideContent);
             document.removeEventListener('touchcancel', hideContent);
         }
+
+        btnReveal.addEventListener('mousedown', showContent);
+        btnReveal.addEventListener('touchstart', showContent, {
+            passive: false
+        });
+
 
         function iniciarTemporizador() {
             const btn = document.getElementById('botonIniciarTimer');
@@ -1374,34 +1391,50 @@
             timerRunning = false;
         }
 
-        /* -------------------------------------------------------------------------
-           MODIFICACIÓN DE UI: DETECCIÓN DE ENERGÍA CRÍTICA (15 Segundos)
-           - Sin punta blanca.
-           - Latido en contenedor y barra.
-        ------------------------------------------------------------------------- */
+        /* --- NUEVA FUNCIÓN OPTIMIZADA (LATE TODO JUNTO) --- */
         function actualizarTimerUI(segundos) {
-            const segundosEnteros = Math.ceil(segundos);
-            const numElement = document.getElementById('timerNumber');
-            numElement.innerText = segundosEnteros;
+            const numElem = document.getElementById('timerNumber');
+            const circle = document.getElementById('timerCircle');
+            const wrapper = document.querySelector('.timer-wrap'); // SELECCIONAMOS EL CONTENEDOR
+            
+            const duracionSelect = document.getElementById('duracionSelect');
+            const duracion = duracionSelect ? parseInt(duracionSelect.value) : 60;
+            
+            if(numElem) numElem.innerText = Math.ceil(segundos);
             
             const pct = Math.max(0, Math.min(1, segundos / duracion));
-            const barInner = document.getElementById('timerBar');
-            const timerContainer = document.getElementById('mainTimerContainer');
+            const circumference = 283; 
+            const offset = circumference - (pct * circumference);
             
-            barInner.style.width = (pct * 100) + '%';
-            
-            // Si quedan 15 segundos o menos (y no es 0 aun o estamos en juego)
-            if (segundos <= 15 && segundos > 0) {
-                timerContainer.classList.add('panic-mode');
-            } else {
-                timerContainer.classList.remove('panic-mode');
-            }
-            
-            // Limpieza si el tiempo llega a 0 absoluto (opcional, pero estético)
-            if (segundos <= 0) {
-                 timerContainer.classList.remove('panic-mode');
+            if(circle) {
+                circle.style.strokeDashoffset = offset;
+
+                // --- LÓGICA DE LOS 15 SEGUNDOS ---
+                if (segundos <= 15) {
+                    // ACTIVAMOS PÁNICO EN EL CONTENEDOR (Todo late junto)
+                    if(wrapper) wrapper.classList.add('critical');
+                    
+                    // Cambios de color individuales
+                    circle.classList.add('critical');
+                    if(numElem) numElem.classList.add('critical');
+                    
+                    // Limpiamos estilos inline
+                    circle.style.stroke = ''; 
+                    circle.style.filter = '';
+                } else {
+                    // DESACTIVAMOS PÁNICO
+                    if(wrapper) wrapper.classList.remove('critical');
+                    
+                    circle.classList.remove('critical');
+                    if(numElem) numElem.classList.remove('critical');
+                    
+                    // Restauramos estilos normales
+                    circle.style.stroke = 'var(--accent)';
+                    circle.style.filter = 'drop-shadow(0 0 4px var(--accent-glow))';
+                }
             }
         }
+        /* ----------------------------------------- */
 
         function saltarAPuesta() {
             stopTemporizador();
