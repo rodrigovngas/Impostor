@@ -1276,6 +1276,24 @@
                 return;
             }
 
+            // --- FIX PARA ANIMACIÓN ---
+            // Forzamos la limpieza de la clase y un reflow para que el navegador 
+            // resetee la animación CSS
+            const wrapper = document.querySelector('.timer-wrap');
+            if(wrapper) {
+                wrapper.classList.remove('critical');
+                void wrapper.offsetWidth; // TRUCO: Fuerza reflow
+            }
+            const circle = document.getElementById('timerCircle');
+            if(circle) {
+                circle.classList.remove('critical');
+                circle.style.stroke = 'var(--accent)';
+                circle.style.filter = 'drop-shadow(0 0 4px var(--accent-glow))';
+            }
+            const numElem = document.getElementById('timerNumber');
+            if(numElem) numElem.classList.remove('critical');
+            // --------------------------
+
             const randomIndex = Math.floor(Math.random() * palabrasDisponibles.length);
             palabraSeleccionada = palabrasDisponibles[randomIndex];
             palabrasDisponibles.splice(randomIndex, 1);
