@@ -1276,22 +1276,25 @@
                 return;
             }
 
-            // --- FIX PARA ANIMACIÓN ---
-            // Forzamos la limpieza de la clase y un reflow para que el navegador 
-            // resetee la animación CSS
-            const wrapper = document.querySelector('.timer-wrap');
-            if(wrapper) {
-                wrapper.classList.remove('critical');
-                void wrapper.offsetWidth; // TRUCO: Fuerza reflow
+            // --- FIX DEFINITIVO PARA ANIMACIÓN (HARD RESET) ---
+            // Reemplazamos el elemento completo para que el navegador olvide 
+            // cualquier estado de animación anterior.
+            const oldWrapper = document.querySelector('.timer-wrap');
+            if (oldWrapper) {
+                const newWrapper = oldWrapper.cloneNode(true);
+                // Aseguramos que el clon nace limpio de clases críticas
+                newWrapper.classList.remove('critical');
+                const newCircle = newWrapper.querySelector('#timerCircle');
+                if(newCircle) {
+                    newCircle.classList.remove('critical');
+                    newCircle.style.stroke = 'var(--accent)';
+                    newCircle.style.filter = 'drop-shadow(0 0 4px var(--accent-glow))';
+                }
+                const newNum = newWrapper.querySelector('#timerNumber');
+                if(newNum) newNum.classList.remove('critical');
+
+                oldWrapper.parentNode.replaceChild(newWrapper, oldWrapper);
             }
-            const circle = document.getElementById('timerCircle');
-            if(circle) {
-                circle.classList.remove('critical');
-                circle.style.stroke = 'var(--accent)';
-                circle.style.filter = 'drop-shadow(0 0 4px var(--accent-glow))';
-            }
-            const numElem = document.getElementById('timerNumber');
-            if(numElem) numElem.classList.remove('critical');
             // --------------------------
 
             const randomIndex = Math.floor(Math.random() * palabrasDisponibles.length);
