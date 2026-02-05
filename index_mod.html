@@ -1,0 +1,1632 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content" />
+    <title>El Impostor</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* ----------------------------------------------------
+           VARIABLES & TEMAS
+        ---------------------------------------------------- */
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --card-border: #e2e8f0;
+            --card-shadow: 0 20px 40px -10px rgba(148, 163, 184, 0.15);
+
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+
+            --input-bg: #f1f5f9;
+            --input-border: transparent;
+
+            --item-bg: #ffffff;
+            --item-border: #f1f5f9;
+
+            /* MODO CLARO (#00ABE4) */
+            --accent: #00ABE4;
+            --accent-soft: rgba(0, 171, 228, 0.08);
+            --accent-glow: rgba(0, 171, 228, 0.4);
+
+            --danger: #ef4444;
+            --danger-soft: rgba(239, 68, 68, 0.1);
+            --danger-glow: rgba(239, 68, 68, 0.4);
+
+            --dot-color: #cbd5e1;
+        }
+
+        html.dark {
+            --bg-color: #020617;
+            --card-bg: #0f172a;
+            --card-border: #1e293b;
+            --card-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6);
+
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+
+            --input-bg: #1e293b;
+            --input-border: transparent;
+
+            --item-bg: #1e293b;
+            --item-border: #334155;
+
+            /* MODO OSCURO (#2272FF) */
+            --accent: #3b82f6;
+            --accent-soft: rgba(59, 130, 246, 0.15);
+            --accent-glow: rgba(59, 130, 246, 0.5);
+
+            --dot-color: #1e293b;
+        }
+
+        /* ----------------------------------------------------
+           COMPORTAMIENTO NATIVO Y PROTECCIÓN CSS
+        ---------------------------------------------------- */
+        html,
+        body {
+            height: 100dvh;
+            width: 100vw;
+            margin: 0;
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(var(--dot-color) 1.5px, transparent 1.5px);
+            background-size: 32px 32px;
+            background-attachment: fixed;
+            color: var(--text-main);
+            overflow-x: hidden;
+            overflow-y: auto;
+            overscroll-behavior-y: none;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            transition: color 0.4s ease, background-color 0.4s ease;
+            cursor: default;
+            touch-action: manipulation;
+            -ms-touch-action: manipulation;
+        }
+
+        * {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        /* Permitir selección solo en inputs para poder escribir */
+        input,
+        select {
+            -webkit-user-select: text;
+            user-select: text;
+        }
+
+        /* Prevenir arrastre de imágenes y enlaces */
+        img,
+        a {
+            -webkit-user-drag: none;
+            user-drag: none;
+            pointer-events: none;
+        }
+
+        /* Reactivar pointer events para botones interactivos si usan a o img dentro */
+        button svg {
+            pointer-events: none;
+        }
+
+        html::-webkit-scrollbar,
+        body::-webkit-scrollbar,
+        .app::-webkit-scrollbar,
+        ul::-webkit-scrollbar,
+        *::-webkit-scrollbar {
+            display: none;
+            width: 0 !important;
+            height: 0 !important;
+            background: transparent !important;
+            -webkit-appearance: none !important;
+        }
+
+        html,
+        body,
+        .app,
+        ul {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .app {
+            max-width: 440px;
+            width: 100%;
+            min-height: 100dvh;
+            margin: 0 auto;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+
+        .spacer {
+            flex: 1;
+        }
+
+        /* --- HEADER --- */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            flex-shrink: 0;
+        }
+
+        .logo-area h1 {
+            font-size: 26px;
+            font-weight: 800;
+            margin: 0;
+            color: var(--text-main);
+            letter-spacing: -0.03em;
+            line-height: 1;
+        }
+
+        .logo-area .sub {
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 500;
+            margin-top: 4px;
+            letter-spacing: 0.05em;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            display: inline-block;
+            margin-left: 6px;
+            box-shadow: 0 0 10px var(--accent);
+            animation: breath 2s infinite;
+        }
+
+        @keyframes breath {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        .dark-toggle {
+            cursor: pointer;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            position: relative;
+            color: var(--text-main);
+            overflow: hidden;
+            transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: var(--card-shadow);
+        }
+
+        .dark-toggle:active {
+            transform: scale(0.95);
+        }
+
+        .dark-toggle svg {
+            width: 22px;
+            height: 22px;
+            stroke-width: 2px;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+            stroke: currentColor;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transition: all 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        .icon-moon {
+            opacity: 1;
+            transform: translate(-50%, -50%) rotate(0deg) scale(1);
+        }
+
+        .icon-sun {
+            opacity: 0;
+            transform: translate(-50%, -50%) rotate(90deg) scale(0.5);
+        }
+
+        html.dark .icon-moon {
+            opacity: 0;
+            transform: translate(-50%, -50%) rotate(-90deg) scale(0.5);
+        }
+
+        html.dark .icon-sun {
+            opacity: 1;
+            transform: translate(-50%, -50%) rotate(0deg) scale(1);
+        }
+
+        /* --- TARJETAS --- */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 28px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 16px;
+            height: auto;
+            overflow: visible;
+            animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            backdrop-filter: blur(20px);
+        }
+
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            padding-left: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 16px 20px;
+            border-radius: 18px;
+            border: 2px solid transparent;
+            background: var(--input-bg);
+            color: var(--text-main);
+            font-size: 16px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 500;
+            box-sizing: border-box;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        input:focus,
+        select:focus {
+            background: var(--card-bg);
+            border-color: var(--accent);
+            box-shadow: 0 4px 20px var(--accent-soft);
+        }
+
+        ::placeholder {
+            color: var(--text-muted);
+            opacity: 0.6;
+        }
+
+        /* --- BOTONES --- */
+        button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 16px 24px;
+            border-radius: 18px;
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            font-size: 15px;
+            cursor: pointer;
+            letter-spacing: 0.02em;
+            transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 4px 15px var(--accent-soft);
+            min-height: 56px;
+            box-sizing: border-box;
+        }
+
+        button:active {
+            transform: scale(0.96);
+            background: var(--accent-soft);
+            box-shadow: 0 8px 25px var(--accent-soft);
+        }
+
+        button.ghost:active {
+            border-color: var(--text-muted);
+            color: var(--text-main);
+            background: var(--input-bg);
+        }
+
+        button.danger:active {
+            background: var(--danger-soft);
+            box-shadow: 0 8px 25px var(--danger-soft);
+        }
+
+        button.ghost {
+            border-color: var(--card-border);
+            color: var(--text-muted);
+            box-shadow: none;
+        }
+
+        button.danger {
+            border-color: var(--danger);
+            color: var(--danger);
+            box-shadow: 0 4px 15px var(--danger-soft);
+        }
+
+        /* Botón suave: activo pero secundario */
+button.soft {
+    background: var(--accent-soft);
+    border-color: transparent; /* Sin borde fuerte */
+    color: var(--accent);
+    box-shadow: none;
+}
+
+button.soft:active {
+    background: var(--accent); /* Al presionar se rellena de color */
+    color: var(--card-bg);
+    transform: scale(0.96);
+}
+
+/* Opcional: Hover para PC */
+@media (hover: hover) {
+    button.soft:hover {
+        background: var(--accent-glow);
+        color: var(--accent);
+    }
+}
+
+        button.dark-toggle {
+            border: 1px solid var(--card-border);
+            padding: 0;
+            background: var(--card-bg);
+            box-shadow: var(--card-shadow);
+            color: var(--text-main);
+            min-height: 44px;
+        }
+
+        .hold-btn {
+            width: 100%;
+            padding: 40px 20px;
+            border: 2px dashed var(--accent);
+            background: var(--accent-soft);
+            color: var(--accent);
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: none;
+            display: flex;
+        }
+
+        .hold-btn:active {
+            background: var(--accent);
+            color: white;
+            border-style: solid;
+            transform: scale(0.98);
+        }
+
+        @media (hover: hover) {
+            button:hover {
+                background: var(--accent-soft);
+                box-shadow: 0 8px 25px var(--accent-soft);
+            }
+
+            button.ghost:hover {
+                border-color: var(--text-muted);
+                color: var(--text-main);
+                background: var(--input-bg);
+            }
+
+            button.danger:hover {
+                background: var(--danger-soft);
+                box-shadow: 0 8px 25px var(--danger-soft);
+            }
+
+            .dark-toggle:hover {
+                transform: scale(1.05);
+            }
+
+            .btn-icon:hover {
+                background: var(--input-bg);
+                color: var(--text-main);
+            }
+
+            .btn-delete:hover {
+                background: var(--danger-soft);
+                color: var(--danger);
+            }
+
+            .btn-edit:hover {
+                color: var(--accent);
+                background: transparent;
+            }
+        }
+
+        .btn-locked {
+            background: var(--input-bg) !important;
+            border-color: var(--input-bg) !important;
+            color: var(--text-muted) !important;
+            pointer-events: none;
+            box-shadow: none !important;
+            opacity: 0.6;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .smallbtn {
+            padding: 0;
+            width: 54px;
+            height: 54px;
+            font-size: 26px;
+            border-radius: 18px;
+            flex-shrink: 0;
+            min-height: 54px;
+        }
+
+        ul {
+            padding: 0;
+            margin: 10px 0 0 0;
+            list-style: none;
+        }
+
+        li {
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--item-bg);
+            border: 1px solid var(--item-border);
+            padding: 14px 18px;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 500;
+            animation: slideInLeft 0.3s ease;
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .actions {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-icon {
+            border: none;
+            background: transparent;
+            padding: 8px;
+            border-radius: 12px;
+            color: var(--text-muted);
+            box-shadow: none;
+            width: auto;
+            height: auto;
+            min-height: auto;
+        }
+
+        .btn-icon:active {
+            background: var(--input-bg);
+            color: var(--text-main);
+        }
+
+        .btn-delete:active {
+            background: var(--danger-soft);
+            color: var(--danger);
+        }
+
+        .assign-name {
+            font-size: 42px;
+            font-weight: 900;
+            color: var(--text-main);
+            text-align: center;
+            margin: 30px 0;
+            line-height: 1;
+            letter-spacing: -1.5px;
+        }
+
+        .reveal {
+            margin-top: 0;
+            padding: 40px 24px;
+            border-radius: 24px;
+            background: var(--accent-soft);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 2px solid var(--accent);
+            text-align: center;
+            display: none;
+            min-height: 120px;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            animation: boxPulse 2s infinite;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        @keyframes boxPulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 var(--accent-soft); }
+            50% { transform: scale(1.02); box-shadow: 0 0 20px var(--accent-soft); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 var(--accent-soft); }
+        }
+
+        .reveal-title {
+            font-size: 14px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .reveal-word {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .reveal.impostor-mode {
+            background: var(--danger-soft);
+            border-color: var(--danger);
+            animation: dangerPulse 1.5s infinite;
+        }
+
+        .reveal-impostor-text {
+            font-size: 36px;
+            font-weight: 900;
+            color: var(--danger);
+            letter-spacing: -1px;
+            text-shadow: 0 4px 20px var(--danger-glow);
+        }
+
+        @keyframes dangerPulse {
+            0% { box-shadow: 0 0 0 0 var(--danger-soft); transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { box-shadow: 0 0 0 15px transparent; transform: scale(1); }
+        }
+
+        /* --- NUEVO CSS PARA TIMER CIRCULAR (Smartwatch) --- */
+        .timer-wrap {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            margin: 10px auto 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .timer-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg); /* Para que empiece arriba */
+            pointer-events: none;
+            overflow: visible; /* IMPORTANTE: Permite que el latido salga del borde */
+        }
+
+        .circle-bg {
+            fill: none;
+            stroke: var(--input-bg);
+            stroke-width: 10;
+        }
+
+        .circle-fg {
+            fill: none;
+            stroke: var(--accent);
+            stroke-width: 10;
+            stroke-linecap: round;
+            stroke-dasharray: 283; /* 2 * pi * 45 ≈ 283 */
+            stroke-dashoffset: 0;
+            transition: stroke-dashoffset 0.1s linear, stroke 0.3s ease;
+            filter: drop-shadow(0 0 4px var(--accent-glow));
+        }
+
+        .timer-number {
+            font-size: 72px;
+            font-weight: 900;
+            color: var(--text-main);
+            line-height: 1;
+            z-index: 2;
+            font-variant-numeric: tabular-nums;
+            transition: color 0.3s ease;
+        }
+
+        /* --- ESTILOS DE PÁNICO (ÚLTIMOS 15 SEGUNDOS) --- */
+        @keyframes heartBeat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); } /* Crece un 5% todo el conjunto */
+            100% { transform: scale(1); }
+        }
+
+        /* APLICAMOS EL LATIDO AL CONTENEDOR ENTERO */
+        .timer-wrap.critical {
+            animation: heartBeat 1s infinite ease-in-out;
+        }
+
+        /* El círculo solo cambia de color (ya no tiene la animación aquí) */
+        .circle-fg.critical {
+            stroke: var(--danger) !important;
+            filter: drop-shadow(0 0 10px var(--danger)) !important;
+        }
+
+        /* El número solo cambia de color */
+        .timer-number.critical {
+            color: var(--danger) !important;
+        }
+
+        /* ------------------------------------------------ */
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+            align-items: stretch;
+        }
+
+        .vote-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .vote-card {
+            background: var(--item-bg);
+            border: 2px solid var(--item-border);
+            border-radius: 20px;
+            padding: 24px 10px;
+            text-align: center;
+            color: var(--text-main);
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80px;
+        }
+
+        .vote-card:active {
+            transform: scale(0.95);
+        }
+
+        .vote-card.voted {
+            background: var(--accent-soft);
+            color: var(--accent);
+            border-color: var(--accent);
+            transform: scale(1.02);
+            box-shadow: 0 10px 25px var(--accent-soft);
+        }
+
+        .vote-grid.has-selection .vote-card:not(.voted) {
+            opacity: 0.4;
+            transform: scale(0.95);
+            filter: grayscale(1);
+        }
+
+        .result-text {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin: 10px 0;
+            line-height: 1.3;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: auto;
+            padding: 20px 0;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 500;
+            opacity: 0.7;
+        }
+
+        .toast-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            z-index: 999;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .toast-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .toast-content {
+            width: 100%;
+            max-width: 440px;
+            background: var(--card-bg);
+            border-top-left-radius: 32px;
+            border-top-right-radius: 32px;
+            padding: 32px 24px;
+            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
+            border-top: 1px solid var(--card-border);
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            text-align: center;
+        }
+
+        .toast-overlay.active .toast-content {
+            transform: translateY(0);
+        }
+
+        .toast-title {
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        .toast-msg {
+            font-size: 15px;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        #listaPalabras li span {
+            display: inline-block;
+            color: transparent;
+            text-shadow: 0 0 10px var(--text-main);
+            cursor: help;
+            transition: all 0.3s ease;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            padding: 0 4px;
+        }
+
+        #listaPalabras li span:hover,
+        #listaPalabras li span:active {
+            color: var(--text-main);
+            text-shadow: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+
+        <header>
+            <div class="logo-area">
+                <h1>El Impostor<span class="status-dot"></span></h1>
+                <div class="sub">TRAKAS HDSPM</div>
+            </div>
+
+            <button class="dark-toggle" onclick="toggleDarkMode()" title="Cambiar tema">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="5" />
+                    <line x1="12" y1="1" x2="12" y2="3" />
+                    <line x1="12" y1="21" x2="12" y2="23" />
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                    <line x1="1" y1="12" x2="3" y2="12" />
+                    <line x1="21" y1="12" x2="23" y2="12" />
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                </svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                </svg>
+            </button>
+        </header>
+
+        <div id="admin" class="card">
+            <label>Añadir palabra</label>
+            <div class="row">
+                <input type="text" id="nuevaPalabra" placeholder="Ej. Cybertruck, Zumpango..." />
+                <button class="smallbtn" onclick="agregarPalabra()">+</button>
+            </div>
+
+            <ul id="listaPalabras"></ul>
+
+            <hr style="margin:24px 0; border:none; border-top:1px solid var(--card-border)" />
+
+            <label>Añadir jugador</label>
+            <div class="row">
+                <input type="text" id="nombreJugador" placeholder="Nombre del jugador" />
+                <button class="smallbtn" onclick="agregarJugador()">+</button>
+            </div>
+
+            <ul id="listaJugadores"></ul>
+
+            <div style="margin-top:24px" class="row">
+                <div style="flex:1">
+                    <label>Tiempo ronda</label>
+                    <select id="duracionSelect">
+                        <option value="60" selected>1 minuto</option>
+                        <option value="120">2 minutos</option>
+                        <option value="180">3 minutos</option>
+                        <option value="240">4 minutos</option>
+                        <option value="300">5 minutos</option>
+                    </select>
+                </div>
+                <div style="align-self:flex-end">
+                    <button style="width:100%" onclick="iniciarJuego()">¡Jugar!</button>
+                </div>
+            </div>
+
+            <div style="margin-top:16px" class="row">
+                <button class="danger ghost" style="flex:1" onclick="mostrarConfirmacion()">Reset Total</button>
+            </div>
+        </div>
+
+        <div id="asignacion" class="card" style="display:none">
+            <div style="display:flex; justify-content:space-between; align-items:center; opacity:0.6;">
+                <div style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px;">Turno de</div>
+                <div style="font-size:14px; font-variant-numeric: tabular-nums;">
+                    <span id="indiceAsignacion">1</span> / <span id="totalAsignacion">1</span>
+                </div>
+            </div>
+            <div class="assign-name" id="nombreJugadorAsignacion">Jugador</div>
+            <div style="display:flex; gap:16px; flex-direction:column; margin-top:10px;">
+                <div style="position:relative; width:100%">
+                    <button id="btnReveal" class="hold-btn" oncontextmenu="return false;">MANTÉN PARA VER TU ROL</button>
+                    <div id="textoPalabra" class="reveal"></div>
+                </div>
+                <button id="btnSiguiente" onclick="siguienteJugador()" style="margin-top:8px; width:100%">Entendido, siguiente</button>
+            </div>
+        </div>
+
+        <div id="pistas" class="card" style="display:none">
+            <div style="display:flex; justify-content:space-between; align-items:center">
+                <div>
+                    <div style="font-size:12px; color:var(--text-muted); font-weight:600; text-transform:uppercase">Go Go Go</div>
+                    <div style="font-weight:800; font-size:18px; color:var(--text-main)">Describan la palabra</div>
+                </div>
+            </div>
+            
+            <div class="timer-wrap">
+                <svg class="timer-svg" viewBox="0 0 100 100">
+                    <circle class="circle-bg" cx="50" cy="50" r="45"></circle>
+                    <circle id="timerCircle" class="circle-fg" cx="50" cy="50" r="45"></circle>
+                </svg>
+                <div class="timer-number" id="timerNumber">60</div>
+            </div>
+
+            <div class="controls">
+                <button id="botonIniciarTimer" style="flex:1.5" onclick="iniciarTemporizador()">
+                    <svg viewBox="0 0 24 24">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg> Iniciar
+                </button>
+                <button class="soft" style="flex:1" onclick="saltarAPuesta()">Votación</button>
+            </div>
+        </div>
+
+        <div id="votacion" class="card" style="display:none">
+            <div style="text-align:center; margin-bottom:16px;">
+                <div style="font-size:12px; color:var(--text-muted); font-weight:700; text-transform:uppercase">Votación final</div>
+                <div style="font-weight:900; font-size:20px; color:var(--text-main)">¿Quién es el impostor?</div>
+            </div>
+            <div id="voteContainer" class="vote-grid"></div>
+            <button style="margin-top:20px; width:100%" class="soft" onclick="mostrarResultado()">Ver Resultados</button>
+        </div>
+
+        <div id="resultado" class="card" style="display:none">
+            <div style="text-align:center">
+                <div style="font-size:12px; color:var(--text-muted); font-weight:700; text-transform:uppercase">Resultado</div>
+                <div class="result-text" id="textoResultado"></div>
+            </div>
+            <div id="impostorGuessSection" style="margin-top:24px; padding:20px; border:1px solid var(--danger); border-radius:24px; background:var(--danger-soft); display:none">
+                <label id="impostorGuessLabel" style="color:var(--danger); font-weight:800; font-size:18px; text-align:center; display:block; margin-bottom:8px"></label>
+                <p style="font-size:14px; text-align:center; margin-bottom:16px; color:var(--text-main); opacity:0.8;">Si adivinas la palabra, ganas la partida.</p>
+                <div style="display:flex; gap:8px">
+                    <input type="text" id="guessInput" placeholder="Palabra secreta..." style="background:var(--card-bg)" />
+                </div>
+                <button class="danger" style="width:100%; margin-top:12px;" onclick="impostorAdivina()">Intentar Adivinar</button>
+                <div id="guessFeedback" style="margin-top:12px; font-weight:700; font-size:15px; text-align:center"></div>
+            </div>
+            <div style="margin-top:30px; display:flex; flex-direction:column; gap:12px;">
+                <button onclick="nuevaRonda()">Jugar otra vez</button>
+                <button class="soft" onclick="mostrarSeccion('admin')">Volver al menú</button>
+            </div>
+        </div>
+
+        <div class="spacer"></div>
+        <footer class="footer">Development by VNGAS</footer>
+
+    </div>
+
+    <div id="toastOverlay" class="toast-overlay">
+        <div class="toast-content" onclick="event.stopPropagation()">
+            <div class="toast-title">¿Reiniciar todo?</div>
+            <div class="toast-msg">Se borrarán todos los jugadores y palabras guardadas.</div>
+            <div class="row">
+                <button class="ghost" style="flex:1" onclick="cerrarConfirmacion()">Cancelar</button>
+                <button class="danger" style="flex:1" onclick="confirmarReinicio()">Sí, borrar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="alertFinOverlay" class="toast-overlay" style="z-index: 1000;">
+        <div class="toast-content" onclick="event.stopPropagation()">
+            <div class="toast-title">¡Se acabaron!</div>
+            <div class="toast-msg">Ya no quedan palabras nuevas en la lista.</div>
+            <button style="width:100%" onclick="irAlInicio()">Volver al menú</button>
+        </div>
+    </div>
+
+    <div id="timeOutOverlay" class="toast-overlay" style="z-index: 1000;">
+        <div class="toast-content" onclick="event.stopPropagation()">
+            <div class="toast-title">¡Tiempo terminado!</div>
+            <div class="toast-msg">Es momento de votar por el impostor.</div>
+            <button style="width:100%" onclick="finalizarTiempoYContinuar()">Aceptar</button>
+        </div>
+    </div>
+
+    <div id="genericAlertOverlay" class="toast-overlay" style="z-index: 1001;">
+        <div class="toast-content" onclick="event.stopPropagation()">
+            <div id="genericAlertTitle" class="toast-title">Título</div>
+            <div id="genericAlertMsg" class="toast-msg">Mensaje</div>
+            <div class="row">
+                <button style="flex:1" onclick="cerrarAlertaGenerica()">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* --------------------------------------------------------------------------------
+           SEGURIDAD BÁSICA
+        -------------------------------------------------------------------------------- */
+        (function() {
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                return false;
+            }, false);
+            document.onkeydown = function(e) {
+                if (e.keyCode == 123) return false;
+                if (e.ctrlKey && e.shiftKey && (e.keyCode == 'I'.charCodeAt(0) || e.keyCode == 'C'.charCodeAt(0) || e.keyCode == 'J'.charCodeAt(0))) return false;
+                if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
+            }
+        })();
+
+        /* --------------------------------------------------------------------------------
+           LÓGICA PRINCIPAL DEL JUEGO
+        -------------------------------------------------------------------------------- */
+        const titleElement = document.querySelector('h1');
+        const textToType = "El Impostor";
+        let charIndex = 0;
+
+        function typeWriter() {
+            if (charIndex < textToType.length) {
+                let currentText = titleElement.childNodes[0].nodeValue || "";
+                titleElement.childNodes[0].nodeValue = currentText + textToType.charAt(charIndex);
+                charIndex++;
+                setTimeout(typeWriter, 120);
+            } else {
+                setTimeout(() => {
+                    titleElement.childNodes[0].nodeValue = "";
+                    charIndex = 0;
+                    typeWriter();
+                }, 10000);
+            }
+        }
+        titleElement.innerHTML = '<span class="status-dot"></span>';
+        titleElement.insertBefore(document.createTextNode(""), titleElement.firstChild);
+        setTimeout(typeWriter, 300);
+
+        /* --- WAKE LOCK --- */
+        let wakeLock = null;
+        async function requestWakeLock() {
+            if ('wakeLock' in navigator) {
+                try {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    console.log('Wake Lock Activo');
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+        }
+        document.addEventListener('visibilitychange', async () => {
+            if (wakeLock !== null && document.visibilityState === 'visible') {
+                await requestWakeLock();
+            }
+        });
+
+        /* --- LÓGICA ALERTAS --- */
+        function mostrarConfirmacion() {
+            const overlay = document.getElementById('toastOverlay');
+            overlay.style.display = 'flex';
+            overlay.offsetHeight;
+            overlay.classList.add('active');
+            if (navigator.vibrate) navigator.vibrate(50);
+        }
+
+        function cerrarConfirmacion() {
+            const overlay = document.getElementById('toastOverlay');
+            overlay.classList.remove('active');
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 300);
+        }
+
+        function confirmarReinicio() {
+            // Limpia arrays en memoria
+            palabras = [];
+            jugadores = [];
+
+            // Limpia localStorage (NUEVO)
+            localStorage.removeItem('impostor_palabras');
+            localStorage.removeItem('impostor_jugadores');
+
+            resetGameData();
+            renderPalabras();
+            renderJugadores();
+            mostrarSeccion('admin');
+            cerrarConfirmacion();
+        }
+
+        function irAlInicio() {
+            const ov = document.getElementById('alertFinOverlay');
+            ov.classList.remove('active');
+            setTimeout(() => {
+                ov.style.display = 'none';
+                mostrarSeccion('admin');
+            }, 300);
+        }
+
+        function mostrarAlertaTiempo() {
+            const ov = document.getElementById('timeOutOverlay');
+            ov.style.display = 'flex';
+            ov.offsetHeight;
+            ov.classList.add('active');
+        }
+
+        function finalizarTiempoYContinuar() {
+            const ov = document.getElementById('timeOutOverlay');
+            ov.classList.remove('active');
+            setTimeout(() => {
+                ov.style.display = 'none';
+                saltarAPuesta();
+            }, 300);
+        }
+
+        function showAlertMessage(title, msg) {
+            const ov = document.getElementById('genericAlertOverlay');
+            const t = document.getElementById('genericAlertTitle');
+            const m = document.getElementById('genericAlertMsg');
+            t.innerText = title;
+            m.innerText = msg;
+            ov.style.display = 'flex';
+            ov.offsetHeight;
+            ov.classList.add('active');
+            if (navigator.vibrate) navigator.vibrate(50);
+        }
+
+        function cerrarAlertaGenerica() {
+            const ov = document.getElementById('genericAlertOverlay');
+            ov.classList.remove('active');
+            setTimeout(() => {
+                ov.style.display = 'none';
+                mostrarSeccion('admin');
+            }, 300);
+        }
+
+        /* --- FUNCIÓN AUXILIAR: FISHER-YATES SHUFFLE (NUEVO) --- */
+        function mezclarArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        /* --- GESTIÓN DE DATOS CON LOCALSTORAGE (NUEVO) --- */
+        function guardarDatos() {
+            localStorage.setItem('impostor_palabras', JSON.stringify(palabras));
+            localStorage.setItem('impostor_jugadores', JSON.stringify(jugadores));
+        }
+
+        function cargarDatos() {
+            const p = localStorage.getItem('impostor_palabras');
+            const j = localStorage.getItem('impostor_jugadores');
+            if (p) palabras = JSON.parse(p);
+            if (j) jugadores = JSON.parse(j);
+        }
+
+        /* --- LÓGICA DEL JUEGO --- */
+        let palabras = [];
+        let palabrasDisponibles = [];
+        let jugadores = [];
+        let jugadoresMezclados = [];
+        let impostor = null;
+        let palabraSeleccionada = "";
+        let indiceActual = 0;
+        let votos = {};
+        let duracion = 60;
+                let tiempoRestante = 0;
+        let timerRunning = false;
+        let rafId = null;
+        let startTs = null;
+
+        const SVG_PLAY = '<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
+        const SVG_PAUSE = '<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
+
+        // --- MODO OSCURO AUTOMÁTICO Y MANUAL ---
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        if (window.matchMedia) {
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+                if (e.matches) document.documentElement.classList.add('dark');
+                else document.documentElement.classList.remove('dark');
+            });
+        }
+
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+        }
+
+        function mostrarSeccion(id) {
+            const secciones = ['admin', 'asignacion', 'pistas', 'votacion', 'resultado'];
+            secciones.forEach(s => {
+                const el = document.getElementById(s);
+                if (s === id) {
+                    el.style.display = 'block';
+                    el.style.animation = 'none';
+                    el.offsetHeight;
+                    el.style.animation = null;
+                } else {
+                    el.style.display = 'none';
+                }
+            });
+        }
+
+        function agregarPalabra() {
+            const input = document.getElementById('nuevaPalabra');
+            const p = input.value.trim();
+            if (!p) return;
+            palabras.push(p);
+            guardarDatos(); // Guardar en LocalStorage
+            renderPalabras();
+            input.value = '';
+            input.focus();
+        }
+
+        function eliminarPalabra(index) {
+            palabras.splice(index, 1);
+            guardarDatos(); // Guardar en LocalStorage
+            renderPalabras();
+        }
+
+        function renderPalabras() {
+            const ul = document.getElementById('listaPalabras');
+            ul.innerHTML = '';
+            if (palabras.length === 0) {
+                ul.innerHTML = '<li style="justify-content:center; color:var(--text-muted); font-style:italic; background:transparent; border:none">No hay palabras</li>';
+            }
+            palabras.forEach((p, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span>${p}</span><button class="btn-icon btn-delete" onclick="eliminarPalabra(${index})">&times;</button>`;
+                ul.appendChild(li);
+            });
+        }
+
+        function agregarJugador() {
+            const input = document.getElementById('nombreJugador');
+            const name = input.value.trim();
+            if (!name) return;
+            jugadores.push(name);
+            guardarDatos(); // Guardar en LocalStorage
+            renderJugadores();
+            input.value = '';
+            input.focus();
+        }
+
+        function eliminarJugador(index) {
+            jugadores.splice(index, 1);
+            guardarDatos(); // Guardar en LocalStorage
+            renderJugadores();
+        }
+
+        function renderJugadores() {
+            const ul = document.getElementById('listaJugadores');
+            ul.innerHTML = '';
+            if (jugadores.length === 0) {
+                ul.innerHTML = '<li style="justify-content:center; color:var(--text-muted); font-style:italic; background:transparent; border:none">No hay jugadores</li>';
+            }
+            jugadores.forEach((j, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span>${j}</span><button class="btn-icon btn-delete" onclick="eliminarJugador(${index})">&times;</button>`;
+                ul.appendChild(li);
+            });
+        }
+
+        function reiniciarTodo() {
+            mostrarConfirmacion();
+        }
+
+        function resetGameData() {
+            jugadoresMezclados = [];
+            impostor = null;
+            palabraSeleccionada = '';
+            votos = {};
+            stopTemporizador();
+        }
+
+        function iniciarJuego() {
+            if (jugadores.length < 3) {
+                showAlertMessage('Faltan jugadores', 'Se requieren mínimo 3 jugadores.');
+                return;
+            }
+            if (palabras.length === 0) {
+                showAlertMessage('Faltan palabras', 'Agrega al menos una palabra.');
+                return;
+            }
+
+            duracion = Number(document.getElementById('duracionSelect').value || 60);
+            palabrasDisponibles = [...palabras];
+
+            requestWakeLock();
+            nuevaRonda();
+        }
+
+        function nuevaRonda() {
+            votos = {};
+            document.getElementById('guessFeedback').innerText = '';
+            document.getElementById('guessInput').value = '';
+            document.getElementById('impostorGuessSection').style.display = 'none';
+
+            if (palabrasDisponibles.length === 0) {
+                const ov = document.getElementById('alertFinOverlay');
+                ov.style.display = 'flex';
+                ov.offsetHeight;
+                ov.classList.add('active');
+                return;
+            }
+
+            // --- FIX DEFINITIVO PARA ANIMACIÓN (HARD RESET) ---
+            // Reemplazamos el elemento completo para que el navegador olvide 
+            // cualquier estado de animación anterior.
+            const oldWrapper = document.querySelector('.timer-wrap');
+            if (oldWrapper) {
+                const newWrapper = oldWrapper.cloneNode(true);
+                // Aseguramos que el clon nace limpio de clases críticas
+                newWrapper.classList.remove('critical');
+                const newCircle = newWrapper.querySelector('#timerCircle');
+                if(newCircle) {
+                    newCircle.classList.remove('critical');
+                    newCircle.style.stroke = 'var(--accent)';
+                    newCircle.style.filter = 'drop-shadow(0 0 4px var(--accent-glow))';
+                }
+                const newNum = newWrapper.querySelector('#timerNumber');
+                if(newNum) newNum.classList.remove('critical');
+
+                oldWrapper.parentNode.replaceChild(newWrapper, oldWrapper);
+            }
+            // --------------------------
+
+            const randomIndex = Math.floor(Math.random() * palabrasDisponibles.length);
+            palabraSeleccionada = palabrasDisponibles[randomIndex];
+            palabrasDisponibles.splice(randomIndex, 1);
+
+            jugadoresMezclados = mezclarArray([...jugadores]);
+
+            impostor = jugadoresMezclados[Math.floor(Math.random() * jugadoresMezclados.length)];
+
+            indiceActual = 0;
+            document.getElementById('totalAsignacion').innerText = jugadoresMezclados.length;
+            cargarJugador();
+            mostrarSeccion('asignacion');
+            stopTemporizador();
+            tiempoRestante = duracion;
+            actualizarTimerUI(duracion);
+        }
+
+        function cargarJugador() {
+            const jugador = jugadoresMezclados[indiceActual];
+            document.getElementById('nombreJugadorAsignacion').innerText = jugador;
+            document.getElementById('indiceAsignacion').innerText = (indiceActual + 1);
+
+            const elem = document.getElementById('textoPalabra');
+            elem.style.display = 'none';
+            elem.className = 'reveal';
+
+            const btn = document.getElementById('btnReveal');
+            btn.style.display = 'flex';
+            btn.style.opacity = '1';
+
+            document.getElementById('btnSiguiente').classList.add('btn-locked');
+        }
+
+        function siguienteJugador() {
+            document.getElementById('textoPalabra').style.display = 'none';
+            indiceActual++;
+            if (indiceActual >= jugadoresMezclados.length) {
+                document.getElementById('botonIniciarTimer').innerHTML = SVG_PLAY + " Iniciar";
+                prepararVotacion();
+                mostrarSeccion('pistas');
+                return;
+            }
+            cargarJugador();
+        }
+
+        const btnReveal = document.getElementById('btnReveal');
+        const revealBox = document.getElementById('textoPalabra');
+
+        function showContent(e) {
+            if (e.cancelable && e.type === 'touchstart') e.preventDefault();
+
+            const jugador = jugadoresMezclados[indiceActual];
+            if (jugador === impostor) {
+                revealBox.className = 'reveal impostor-mode';
+                revealBox.innerHTML = `<div class="reveal-title">Tu misión</div><div class="reveal-impostor-text">IMPOSTOR</div><div style="font-size:13px; margin-top:8px; opacity:0.8; color:var(--danger)">Engaña a todos</div>`;
+            } else {
+                revealBox.className = 'reveal';
+                revealBox.innerHTML = `<div class="reveal-title">La palabra es</div><div class="reveal-word">${palabraSeleccionada}</div>`;
+            }
+
+            btnReveal.style.display = 'none';
+            revealBox.style.display = 'flex';
+
+            document.getElementById('btnSiguiente').classList.remove('btn-locked');
+
+            document.addEventListener('mouseup', hideContent);
+            document.addEventListener('touchend', hideContent);
+            document.addEventListener('touchcancel', hideContent);
+        }
+
+        function hideContent() {
+            revealBox.style.display = 'none';
+            btnReveal.style.display = 'flex';
+            document.removeEventListener('mouseup', hideContent);
+            document.removeEventListener('touchend', hideContent);
+            document.removeEventListener('touchcancel', hideContent);
+        }
+
+        btnReveal.addEventListener('mousedown', showContent);
+        btnReveal.addEventListener('touchstart', showContent, {
+            passive: false
+        });
+
+
+        function iniciarTemporizador() {
+            const btn = document.getElementById('botonIniciarTimer');
+
+            if (timerRunning) {
+                stopTemporizador();
+                btn.innerHTML = SVG_PLAY + " Reanudar";
+                return;
+            }
+
+            if (tiempoRestante <= 0) tiempoRestante = duracion;
+
+            btn.innerHTML = SVG_PAUSE + " Pausar";
+            timerRunning = true;
+
+            startTs = performance.now() - ((duracion - tiempoRestante) * 1000);
+
+            function tick(now) {
+                const elapsed = (now - startTs) / 1000;
+                tiempoRestante = Math.max(0, duracion - elapsed);
+
+                actualizarTimerUI(tiempoRestante);
+
+                if (tiempoRestante > 0 && timerRunning) {
+                    rafId = requestAnimationFrame(tick);
+                } else {
+                    timerRunning = false;
+                    rafId = null;
+                    if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+                    mostrarAlertaTiempo();
+                }
+            }
+
+            rafId = requestAnimationFrame(tick);
+        }
+
+        function stopTemporizador() {
+            timerRunning = false;
+            if (rafId) cancelAnimationFrame(rafId);
+            rafId = null;
+        }
+
+        /* --- NUEVA FUNCIÓN OPTIMIZADA (LATE TODO JUNTO) --- */
+        function actualizarTimerUI(segundos) {
+            const numElem = document.getElementById('timerNumber');
+            const circle = document.getElementById('timerCircle');
+            const wrapper = document.querySelector('.timer-wrap'); // SELECCIONAMOS EL CONTENEDOR
+            
+            const duracionSelect = document.getElementById('duracionSelect');
+            const duracion = duracionSelect ? parseInt(duracionSelect.value) : 60;
+            
+            if(numElem) numElem.innerText = Math.ceil(segundos);
+            
+            const pct = Math.max(0, Math.min(1, segundos / duracion));
+            const circumference = 283; 
+            const offset = circumference - (pct * circumference);
+            
+            if(circle) {
+                circle.style.strokeDashoffset = offset;
+
+                // --- LÓGICA DE LOS 15 SEGUNDOS ---
+                if (segundos <= 15) {
+                    // ACTIVAMOS PÁNICO EN EL CONTENEDOR (Todo late junto)
+                    if(wrapper) wrapper.classList.add('critical');
+                    
+                    // Cambios de color individuales
+                    circle.classList.add('critical');
+                    if(numElem) numElem.classList.add('critical');
+                    
+                    // Limpiamos estilos inline
+                    circle.style.stroke = ''; 
+                    circle.style.filter = '';
+                } else {
+                    // DESACTIVAMOS PÁNICO
+                    if(wrapper) wrapper.classList.remove('critical');
+                    
+                    circle.classList.remove('critical');
+                    if(numElem) numElem.classList.remove('critical');
+                    
+                    // Restauramos estilos normales
+                    circle.style.stroke = 'var(--accent)';
+                    circle.style.filter = 'drop-shadow(0 0 4px var(--accent-glow))';
+                }
+            }
+        }
+        /* ----------------------------------------- */
+
+        function saltarAPuesta() {
+            stopTemporizador();
+            prepararVotacion();
+            mostrarSeccion('votacion');
+        }
+
+        function prepararVotacion() {
+            const container = document.getElementById('voteContainer');
+            container.innerHTML = '';
+            container.classList.remove('has-selection');
+            votos = {};
+            jugadores.forEach(jugador => {
+                const btn = document.createElement('button');
+                btn.className = 'vote-card';
+                btn.innerText = jugador;
+                btn.dataset.originalName = jugador;
+                btn.onclick = function() {
+                    registrarVotoUnico(jugador, btn);
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        function registrarVotoUnico(elegido, btnElement) {
+            const container = document.getElementById('voteContainer');
+            const yaEstabaSeleccionado = btnElement.classList.contains('voted');
+
+            const allBtns = container.querySelectorAll('.vote-card');
+            allBtns.forEach(b => {
+                b.classList.remove('voted');
+                b.innerText = b.dataset.originalName;
+            });
+
+            votos = {};
+
+            if (!yaEstabaSeleccionado) {
+                votos[elegido] = 1;
+                container.classList.add('has-selection');
+                btnElement.classList.add('voted');
+                btnElement.innerText = "Eliminar a\n" + elegido;
+                if (navigator.vibrate) navigator.vibrate(50);
+            } else {
+                container.classList.remove('has-selection');
+            }
+        }
+
+        function mostrarResultado() {
+            let masVotado = null;
+            let max = -1;
+
+            for (const k in votos) {
+                if (votos[k] > max) {
+                    max = votos[k];
+                    masVotado = k;
+                }
+            }
+
+            const res = document.getElementById('textoResultado');
+            const guessSection = document.getElementById('impostorGuessSection');
+
+            const htmlPalabra = `<div style="margin-top:12px; font-size:18px; color:var(--text-muted)">La palabra era <strong style="color:var(--text-main)">${palabraSeleccionada}</strong></div>`;
+
+            if (!masVotado) {
+                res.innerHTML = `El impostor era <span style="color:var(--danger)">${impostor}</span>.${htmlPalabra}`;
+            } else if (masVotado === impostor) {
+                res.innerHTML = `Efectivamente el impostor era <strong style="color:var(--danger)">${impostor}</strong>.${htmlPalabra}`;
+            } else {
+                res.innerHTML = `JAJAJA fallaron, el impostor era <strong style="color:var(--danger)">${impostor}</strong>.${htmlPalabra}`;
+            }
+
+            guessSection.style.display = 'none';
+
+            mostrarSeccion('resultado');
+        }
+
+        function impostorAdivina() {
+            const intento = document.getElementById('guessInput').value.trim();
+            const feed = document.getElementById('guessFeedback');
+            if (!intento) {
+                feed.innerText = 'Escribe algo primero.';
+                return;
+            }
+            if (intento.toLowerCase() === palabraSeleccionada.toLowerCase()) {
+                feed.style.color = '#10b981';
+                feed.innerText = '¡INCREÍBLE! Ganaste.';
+            } else {
+                feed.style.color = 'var(--danger)';
+                feed.innerText = `Nop. Era "${palabraSeleccionada}".`;
+            }
+        }
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Enter') {
+                const f = document.activeElement;
+                if (f.id === 'nuevaPalabra') agregarPalabra();
+                if (f.id === 'nombreJugador') agregarJugador();
+                if (f.id === 'guessInput') impostorAdivina();
+            }
+        });
+
+        // --- INICIALIZACIÓN: CARGAR DATOS GUARDADOS ---
+        cargarDatos();
+        renderPalabras();
+        renderJugadores();
+        mostrarSeccion('admin');
+
+        /* --------------------------------------------------------------------------------
+           EVENTOS TÁCTILES Y GESTOS
+        -------------------------------------------------------------------------------- */
+        document.addEventListener('gesturestart', function(e) {
+            e.preventDefault();
+        });
+        document.addEventListener('touchmove', function(e) {
+            if (e.touches && e.touches.length > 1) e.preventDefault();
+            if (typeof e.scale === 'number' && e.scale !== 1) e.preventDefault();
+        }, {
+            passive: false
+        });
+
+        (function() {
+            let lastTouch = 0;
+            document.addEventListener('touchend', function(e) {
+                const now = Date.now();
+                const dt = now - lastTouch;
+                if (dt > 0 && dt <= 300) e.preventDefault();
+                lastTouch = now;
+            }, {
+                passive: false
+            });
+        })();
+
+        window.addEventListener('wheel', function(e) {
+            if (e.ctrlKey) e.preventDefault();
+        }, {
+            passive: false
+        });
+    </script>
+</body>
+
+</html>
