@@ -31,7 +31,7 @@
 
             /* MODO CLARO (#00ABE4) */
             --accent: #00ABE4;
-            --accent-soft: rgba(0, 171, 228, 0.08);
+            --accent-soft: rgba(0, 171, 228, 0.12); /* Un poco más visible */
             --accent-glow: rgba(0, 171, 228, 0.4);
 
             --danger: #ef4444;
@@ -58,7 +58,7 @@
 
             /* MODO OSCURO (#2272FF) */
             --accent: #3b82f6;
-            --accent-soft: rgba(59, 130, 246, 0.15);
+            --accent-soft: rgba(59, 130, 246, 0.2);
             --accent-glow: rgba(59, 130, 246, 0.5);
 
             --dot-color: #1e293b;
@@ -98,14 +98,12 @@
             user-select: none;
         }
 
-        /* Permitir selección solo en inputs para poder escribir */
         input,
         select {
             -webkit-user-select: text;
             user-select: text;
         }
 
-        /* Prevenir arrastre de imágenes y enlaces */
         img,
         a {
             -webkit-user-drag: none;
@@ -113,7 +111,6 @@
             pointer-events: none;
         }
 
-        /* Reactivar pointer events para botones interactivos si usan a o img dentro */
         button svg {
             pointer-events: none;
         }
@@ -358,6 +355,21 @@
             box-shadow: 0 4px 15px var(--danger-soft);
         }
 
+        /* --- NUEVO BOTÓN SECUNDARIO (ESTILO SOLICITADO) --- */
+        button.btn-secondary {
+            border-color: transparent;
+            background: var(--accent-soft);
+            color: var(--accent);
+            box-shadow: none;
+        }
+
+        button.btn-secondary:active {
+            background: var(--accent);
+            color: var(--card-bg); /* Cambia a blanco o fondo según tema */
+            transform: scale(0.96);
+            box-shadow: 0 4px 15px var(--accent-soft);
+        }
+
         button.dark-toggle {
             border: 1px solid var(--card-border);
             padding: 0;
@@ -391,6 +403,12 @@
             button:hover {
                 background: var(--accent-soft);
                 box-shadow: 0 8px 25px var(--accent-soft);
+            }
+            /* Hover para el nuevo botón secundario */
+            button.btn-secondary:hover {
+                background: var(--accent-soft);
+                opacity: 0.9;
+                transform: translateY(-1px);
             }
 
             button.ghost:hover {
@@ -818,19 +836,14 @@
                 <input type="text" id="nuevaPalabra" placeholder="Ej. Cybertruck, Zumpango..." />
                 <button class="smallbtn" onclick="agregarPalabra()">+</button>
             </div>
-
             <ul id="listaPalabras"></ul>
-
             <hr style="margin:24px 0; border:none; border-top:1px solid var(--card-border)" />
-
             <label>Añadir jugador</label>
             <div class="row">
                 <input type="text" id="nombreJugador" placeholder="Nombre del jugador" />
                 <button class="smallbtn" onclick="agregarJugador()">+</button>
             </div>
-
             <ul id="listaJugadores"></ul>
-
             <div style="margin-top:24px" class="row">
                 <div style="flex:1">
                     <label>Tiempo ronda</label>
@@ -846,7 +859,6 @@
                     <button style="width:100%" onclick="iniciarJuego()">¡Jugar!</button>
                 </div>
             </div>
-
             <div style="margin-top:16px" class="row">
                 <button class="danger ghost" style="flex:1" onclick="mostrarConfirmacion()">Reset Total</button>
             </div>
@@ -876,7 +888,6 @@
                     <div style="font-weight:800; font-size:18px; color:var(--text-main)">Describan la palabra</div>
                 </div>
             </div>
-            
             <div class="timer-wrap">
                 <svg class="timer-svg" viewBox="0 0 100 100">
                     <circle class="circle-bg" cx="50" cy="50" r="45"></circle>
@@ -884,14 +895,14 @@
                 </svg>
                 <div class="timer-number" id="timerNumber">60</div>
             </div>
-
             <div class="controls">
                 <button id="botonIniciarTimer" style="flex:1.5" onclick="iniciarTemporizador()">
-                    <svg viewBox="0 0 24 24">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                    </svg> Iniciar
+                    </svg>
+                    Iniciar
                 </button>
-                <button class="ghost" style="flex:1" onclick="saltarAPuesta()">Votación</button>
+                <button class="btn-secondary" style="flex:1" onclick="saltarAPuesta()">Votación</button>
             </div>
         </div>
 
@@ -901,7 +912,7 @@
                 <div style="font-weight:900; font-size:20px; color:var(--text-main)">¿Quién es el impostor?</div>
             </div>
             <div id="voteContainer" class="vote-grid"></div>
-            <button style="margin-top:20px; width:100%" class="ghost" onclick="mostrarResultado()">Ver Resultados</button>
+            <button style="margin-top:20px; width:100%" class="btn-secondary" onclick="mostrarResultado()">Ver Resultados</button>
         </div>
 
         <div id="resultado" class="card" style="display:none">
@@ -913,57 +924,21 @@
                 <label id="impostorGuessLabel" style="color:var(--danger); font-weight:800; font-size:18px; text-align:center; display:block; margin-bottom:8px"></label>
                 <p style="font-size:14px; text-align:center; margin-bottom:16px; color:var(--text-main); opacity:0.8;">Si adivinas la palabra, ganas la partida.</p>
                 <div style="display:flex; gap:8px">
-                    <input type="text" id="guessInput" placeholder="Palabra secreta..." style="background:var(--card-bg)" />
+                    <input type="text" id="guessInput" placeholder="Palabra secreta..." style="background:var(--card-bg); flex:1; border:none; outline:none; color:var(--text-main);">
+                    <button onclick="impostorAdivina()" style="background:var(--danger); color:white; border:none; padding:0 20px; border-radius:12px; font-weight:700;">Intentar</button>
                 </div>
-                <button class="danger" style="width:100%; margin-top:12px;" onclick="impostorAdivina()">Intentar Adivinar</button>
-                <div id="guessFeedback" style="margin-top:12px; font-weight:700; font-size:15px; text-align:center"></div>
             </div>
-            <div style="margin-top:30px; display:flex; flex-direction:column; gap:12px;">
-                <button onclick="nuevaRonda()">Jugar otra vez</button>
-                <button class="ghost" onclick="mostrarSeccion('admin')">Volver al menú</button>
-            </div>
+            <button class="btn-secondary" onclick="mostrarSeccion('admin')">Volver al menú</button>
         </div>
 
-        <div class="spacer"></div>
-        <footer class="footer">Development by VNGAS</footer>
-
-    </div>
-
-    <div id="toastOverlay" class="toast-overlay">
-        <div class="toast-content" onclick="event.stopPropagation()">
-            <div class="toast-title">¿Reiniciar todo?</div>
-            <div class="toast-msg">Se borrarán todos los jugadores y palabras guardadas.</div>
-            <div class="row">
-                <button class="ghost" style="flex:1" onclick="cerrarConfirmacion()">Cancelar</button>
-                <button class="danger" style="flex:1" onclick="confirmarReinicio()">Sí, borrar</button>
+        <div class="toast-overlay" id="toastOverlay">
+            <div class="toast-content">
+                <div class="toast-title" id="toastTitle">Título</div>
+                <div class="toast-msg" id="toastMsg">Mensaje</div>
+                <button style="width:100%" onclick="ocultarToast()">Entendido</button>
             </div>
         </div>
-    </div>
 
-    <div id="alertFinOverlay" class="toast-overlay" style="z-index: 1000;">
-        <div class="toast-content" onclick="event.stopPropagation()">
-            <div class="toast-title">¡Se acabaron!</div>
-            <div class="toast-msg">Ya no quedan palabras nuevas en la lista.</div>
-            <button style="width:100%" onclick="irAlInicio()">Volver al menú</button>
-        </div>
-    </div>
-
-    <div id="timeOutOverlay" class="toast-overlay" style="z-index: 1000;">
-        <div class="toast-content" onclick="event.stopPropagation()">
-            <div class="toast-title">¡Tiempo terminado!</div>
-            <div class="toast-msg">Es momento de votar por el impostor.</div>
-            <button style="width:100%" onclick="finalizarTiempoYContinuar()">Aceptar</button>
-        </div>
-    </div>
-
-    <div id="genericAlertOverlay" class="toast-overlay" style="z-index: 1001;">
-        <div class="toast-content" onclick="event.stopPropagation()">
-            <div id="genericAlertTitle" class="toast-title">Título</div>
-            <div id="genericAlertMsg" class="toast-msg">Mensaje</div>
-            <div class="row">
-                <button style="flex:1" onclick="cerrarAlertaGenerica()">Aceptar</button>
-            </div>
-        </div>
     </div>
 
     <script>
