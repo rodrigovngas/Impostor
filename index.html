@@ -568,7 +568,7 @@
             100% { box-shadow: 0 0 0 15px transparent; transform: scale(1); }
         }
 
-        /* --- NUEVO CSS PARA TIMER DE BARRA HORIZONTAL --- */
+        /* --- CSS PARA TIMER DE BARRA HORIZONTAL --- */
         .timer-container {
             width: 100%;
             margin: 20px 0 30px 0; /* Espaciado */
@@ -589,9 +589,9 @@
 
         .progress-track {
             width: 100%;
-            height: 24px;
+            height: 10px; /* <--- ALTURA REDUCIDA */
             background: var(--input-bg);
-            border-radius: 12px;
+            border-radius: 100px;
             overflow: hidden;
             position: relative;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
@@ -601,9 +601,9 @@
             height: 100%;
             width: 100%;
             background: var(--accent);
-            border-radius: 12px;
+            border-radius: 100px;
             transition: width 0.1s linear, background-color 0.3s ease;
-            box-shadow: 0 0 15px var(--accent-glow);
+            box-shadow: 0 0 10px var(--accent-glow);
         }
 
         /* --- ESTILOS DE PÁNICO (ÚLTIMOS 15 SEGUNDOS) --- */
