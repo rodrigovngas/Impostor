@@ -1446,36 +1446,42 @@ button.soft:active {
         }
 
         /* --- NUEVA FUNCIÓN OPTIMIZADA (LATE TODO JUNTO) --- */
-        function actualizarTimerUI(segundos) {
-            const numElem = document.getElementById('timerNumber');
-            const circle = document.getElementById('timerCircle');
-            const wrapper = document.querySelector('.timer-wrap'); // SELECCIONAMOS EL CONTENEDOR
-            
-            const duracionSelect = document.getElementById('duracionSelect');
-            const duracion = duracionSelect ? parseInt(duracionSelect.value) : 60;
-            
-            if(numElem) numElem.innerText = Math.ceil(segundos);
-            
-            const pct = Math.max(0, Math.min(1, segundos / duracion));
-            const circumference = 283; 
-            const offset = circumference - (pct * circumference);
-            
-            if(circle) {
-                circle.style.strokeDashoffset = offset;
+        
+(function() {
+  let cachedCircumference = null;
+  function ensureCircumference(circle){
+    if (!circle) return 283;
+    const r = circle.r.baseVal.value;
+    cachedCircumference = 2 * Math.PI * r;
+    circle.style.strokeDasharray = cachedCircumference;
+    return cachedCircumference;
+  }
+  window.actualizarTimerUI = function(segundos) {
+    const num = document.getElementById('timerNumber');
+    const circle = document.getElementById('timerCircle');
+    const wrap = document.querySelector('.timer-wrap');
+    const durSelect = document.getElementById('duracionSelect');
+    const dur = durSelect ? parseInt(durSelect.value, 10) : 60;
 
-                // --- LÓGICA DE LOS 15 SEGUNDOS ---
-                if (segundos <= 15) {
-                    // ACTIVAMOS PÁNICO EN EL CONTENEDOR (Todo late junto)
-                    if(wrapper) wrapper.classList.add('critical');
-                    
-                    // Cambios de color individuales
-                    circle.classList.add('critical');
-                    if(numElem) numElem.classList.add('critical');
-                    
-                    // Limpiamos estilos inline
-                    circle.style.stroke = ''; 
-                    circle.style.filter = '';
-                } else {
+    if (num) num.innerText = Math.ceil(segundos);
+
+    const pct = Math.max(0, Math.min(1, segundos / dur));
+    const circ = cachedCircumference || ensureCircumference(circle);
+    const offset = circ - (pct * circ);
+
+    if (circle) circle.style.strokeDashoffset = offset;
+
+    if (segundos <= 15) {
+      wrap?.classList.add('critical');
+      circle?.classList.add('critical');
+      num?.classList.add('critical');
+    } else {
+      wrap?.classList.remove('critical');
+      circle?.classList.remove('critical');
+      num?.classList.remove('critical');
+    }
+  };
+})(); else {
                     // DESACTIVAMOS PÁNICO
                     if(wrapper) wrapper.classList.remove('critical');
                     
