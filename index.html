@@ -806,24 +806,32 @@ button.soft:active {
         }
 
         /* ========== INLINE ERROR ========== */
+        /* Ahora siempre ocupa espacio (no display:none) y usa opacity/transform para desvanecer */
         .inline-error {
             font-size: 13px;
             margin-top: 6px;
             padding-left: 6px;
             color: var(--danger);
             font-weight: 600;
-            display: none;
-            opacity: 1;
-            transition: opacity 0.5s ease;
+            /* no ocultar con display: none; manejaremos visibilidad via opacity */
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-6px);
+            transition: opacity 0.6s cubic-bezier(0.25,0.8,0.25,1), transform 0.6s cubic-bezier(0.25,0.8,0.25,1);
+            height: auto;
+            line-height: 1.2;
         }
 
         .inline-error.show {
-            display: block;
             opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
         }
 
         .inline-error.hide {
             opacity: 0;
+            visibility: hidden;
+            transform: translateY(-6px);
         }
     </style>
 </head>
@@ -1226,8 +1234,8 @@ button.soft:active {
            - cleanInput: trim y colapsa espacios múltiples
            - normalizeForCompare: quita acentos y pasa a minúsculas para comparar
            - existsInArray: búsqueda insensible a mayúsculas/acento
-           - isValidChars: bloquea emojis y caracteres especiales
-           - showInlineError / clearInlineError: mostrar errores debajo del input (desvanecen)
+           - isValidChars: ahora permite SOLO letras y espacios
+           - showInlineError / clearInlineError: mostrar errores debajo del input (desvanecen suavemente)
            ------------------------------------------------------------------ */
 
         // Guardar timeouts por id para limpiar si es necesario
@@ -1250,12 +1258,11 @@ button.soft:active {
             return arr.some(item => normalizeForCompare(item) === norm);
         }
 
-        // Permitir letras (unicode), números, espacios, guion y apóstrofe
-        // Esto bloquea emojis y la mayoría de caracteres especiales.
+        // Permitir SOLO letras Unicode y espacios (acepta acentos). Bloquea números, emojis y símbolos.
         function isValidChars(str) {
             if (typeof str !== 'string') return false;
-            // ^[letters numbers space ' - ]+$ using Unicode property escapes
-            const pattern = /^[\p{L}\p{N}\s'\-\u2019]+$/u;
+            // ^[letters and spaces]+$ using Unicode property escapes
+            const pattern = /^[\p{L}\s]+$/u;
             return pattern.test(str);
         }
 
@@ -1268,20 +1275,23 @@ button.soft:active {
                 delete inlineErrorTimeouts[id];
             }
             el.innerText = msg;
+            // Fuerza reflow para asegurar transición si es necesario
             el.classList.remove('hide');
+            void el.offsetWidth;
             el.classList.add('show');
 
             if (autoHide) {
                 inlineErrorTimeouts[id] = setTimeout(() => {
                     // iniciar desvanecimiento
                     el.classList.add('hide');
-                    // después de la transición, ocultar y limpiar texto
+                    el.classList.remove('show');
+                    // después de la transición, limpiar texto (tiempo = 600ms acorde al CSS)
                     setTimeout(() => {
-                        el.classList.remove('show', 'hide');
                         el.innerText = '';
+                        el.classList.remove('hide');
                         delete inlineErrorTimeouts[id];
-                    }, 500);
-                }, 3000); // 3s visible, luego 0.5s fade
+                    }, 620);
+                }, 3000); // 3s visible, luego 0.62s fade
             }
         }
 
@@ -1315,9 +1325,9 @@ button.soft:active {
                 return;
             }
 
-            // caracteres permitidos
+            // caracteres permitidos (solo letras y espacios)
             if (!isValidChars(cleaned)) {
-                showInlineError('errorPalabra', 'Caracteres no permitidos. Usa letras y números.');
+                showInlineError('errorPalabra', 'Solo se permiten letras y espacios.');
                 input.focus();
                 return;
             }
@@ -1376,9 +1386,9 @@ button.soft:active {
                 return;
             }
 
-            // caracteres permitidos
+            // caracteres permitidos (solo letras y espacios)
             if (!isValidChars(cleaned)) {
-                showInlineError('errorJugador', 'Caracteres no permitidos. Usa letras y números.');
+                showInlineError('errorJugador', 'Solo se permiten letras y espacios.');
                 input.focus();
                 return;
             }
