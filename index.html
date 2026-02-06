@@ -812,13 +812,14 @@ button.soft:active {
             padding-left: 6px;
             color: var(--danger);
             font-weight: 600;
-            display: none;
-            opacity: 1;
-            transition: opacity 0.5s ease;
+            display: block; /* siempre ocupar espacio para que no mueva layout */
+            opacity: 0;
+            transition: opacity 1.5s ease;
+            height: 18px;
+            line-height: 18px;
         }
 
         .inline-error.show {
-            display: block;
             opacity: 1;
         }
 
@@ -1094,7 +1095,7 @@ button.soft:active {
             palabras = [];
             jugadores = [];
 
-            // Limpia localStorage (NUEVO)
+            // Limpia localStorage
             localStorage.removeItem('impostor_palabras');
             localStorage.removeItem('impostor_jugadores');
 
@@ -1151,7 +1152,7 @@ button.soft:active {
             }, 300);
         }
 
-        /* --- FUNCIÓN AUXILIAR: FISHER-YATES SHUFFLE (NUEVO) --- */
+        /* --- FUNCIÓN AUXILIAR: FISHER-YATES SHUFFLE --- */
         function mezclarArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -1160,7 +1161,7 @@ button.soft:active {
             return array;
         }
 
-        /* --- GESTIÓN DE DATOS CON LOCALSTORAGE (NUEVO) --- */
+        /* --- GESTIÓN DE DATOS CON LOCALSTORAGE --- */
         function guardarDatos() {
             localStorage.setItem('impostor_palabras', JSON.stringify(palabras));
             localStorage.setItem('impostor_jugadores', JSON.stringify(jugadores));
@@ -1191,7 +1192,7 @@ button.soft:active {
         const SVG_PLAY = '<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
         const SVG_PAUSE = '<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
 
-        // --- MODO OSCURO AUTOMÁTICO Y MANUAL ---
+        // --- MODO OSCURO ---
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
             document.documentElement.classList.add('dark');
         }
@@ -1226,8 +1227,9 @@ button.soft:active {
            - cleanInput: trim y colapsa espacios múltiples
            - normalizeForCompare: quita acentos y pasa a minúsculas para comparar
            - existsInArray: búsqueda insensible a mayúsculas/acento
-           - isValidChars: bloquea emojis y caracteres especiales
-           - showInlineError / clearInlineError: mostrar errores debajo del input (desvanecen)
+           - isValidWordChars: permite letras + números
+           - isValidPlayerName: sólo letras (sin números)
+           - showInlineError / clearInlineError: fade-out
            ------------------------------------------------------------------ */
 
         // Guardar timeouts por id para limpiar si es necesario
@@ -1250,12 +1252,17 @@ button.soft:active {
             return arr.some(item => normalizeForCompare(item) === norm);
         }
 
-        // Permitir letras (unicode), números, espacios, guion y apóstrofe
-        // Esto bloquea emojis y la mayoría de caracteres especiales.
-        function isValidChars(str) {
+        // Palabras: permitir letras (unicode), números, espacios, guion y apóstrofe
+        function isValidWordChars(str) {
             if (typeof str !== 'string') return false;
-            // ^[letters numbers space ' - ]+$ using Unicode property escapes
             const pattern = /^[\p{L}\p{N}\s'\-\u2019]+$/u;
+            return pattern.test(str);
+        }
+
+        // Jugadores: permitir SOLO letras (unicode), espacios, guion y apóstrofe — NO números
+        function isValidPlayerName(str) {
+            if (typeof str !== 'string') return false;
+            const pattern = /^[\p{L}\s'\-\u2019]+$/u;
             return pattern.test(str);
         }
 
@@ -1272,16 +1279,16 @@ button.soft:active {
             el.classList.add('show');
 
             if (autoHide) {
+                // visible por 2500ms, luego 1500ms de transición (CSS)
                 inlineErrorTimeouts[id] = setTimeout(() => {
-                    // iniciar desvanecimiento
-                    el.classList.add('hide');
-                    // después de la transición, ocultar y limpiar texto
-                    setTimeout(() => {
+                    el.classList.add('hide'); // inicia fade
+                    // después de la transición (1.5s) limpiamos
+                    inlineErrorTimeouts[id] = setTimeout(() => {
                         el.classList.remove('show', 'hide');
                         el.innerText = '';
                         delete inlineErrorTimeouts[id];
-                    }, 500);
-                }, 3000); // 3s visible, luego 0.5s fade
+                    }, 1500);
+                }, 2500);
             }
         }
 
@@ -1315,8 +1322,8 @@ button.soft:active {
                 return;
             }
 
-            // caracteres permitidos
-            if (!isValidChars(cleaned)) {
+            // caracteres permitidos (palabra puede incluir números)
+            if (!isValidWordChars(cleaned)) {
                 showInlineError('errorPalabra', 'Caracteres no permitidos. Usa letras y números.');
                 input.focus();
                 return;
@@ -1325,7 +1332,7 @@ button.soft:active {
             // duplicado
             if (existsInArray(palabras, cleaned)) {
                 showInlineError('errorPalabra', `La palabra "${cleaned}" ya existe. Campo borrado para ingresar otra.`);
-                // BORRAR automáticamente el input para ingresar otro (como pediste)
+                // BORRAR automáticamente el input para ingresar otro
                 input.value = '';
                 input.focus();
                 return;
@@ -1376,9 +1383,9 @@ button.soft:active {
                 return;
             }
 
-            // caracteres permitidos
-            if (!isValidChars(cleaned)) {
-                showInlineError('errorJugador', 'Caracteres no permitidos. Usa letras y números.');
+            // caracteres permitidos (NADA de números)
+            if (!isValidPlayerName(cleaned)) {
+                showInlineError('errorJugador', 'Caracteres no permitidos. Solo letras (sin números).');
                 input.focus();
                 return;
             }
@@ -1386,7 +1393,7 @@ button.soft:active {
             // duplicado
             if (existsInArray(jugadores, cleaned)) {
                 showInlineError('errorJugador', `El jugador "${cleaned}" ya existe. Campo borrado para ingresar otro.`);
-                // BORRAR automáticamente el input para ingresar otro (como pediste)
+                // BORRAR automáticamente el input para ingresar otro
                 input.value = '';
                 input.focus();
                 return;
@@ -1449,9 +1456,12 @@ button.soft:active {
 
         function nuevaRonda() {
             votos = {};
-            document.getElementById('guessFeedback').innerText = '';
-            document.getElementById('guessInput').value = '';
-            document.getElementById('impostorGuessSection').style.display = 'none';
+            const gf = document.getElementById('guessFeedback');
+            const gi = document.getElementById('guessInput');
+            if (gf) gf.innerText = '';
+            if (gi) gi.value = '';
+            const igs = document.getElementById('impostorGuessSection');
+            if (igs) igs.style.display = 'none';
 
             if (palabrasDisponibles.length === 0) {
                 const ov = document.getElementById('alertFinOverlay');
@@ -1461,22 +1471,19 @@ button.soft:active {
                 return;
             }
 
-            // --- FIX DEFINITIVO PARA ANIMACIÓN (HARD RESET) ---
-            // Reemplazamos el elemento completo para que el navegador olvide 
-            // cualquier estado de animación anterior.
+            // --- FIX PARA ANIMACIÓN (HARD RESET) ---
             const oldWrapper = document.querySelector('.timer-wrap');
             if (oldWrapper) {
                 const newWrapper = oldWrapper.cloneNode(true);
-                // Aseguramos que el clon nace limpio de clases críticas
                 newWrapper.classList.remove('critical');
                 const newCircle = newWrapper.querySelector('#timerCircle');
-                if(newCircle) {
+                if (newCircle) {
                     newCircle.classList.remove('critical');
                     newCircle.style.stroke = 'var(--accent)';
                     newCircle.style.filter = 'drop-shadow(0 0 4px var(--accent-glow))';
                 }
                 const newNum = newWrapper.querySelector('#timerNumber');
-                if(newNum) newNum.classList.remove('critical');
+                if (newNum) newNum.classList.remove('critical');
 
                 oldWrapper.parentNode.replaceChild(newWrapper, oldWrapper);
             }
@@ -1560,7 +1567,6 @@ button.soft:active {
             document.removeEventListener('touchcancel', hideContent);
         }
 
-        // proteger si btnReveal no existe al cargar script temprano
         if (btnReveal) {
             btnReveal.addEventListener('mousedown', showContent);
             btnReveal.addEventListener('touchstart', showContent, {
@@ -1609,7 +1615,6 @@ button.soft:active {
             rafId = null;
         }
 
-        /* --- NUEVA FUNCIÓN OPTIMIZADA (LATE TODO JUNTO) --- */
         function actualizarTimerUI(segundos) {
             const numElem = document.getElementById('timerNumber');
             const circle = document.getElementById('timerCircle');
@@ -1629,30 +1634,20 @@ button.soft:active {
 
                 // --- LÓGICA DE LOS 15 SEGUNDOS ---
                 if (segundos <= 15) {
-                    // ACTIVAMOS PÁNICO EN EL CONTENEDOR (Todo late junto)
                     if(wrapper) wrapper.classList.add('critical');
-                    
-                    // Cambios de color individuales
                     circle.classList.add('critical');
                     if(numElem) numElem.classList.add('critical');
-                    
-                    // Limpiamos estilos inline
                     circle.style.stroke = ''; 
                     circle.style.filter = '';
                 } else {
-                    // DESACTIVAMOS PÁNICO
                     if(wrapper) wrapper.classList.remove('critical');
-                    
                     circle.classList.remove('critical');
                     if(numElem) numElem.classList.remove('critical');
-                    
-                    // Restauramos estilos normales
                     circle.style.stroke = 'var(--accent)';
                     circle.style.filter = 'drop-shadow(0 0 4px var(--accent-glow))';
                 }
             }
         }
-        /* ----------------------------------------- */
 
         function saltarAPuesta() {
             stopTemporizador();
