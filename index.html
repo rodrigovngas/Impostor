@@ -1198,6 +1198,17 @@ button.soft:active {
             });
         }
 
+        function normalize(str) {
+            return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+        }
+
+        function showError(errorElem, message) {
+            errorElem.innerText = message;
+            setTimeout(() => {
+                errorElem.innerText = '';
+            }, 3000);
+        }
+
         function agregarPalabra() {
             const input = document.getElementById('nuevaPalabra');
             const errorElem = document.getElementById('errorPalabra');
@@ -1205,7 +1216,7 @@ button.soft:active {
             let p = input.value.trim();
 
             if (!p) {
-                errorElem.innerText = 'La palabra no puede estar vacía.';
+                showError(errorElem, 'La palabra no puede estar vacía.');
                 input.value = '';
                 return;
             }
@@ -1213,22 +1224,23 @@ button.soft:active {
             // Validar solo letras (incluyendo acentos y espacios)
             const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
             if (!regex.test(p)) {
-                errorElem.innerText = 'Solo se permiten letras y espacios.';
+                showError(errorElem, 'Solo se permiten letras y espacios.');
                 input.value = '';
                 return;
             }
 
             // Validar longitud
             if (p.length < 2 || p.length > 20) {
-                errorElem.innerText = 'La palabra debe tener entre 2 y 20 caracteres.';
+                showError(errorElem, 'La palabra debe tener entre 2 y 20 caracteres.');
                 input.value = '';
                 return;
             }
 
-            // Validar duplicados (case-insensitive)
-            const exists = palabras.some(word => word.toLowerCase() === p.toLowerCase());
+            // Validar duplicados (case-insensitive y sin acentos)
+            const normalizedP = normalize(p);
+            const exists = palabras.some(word => normalize(word) === normalizedP);
             if (exists) {
-                errorElem.innerText = 'Esta palabra ya existe.';
+                showError(errorElem, 'Esta palabra ya existe.');
                 input.value = '';
                 return;
             }
@@ -1266,7 +1278,7 @@ button.soft:active {
             let name = input.value.trim();
 
             if (!name) {
-                errorElem.innerText = 'El nombre no puede estar vacío.';
+                showError(errorElem, 'El nombre no puede estar vacío.');
                 input.value = '';
                 return;
             }
@@ -1274,22 +1286,23 @@ button.soft:active {
             // Validar solo letras (incluyendo acentos y espacios)
             const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
             if (!regex.test(name)) {
-                errorElem.innerText = 'Solo se permiten letras y espacios.';
+                showError(errorElem, 'Solo se permiten letras y espacios.');
                 input.value = '';
                 return;
             }
 
             // Validar longitud
             if (name.length < 2 || name.length > 20) {
-                errorElem.innerText = 'El nombre debe tener entre 2 y 20 caracteres.';
+                showError(errorElem, 'El nombre debe tener entre 2 y 20 caracteres.');
                 input.value = '';
                 return;
             }
 
-            // Validar duplicados (case-insensitive)
-            const exists = jugadores.some(jug => jug.toLowerCase() === name.toLowerCase());
+            // Validar duplicados (case-insensitive y sin acentos)
+            const normalizedName = normalize(name);
+            const exists = jugadores.some(jug => normalize(jug) === normalizedName);
             if (exists) {
-                errorElem.innerText = 'Este nombre ya existe.';
+                showError(errorElem, 'Este nombre ya existe.');
                 input.value = '';
                 return;
             }
