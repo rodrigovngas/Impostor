@@ -358,27 +358,25 @@
             box-shadow: 0 4px 15px var(--danger-soft);
         }
 
-        /* Botón suave: activo pero secundario */
-button.soft {
-    background: var(--accent-soft);
-    border-color: transparent; /* Sin borde fuerte */
-    color: var(--accent);
-    box-shadow: none;
-}
+        button.soft {
+            background: var(--accent-soft);
+            border-color: transparent;
+            color: var(--accent);
+            box-shadow: none;
+        }
 
-button.soft:active {
-    background: var(--accent); /* Al presionar se rellena de color */
-    color: var(--card-bg);
-    transform: scale(0.96);
-}
+        button.soft:active {
+            background: var(--accent);
+            color: var(--card-bg);
+            transform: scale(0.96);
+        }
 
-/* Opcional: Hover para PC */
-@media (hover: hover) {
-    button.soft:hover {
-        background: var(--accent-glow);
-        color: var(--accent);
-    }
-}
+        @media (hover: hover) {
+            button.soft:hover {
+                background: var(--accent-glow);
+                color: var(--accent);
+            }
+        }
 
         button.dark-toggle {
             border: 1px solid var(--card-border);
@@ -610,9 +608,9 @@ button.soft:active {
             left: 0;
             width: 100%;
             height: 100%;
-            transform: rotate(-90deg); /* Para que empiece arriba */
+            transform: rotate(-90deg);
             pointer-events: none;
-            overflow: visible; /* IMPORTANTE: Permite que el latido salga del borde */
+            overflow: visible;
         }
 
         .circle-bg {
@@ -626,7 +624,7 @@ button.soft:active {
             stroke: var(--accent);
             stroke-width: 10;
             stroke-linecap: round;
-            stroke-dasharray: 283; /* 2 * pi * 45 ≈ 283 */
+            stroke-dasharray: 283;
             stroke-dashoffset: 0;
             transition: stroke-dashoffset 0.1s linear, stroke 0.3s ease;
             filter: drop-shadow(0 0 4px var(--accent-glow));
@@ -645,22 +643,19 @@ button.soft:active {
         /* --- ESTILOS DE PÁNICO (ÚLTIMOS 15 SEGUNDOS) --- */
         @keyframes heartBeat {
             0% { transform: scale(1); }
-            50% { transform: scale(1.05); } /* Crece un 5% todo el conjunto */
+            50% { transform: scale(1.05); }
             100% { transform: scale(1); }
         }
 
-        /* APLICAMOS EL LATIDO AL CONTENEDOR ENTERO */
         .timer-wrap.critical {
             animation: heartBeat 1s infinite ease-in-out;
         }
 
-        /* El círculo solo cambia de color (ya no tiene la animación aquí) */
         .circle-fg.critical {
             stroke: var(--danger) !important;
             filter: drop-shadow(0 0 10px var(--danger)) !important;
         }
 
-        /* El número solo cambia de color */
         .timer-number.critical {
             color: var(--danger) !important;
         }
@@ -809,13 +804,11 @@ button.soft:active {
 
 <body>
     <div class="app">
-
         <header>
             <div class="logo-area">
                 <h1>El Impostor<span class="status-dot"></span></h1>
                 <div class="sub">TRAKAS HDSPM</div>
             </div>
-
             <button class="dark-toggle" onclick="toggleDarkMode()" title="Cambiar tema">
                 <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <circle cx="12" cy="12" r="5" />
@@ -837,305 +830,145 @@ button.soft:active {
         <div id="admin" class="card">
             <label>Añadir palabra</label>
             <div class="row">
-                <input type="text" id="nuevaPalabra" placeholder="Ej. Cybertruck, Zumpango..." />
-                <button class="smallbtn" onclick="agregarPalabra()">+</button>
+                <input type="text" id="nuevaPalabra" placeholder="Ej: Avión, Pizza..." autocomplete="off">
+                <button class="smallbtn" onclick="agregarPalabra()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                </button>
             </div>
-
+            
             <ul id="listaPalabras"></ul>
 
-            <hr style="margin:24px 0; border:none; border-top:1px solid var(--card-border)" />
+            <div class="spacer" style="height: 20px;"></div>
 
-            <label>Añadir jugador</label>
+            <label>Jugadores</label>
             <div class="row">
-                <input type="text" id="nombreJugador" placeholder="Nombre del jugador" />
-                <button class="smallbtn" onclick="agregarJugador()">+</button>
+                <input type="text" id="nombreJugador" placeholder="Nombre..." autocomplete="off">
+                <button class="smallbtn" onclick="agregarJugador()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                </button>
             </div>
 
             <ul id="listaJugadores"></ul>
 
-            <div style="margin-top:24px" class="row">
-                <div style="flex:1">
-                    <label>Tiempo ronda</label>
-                    <select id="duracionSelect">
-                        <option value="60" selected>1 minuto</option>
-                        <option value="120">2 minutos</option>
-                        <option value="180">3 minutos</option>
-                        <option value="240">4 minutos</option>
-                        <option value="300">5 minutos</option>
-                    </select>
-                </div>
-                <div style="align-self:flex-end">
-                    <button style="width:100%" onclick="iniciarJuego()">¡Jugar!</button>
-                </div>
-            </div>
-
-            <div style="margin-top:16px" class="row">
-                <button class="danger ghost" style="flex:1" onclick="mostrarConfirmacion()">Reset Total</button>
-            </div>
+            <div class="spacer" style="height: 20px;"></div>
+            <button class="hold-btn" onclick="iniciarJuego()">COMENZAR PARTIDA</button>
         </div>
 
-        <div id="asignacion" class="card" style="display:none">
-            <div style="display:flex; justify-content:space-between; align-items:center; opacity:0.6;">
-                <div style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px;">Turno de</div>
-                <div style="font-size:14px; font-variant-numeric: tabular-nums;">
-                    <span id="indiceAsignacion">1</span> / <span id="totalAsignacion">1</span>
-                </div>
+        <div id="asignacion" class="card" style="display: none;">
+            <div class="assign-name" id="nombreTurno">Jugador 1</div>
+            <p style="text-align: center; color: var(--text-muted); margin-bottom: 20px;">
+                Mantén presionado para ver tu rol
+            </p>
+
+            <div class="reveal" id="revealBox">
+                <div class="reveal-title">TU ROL ES:</div>
+                <div class="reveal-word" id="revealWord">PALABRA</div>
             </div>
-            <div class="assign-name" id="nombreJugadorAsignacion">Jugador</div>
-            <div style="display:flex; gap:16px; flex-direction:column; margin-top:10px;">
-                <div style="position:relative; width:100%">
-                    <button id="btnReveal" class="hold-btn" oncontextmenu="return false;">MANTÉN PARA VER TU ROL</button>
-                    <div id="textoPalabra" class="reveal"></div>
-                </div>
-                <button id="btnSiguiente" onclick="siguienteJugador()" style="margin-top:8px; width:100%">Entendido, siguiente</button>
-            </div>
+
+            <div class="spacer" style="height: 30px;"></div>
+            <button class="soft" id="btnSiguiente" onclick="siguienteJugador()" style="width: 100%;">ENTENDIDO, SIGUIENTE</button>
         </div>
 
-        <div id="pistas" class="card" style="display:none">
-            <div style="display:flex; justify-content:space-between; align-items:center">
-                <div>
-                    <div style="font-size:12px; color:var(--text-muted); font-weight:600; text-transform:uppercase">Go Go Go</div>
-                    <div style="font-weight:800; font-size:18px; color:var(--text-main)">Describan la palabra</div>
-                </div>
-            </div>
-            
-            <div class="timer-wrap">
+        <div id="juego" class="card" style="display: none; text-align: center;">
+            <label>Tiempo Restante</label>
+            <div class="timer-wrap" id="timerWrap">
                 <svg class="timer-svg" viewBox="0 0 100 100">
                     <circle class="circle-bg" cx="50" cy="50" r="45"></circle>
-                    <circle id="timerCircle" class="circle-fg" cx="50" cy="50" r="45"></circle>
+                    <circle class="circle-fg" id="timerCircle" cx="50" cy="50" r="45"></circle>
                 </svg>
-                <div class="timer-number" id="timerNumber">60</div>
+                <div class="timer-number" id="timerDisplay">60</div>
             </div>
 
             <div class="controls">
-                <button id="botonIniciarTimer" style="flex:1.5" onclick="iniciarTemporizador()">
-                    <svg viewBox="0 0 24 24">
-                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                    </svg> Iniciar
-                </button>
-                <button class="soft" style="flex:1" onclick="saltarAPuesta()">Votación</button>
+                <button class="danger" style="flex: 1;" onclick="finalizarJuego()">VOTAR YA</button>
             </div>
         </div>
 
-        <div id="votacion" class="card" style="display:none">
-            <div style="text-align:center; margin-bottom:16px;">
-                <div style="font-size:12px; color:var(--text-muted); font-weight:700; text-transform:uppercase">Votación final</div>
-                <div style="font-weight:900; font-size:20px; color:var(--text-main)">¿Quién es el impostor?</div>
-            </div>
-            <div id="voteContainer" class="vote-grid"></div>
-            <button style="margin-top:20px; width:100%" class="soft" onclick="mostrarResultado()">Ver Resultados</button>
+        <div id="votacion" class="card" style="display: none;">
+            <label style="text-align: center;">¿Quién es el impostor?</label>
+            <div class="vote-grid" id="voteGrid"></div>
+            <div class="spacer" style="height: 20px;"></div>
+            <button class="soft" onclick="confirmarVoto()" style="width: 100%;">CONFIRMAR ELIMINACIÓN</button>
         </div>
 
-        <div id="resultado" class="card" style="display:none">
-            <div style="text-align:center">
-                <div style="font-size:12px; color:var(--text-muted); font-weight:700; text-transform:uppercase">Resultado</div>
-                <div class="result-text" id="textoResultado"></div>
+        <div id="resultado" class="card" style="display: none; text-align: center;">
+            <div class="result-text" id="resultadoTexto"></div>
+            <div class="spacer" style="height: 20px;"></div>
+            
+            <div id="impostorChance" style="display: none;">
+                <p style="color: var(--text-muted);">El impostor tiene una última oportunidad...</p>
+                <input type="text" id="guessInput" placeholder="¿Cuál era la palabra?" style="text-align: center; margin-bottom: 10px;">
+                <button class="danger" onclick="impostorAdivina()" style="width: 100%;">ADIVINAR</button>
             </div>
-            <div id="impostorGuessSection" style="margin-top:24px; padding:20px; border:1px solid var(--danger); border-radius:24px; background:var(--danger-soft); display:none">
-                <label id="impostorGuessLabel" style="color:var(--danger); font-weight:800; font-size:18px; text-align:center; display:block; margin-bottom:8px"></label>
-                <p style="font-size:14px; text-align:center; margin-bottom:16px; color:var(--text-main); opacity:0.8;">Si adivinas la palabra, ganas la partida.</p>
-                <div style="display:flex; gap:8px">
-                    <input type="text" id="guessInput" placeholder="Palabra secreta..." style="background:var(--card-bg)" />
-                </div>
-                <button class="danger" style="width:100%; margin-top:12px;" onclick="impostorAdivina()">Intentar Adivinar</button>
-                <div id="guessFeedback" style="margin-top:12px; font-weight:700; font-size:15px; text-align:center"></div>
-            </div>
-            <div style="margin-top:30px; display:flex; flex-direction:column; gap:12px;">
-                <button onclick="nuevaRonda()">Jugar otra vez</button>
-                <button class="soft" onclick="mostrarSeccion('admin')">Volver al menú</button>
-            </div>
+
+            <button class="ghost" onclick="resetGame()" style="width: 100%; margin-top: 20px;">VOLVER AL MENÚ</button>
         </div>
 
-        <div class="spacer"></div>
-        <footer class="footer">Development by VNGAS</footer>
-
-    </div>
-
-    <div id="toastOverlay" class="toast-overlay">
-        <div class="toast-content" onclick="event.stopPropagation()">
-            <div class="toast-title">¿Reiniciar todo?</div>
-            <div class="toast-msg">Se borrarán todos los jugadores y palabras guardadas.</div>
-            <div class="row">
-                <button class="ghost" style="flex:1" onclick="cerrarConfirmacion()">Cancelar</button>
-                <button class="danger" style="flex:1" onclick="confirmarReinicio()">Sí, borrar</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="alertFinOverlay" class="toast-overlay" style="z-index: 1000;">
-        <div class="toast-content" onclick="event.stopPropagation()">
-            <div class="toast-title">¡Se acabaron!</div>
-            <div class="toast-msg">Ya no quedan palabras nuevas en la lista.</div>
-            <button style="width:100%" onclick="irAlInicio()">Volver al menú</button>
-        </div>
-    </div>
-
-    <div id="timeOutOverlay" class="toast-overlay" style="z-index: 1000;">
-        <div class="toast-content" onclick="event.stopPropagation()">
-            <div class="toast-title">¡Tiempo terminado!</div>
-            <div class="toast-msg">Es momento de votar por el impostor.</div>
-            <button style="width:100%" onclick="finalizarTiempoYContinuar()">Aceptar</button>
-        </div>
-    </div>
-
-    <div id="genericAlertOverlay" class="toast-overlay" style="z-index: 1001;">
-        <div class="toast-content" onclick="event.stopPropagation()">
-            <div id="genericAlertTitle" class="toast-title">Título</div>
-            <div id="genericAlertMsg" class="toast-msg">Mensaje</div>
-            <div class="row">
-                <button style="flex:1" onclick="cerrarAlertaGenerica()">Aceptar</button>
-            </div>
-        </div>
+        <div class="footer">v2.0 • TRAKAS GAMING</div>
     </div>
 
     <script>
-        /* --------------------------------------------------------------------------------
-           SEGURIDAD BÁSICA
-        -------------------------------------------------------------------------------- */
-        (function() {
-            document.addEventListener('contextmenu', function(e) {
-                e.preventDefault();
-                return false;
-            }, false);
-            document.onkeydown = function(e) {
-                if (e.keyCode == 123) return false;
-                if (e.ctrlKey && e.shiftKey && (e.keyCode == 'I'.charCodeAt(0) || e.keyCode == 'C'.charCodeAt(0) || e.keyCode == 'J'.charCodeAt(0))) return false;
-                if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
+        // --- ESTADO DEL JUEGO ---
+        let palabras = [];
+        let jugadores = [];
+        let impostorIndex = -1;
+        let palabraSecreta = "";
+        let turnoActual = 0;
+        
+        let timerInterval;
+        let tiempoTotal = 120; // 2 minutos
+        let tiempoRestante = 120;
+
+        // --- VALIDACIÓN Y AGREGAR (CÓDIGO NUEVO) ---
+        function agregarPalabra() {
+            const input = document.getElementById('nuevaPalabra');
+            const valor = input.value.trim(); // Quita espacios extra
+
+            // 1. Validar vacío
+            if (!valor) return; 
+
+            // 2. Validar duplicado (case insensitive)
+            const existe = palabras.some(p => p.toLowerCase() === valor.toLowerCase());
+            if (existe) {
+                alert(`La palabra "${valor}" ya está en la lista.`);
+                return;
             }
-        })();
 
-        /* --------------------------------------------------------------------------------
-           LÓGICA PRINCIPAL DEL JUEGO
-        -------------------------------------------------------------------------------- */
-        const titleElement = document.querySelector('h1');
-        const textToType = "El Impostor";
-        let charIndex = 0;
-
-        function typeWriter() {
-            if (charIndex < textToType.length) {
-                let currentText = titleElement.childNodes[0].nodeValue || "";
-                titleElement.childNodes[0].nodeValue = currentText + textToType.charAt(charIndex);
-                charIndex++;
-                setTimeout(typeWriter, 120);
-            } else {
-                setTimeout(() => {
-                    titleElement.childNodes[0].nodeValue = "";
-                    charIndex = 0;
-                    typeWriter();
-                }, 10000);
-            }
-        }
-        titleElement.innerHTML = '<span class="status-dot"></span>';
-        titleElement.insertBefore(document.createTextNode(""), titleElement.firstChild);
-        setTimeout(typeWriter, 300);
-
-        /* --- WAKE LOCK --- */
-        let wakeLock = null;
-        async function requestWakeLock() {
-            if ('wakeLock' in navigator) {
-                try {
-                    wakeLock = await navigator.wakeLock.request('screen');
-                    console.log('Wake Lock Activo');
-                } catch (err) {
-                    console.error(err);
-                }
-            }
-        }
-        document.addEventListener('visibilitychange', async () => {
-            if (wakeLock !== null && document.visibilityState === 'visible') {
-                await requestWakeLock();
-            }
-        });
-
-        /* --- LÓGICA ALERTAS --- */
-        function mostrarConfirmacion() {
-            const overlay = document.getElementById('toastOverlay');
-            overlay.style.display = 'flex';
-            overlay.offsetHeight;
-            overlay.classList.add('active');
-            if (navigator.vibrate) navigator.vibrate(50);
-        }
-
-        function cerrarConfirmacion() {
-            const overlay = document.getElementById('toastOverlay');
-            overlay.classList.remove('active');
-            setTimeout(() => {
-                overlay.style.display = 'none';
-            }, 300);
-        }
-
-        function confirmarReinicio() {
-            // Limpia arrays en memoria
-            palabras = [];
-            jugadores = [];
-
-            // Limpia localStorage (NUEVO)
-            localStorage.removeItem('impostor_palabras');
-            localStorage.removeItem('impostor_jugadores');
-
-            resetGameData();
+            palabras.push(valor);
+            guardarDatos();
             renderPalabras();
-            renderJugadores();
-            mostrarSeccion('admin');
-            cerrarConfirmacion();
+            input.value = '';
+            input.focus();
         }
 
-        function irAlInicio() {
-            const ov = document.getElementById('alertFinOverlay');
-            ov.classList.remove('active');
-            setTimeout(() => {
-                ov.style.display = 'none';
-                mostrarSeccion('admin');
-            }, 300);
-        }
+        function agregarJugador() {
+            const input = document.getElementById('nombreJugador');
+            const valor = input.value.trim();
 
-        function mostrarAlertaTiempo() {
-            const ov = document.getElementById('timeOutOverlay');
-            ov.style.display = 'flex';
-            ov.offsetHeight;
-            ov.classList.add('active');
-        }
+            // 1. Validar vacío
+            if (!valor) return;
 
-        function finalizarTiempoYContinuar() {
-            const ov = document.getElementById('timeOutOverlay');
-            ov.classList.remove('active');
-            setTimeout(() => {
-                ov.style.display = 'none';
-                saltarAPuesta();
-            }, 300);
-        }
-
-        function showAlertMessage(title, msg) {
-            const ov = document.getElementById('genericAlertOverlay');
-            const t = document.getElementById('genericAlertTitle');
-            const m = document.getElementById('genericAlertMsg');
-            t.innerText = title;
-            m.innerText = msg;
-            ov.style.display = 'flex';
-            ov.offsetHeight;
-            ov.classList.add('active');
-            if (navigator.vibrate) navigator.vibrate(50);
-        }
-
-        function cerrarAlertaGenerica() {
-            const ov = document.getElementById('genericAlertOverlay');
-            ov.classList.remove('active');
-            setTimeout(() => {
-                ov.style.display = 'none';
-                mostrarSeccion('admin');
-            }, 300);
-        }
-
-        /* --- FUNCIÓN AUXILIAR: FISHER-YATES SHUFFLE (NUEVO) --- */
-        function mezclarArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
+            // 2. Validar duplicado
+            const existe = jugadores.some(j => j.nombre.toLowerCase() === valor.toLowerCase());
+            if (existe) {
+                alert(`El jugador "${valor}" ya está registrado.`);
+                return;
             }
-            return array;
+
+            jugadores.push({ nombre: valor, rol: null, esImpostor: false });
+            guardarDatos();
+            renderJugadores();
+            input.value = '';
+            input.focus();
         }
 
-        /* --- GESTIÓN DE DATOS CON LOCALSTORAGE (NUEVO) --- */
+        // --- GESTIÓN DE DATOS ---
         function guardarDatos() {
             localStorage.setItem('impostor_palabras', JSON.stringify(palabras));
             localStorage.setItem('impostor_jugadores', JSON.stringify(jugadores));
@@ -1148,440 +981,265 @@ button.soft:active {
             if (j) jugadores = JSON.parse(j);
         }
 
-        /* --- LÓGICA DEL JUEGO --- */
-        let palabras = [];
-        let palabrasDisponibles = [];
-        let jugadores = [];
-        let jugadoresMezclados = [];
-        let impostor = null;
-        let palabraSeleccionada = "";
-        let indiceActual = 0;
-        let votos = {};
-        let duracion = 60;
-                let tiempoRestante = 0;
-        let timerRunning = false;
-        let rafId = null;
-        let startTs = null;
-
-        const SVG_PLAY = '<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
-        const SVG_PAUSE = '<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
-
-        // --- MODO OSCURO AUTOMÁTICO Y MANUAL ---
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            document.documentElement.classList.add('dark');
-        }
-        if (window.matchMedia) {
-            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-                if (e.matches) document.documentElement.classList.add('dark');
-                else document.documentElement.classList.remove('dark');
-            });
-        }
-
-        function toggleDarkMode() {
-            document.documentElement.classList.toggle('dark');
-        }
-
-        function mostrarSeccion(id) {
-            const secciones = ['admin', 'asignacion', 'pistas', 'votacion', 'resultado'];
-            secciones.forEach(s => {
-                const el = document.getElementById(s);
-                if (s === id) {
-                    el.style.display = 'block';
-                    el.style.animation = 'none';
-                    el.offsetHeight;
-                    el.style.animation = null;
-                } else {
-                    el.style.display = 'none';
-                }
-            });
-        }
-
-        function agregarPalabra() {
-            const input = document.getElementById('nuevaPalabra');
-            const p = input.value.trim();
-            if (!p) return;
-            palabras.push(p);
-            guardarDatos(); // Guardar en LocalStorage
-            renderPalabras();
-            input.value = '';
-            input.focus();
-        }
-
-        function eliminarPalabra(index) {
+        function borrarPalabra(index) {
             palabras.splice(index, 1);
-            guardarDatos(); // Guardar en LocalStorage
+            guardarDatos();
             renderPalabras();
         }
 
+        function borrarJugador(index) {
+            jugadores.splice(index, 1);
+            guardarDatos();
+            renderJugadores();
+        }
+
+        // --- RENDERIZADO UI ---
         function renderPalabras() {
             const ul = document.getElementById('listaPalabras');
             ul.innerHTML = '';
-            if (palabras.length === 0) {
-                ul.innerHTML = '<li style="justify-content:center; color:var(--text-muted); font-style:italic; background:transparent; border:none">No hay palabras</li>';
-            }
-            palabras.forEach((p, index) => {
+            palabras.forEach((p, i) => {
                 const li = document.createElement('li');
-                li.innerHTML = `<span>${p}</span><button class="btn-icon btn-delete" onclick="eliminarPalabra(${index})">&times;</button>`;
+                li.innerHTML = `
+                    <span>${p}</span>
+                    <button class="btn-icon btn-delete" onclick="borrarPalabra(${i})">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    </button>
+                `;
                 ul.appendChild(li);
             });
-        }
-
-        function agregarJugador() {
-            const input = document.getElementById('nombreJugador');
-            const name = input.value.trim();
-            if (!name) return;
-            jugadores.push(name);
-            guardarDatos(); // Guardar en LocalStorage
-            renderJugadores();
-            input.value = '';
-            input.focus();
-        }
-
-        function eliminarJugador(index) {
-            jugadores.splice(index, 1);
-            guardarDatos(); // Guardar en LocalStorage
-            renderJugadores();
         }
 
         function renderJugadores() {
             const ul = document.getElementById('listaJugadores');
             ul.innerHTML = '';
-            if (jugadores.length === 0) {
-                ul.innerHTML = '<li style="justify-content:center; color:var(--text-muted); font-style:italic; background:transparent; border:none">No hay jugadores</li>';
-            }
-            jugadores.forEach((j, index) => {
+            jugadores.forEach((j, i) => {
                 const li = document.createElement('li');
-                li.innerHTML = `<span>${j}</span><button class="btn-icon btn-delete" onclick="eliminarJugador(${index})">&times;</button>`;
+                li.innerHTML = `
+                    <span>${j.nombre}</span>
+                    <button class="btn-icon btn-delete" onclick="borrarJugador(${i})">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    </button>
+                `;
                 ul.appendChild(li);
             });
         }
 
-        function reiniciarTodo() {
-            mostrarConfirmacion();
+        function mostrarSeccion(id) {
+            ['admin', 'asignacion', 'juego', 'votacion', 'resultado'].forEach(s => {
+                document.getElementById(s).style.display = 'none';
+            });
+            document.getElementById(id).style.display = 'block';
+            
+            // Animación de entrada
+            const card = document.getElementById(id);
+            card.style.animation = 'none';
+            card.offsetHeight; /* trigger reflow */
+            card.style.animation = 'slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
         }
 
-        function resetGameData() {
-            jugadoresMezclados = [];
-            impostor = null;
-            palabraSeleccionada = '';
-            votos = {};
-            stopTemporizador();
-        }
-
+        // --- LÓGICA DEL JUEGO ---
         function iniciarJuego() {
-            if (jugadores.length < 3) {
-                showAlertMessage('Faltan jugadores', 'Se requieren mínimo 3 jugadores.');
-                return;
-            }
-            if (palabras.length === 0) {
-                showAlertMessage('Faltan palabras', 'Agrega al menos una palabra.');
-                return;
-            }
+            if (palabras.length < 2) { alert("Necesitas al menos 2 palabras."); return; }
+            if (jugadores.length < 3) { alert("Necesitas al menos 3 jugadores."); return; }
 
-            duracion = Number(document.getElementById('duracionSelect').value || 60);
-            palabrasDisponibles = [...palabras];
+            // Resetear
+            impostorIndex = Math.floor(Math.random() * jugadores.length);
+            palabraSecreta = palabras[Math.floor(Math.random() * palabras.length)];
+            turnoActual = 0;
 
-            requestWakeLock();
-            nuevaRonda();
-        }
+            jugadores.forEach((j, i) => {
+                j.esImpostor = (i === impostorIndex);
+                j.rol = j.esImpostor ? "IMPOSTOR" : "CIUDADANO";
+            });
 
-        function nuevaRonda() {
-            votos = {};
-            document.getElementById('guessFeedback').innerText = '';
-            document.getElementById('guessInput').value = '';
-            document.getElementById('impostorGuessSection').style.display = 'none';
-
-            if (palabrasDisponibles.length === 0) {
-                const ov = document.getElementById('alertFinOverlay');
-                ov.style.display = 'flex';
-                ov.offsetHeight;
-                ov.classList.add('active');
-                return;
-            }
-
-            // --- FIX DEFINITIVO PARA ANIMACIÓN (HARD RESET) ---
-            // Reemplazamos el elemento completo para que el navegador olvide 
-            // cualquier estado de animación anterior.
-            const oldWrapper = document.querySelector('.timer-wrap');
-            if (oldWrapper) {
-                const newWrapper = oldWrapper.cloneNode(true);
-                // Aseguramos que el clon nace limpio de clases críticas
-                newWrapper.classList.remove('critical');
-                const newCircle = newWrapper.querySelector('#timerCircle');
-                if(newCircle) {
-                    newCircle.classList.remove('critical');
-                    newCircle.style.stroke = 'var(--accent)';
-                    newCircle.style.filter = 'drop-shadow(0 0 4px var(--accent-glow))';
-                }
-                const newNum = newWrapper.querySelector('#timerNumber');
-                if(newNum) newNum.classList.remove('critical');
-
-                oldWrapper.parentNode.replaceChild(newWrapper, oldWrapper);
-            }
-            // --------------------------
-
-            const randomIndex = Math.floor(Math.random() * palabrasDisponibles.length);
-            palabraSeleccionada = palabrasDisponibles[randomIndex];
-            palabrasDisponibles.splice(randomIndex, 1);
-
-            jugadoresMezclados = mezclarArray([...jugadores]);
-
-            impostor = jugadoresMezclados[Math.floor(Math.random() * jugadoresMezclados.length)];
-
-            indiceActual = 0;
-            document.getElementById('totalAsignacion').innerText = jugadoresMezclados.length;
-            cargarJugador();
+            prepararTurno();
             mostrarSeccion('asignacion');
-            stopTemporizador();
-            tiempoRestante = duracion;
-            actualizarTimerUI(duracion);
         }
 
-        function cargarJugador() {
-            const jugador = jugadoresMezclados[indiceActual];
-            document.getElementById('nombreJugadorAsignacion').innerText = jugador;
-            document.getElementById('indiceAsignacion').innerText = (indiceActual + 1);
+        function prepararTurno() {
+            document.getElementById('nombreTurno').innerText = jugadores[turnoActual].nombre;
+            const box = document.getElementById('revealBox');
+            const word = document.getElementById('revealWord');
+            
+            box.style.display = 'none';
+            box.classList.remove('impostor-mode');
+            word.innerText = '???';
+            
+            // Lógica de "Hold to reveal"
+            const btn = document.getElementById('btnSiguiente');
+            btn.innerText = "MANTÉN PRESIONADO EN LA PANTALLA";
+            btn.disabled = true; // Solo habilitar después de ver
+        }
 
-            const elem = document.getElementById('textoPalabra');
-            elem.style.display = 'none';
-            elem.className = 'reveal';
+        // Eventos de Revelación (Touch/Mouse)
+        const revealArea = document.getElementById('asignacion');
+        let pressTimer;
 
-            const btn = document.getElementById('btnReveal');
-            btn.style.display = 'flex';
-            btn.style.opacity = '1';
+        revealArea.addEventListener('pointerdown', function(e) {
+            if(e.target.closest('button')) return; // Ignorar si toca el botón
+            
+            const j = jugadores[turnoActual];
+            const box = document.getElementById('revealBox');
+            const word = document.getElementById('revealWord');
 
-            document.getElementById('btnSiguiente').classList.add('btn-locked');
+            box.style.display = 'flex';
+            
+            if (j.esImpostor) {
+                box.classList.add('impostor-mode');
+                word.innerText = "ERES EL IMPOSTOR";
+                word.classList.add('reveal-impostor-text');
+            } else {
+                box.classList.remove('impostor-mode');
+                word.innerText = palabraSecreta;
+                word.classList.remove('reveal-impostor-text');
+            }
+            
+            // Vibrar si es posible
+            if(navigator.vibrate) navigator.vibrate(50);
+            
+            // Habilitar botón de siguiente
+            document.getElementById('btnSiguiente').disabled = false;
+            document.getElementById('btnSiguiente').innerText = "ENTENDIDO, SIGUIENTE";
+        });
+
+        revealArea.addEventListener('pointerup', ocultarRol);
+        revealArea.addEventListener('pointerleave', ocultarRol);
+
+        function ocultarRol() {
+            document.getElementById('revealBox').style.display = 'none';
         }
 
         function siguienteJugador() {
-            document.getElementById('textoPalabra').style.display = 'none';
-            indiceActual++;
-            if (indiceActual >= jugadoresMezclados.length) {
-                document.getElementById('botonIniciarTimer').innerHTML = SVG_PLAY + " Iniciar";
-                prepararVotacion();
-                mostrarSeccion('pistas');
-                return;
-            }
-            cargarJugador();
-        }
-
-        const btnReveal = document.getElementById('btnReveal');
-        const revealBox = document.getElementById('textoPalabra');
-
-        function showContent(e) {
-            if (e.cancelable && e.type === 'touchstart') e.preventDefault();
-
-            const jugador = jugadoresMezclados[indiceActual];
-            if (jugador === impostor) {
-                revealBox.className = 'reveal impostor-mode';
-                revealBox.innerHTML = `<div class="reveal-title">Tu misión</div><div class="reveal-impostor-text">IMPOSTOR</div><div style="font-size:13px; margin-top:8px; opacity:0.8; color:var(--danger)">Engaña a todos</div>`;
+            turnoActual++;
+            if (turnoActual >= jugadores.length) {
+                empezarTimer();
             } else {
-                revealBox.className = 'reveal';
-                revealBox.innerHTML = `<div class="reveal-title">La palabra es</div><div class="reveal-word">${palabraSeleccionada}</div>`;
+                prepararTurno();
             }
-
-            btnReveal.style.display = 'none';
-            revealBox.style.display = 'flex';
-
-            document.getElementById('btnSiguiente').classList.remove('btn-locked');
-
-            document.addEventListener('mouseup', hideContent);
-            document.addEventListener('touchend', hideContent);
-            document.addEventListener('touchcancel', hideContent);
         }
 
-        function hideContent() {
-            revealBox.style.display = 'none';
-            btnReveal.style.display = 'flex';
-            document.removeEventListener('mouseup', hideContent);
-            document.removeEventListener('touchend', hideContent);
-            document.removeEventListener('touchcancel', hideContent);
-        }
-
-        btnReveal.addEventListener('mousedown', showContent);
-        btnReveal.addEventListener('touchstart', showContent, {
-            passive: false
-        });
-
-
-        function iniciarTemporizador() {
-            const btn = document.getElementById('botonIniciarTimer');
-
-            if (timerRunning) {
-                stopTemporizador();
-                btn.innerHTML = SVG_PLAY + " Reanudar";
-                return;
-            }
-
-            if (tiempoRestante <= 0) tiempoRestante = duracion;
-
-            btn.innerHTML = SVG_PAUSE + " Pausar";
-            timerRunning = true;
-
-            startTs = performance.now() - ((duracion - tiempoRestante) * 1000);
-
-            function tick(now) {
-                const elapsed = (now - startTs) / 1000;
-                tiempoRestante = Math.max(0, duracion - elapsed);
-
-                actualizarTimerUI(tiempoRestante);
-
-                if (tiempoRestante > 0 && timerRunning) {
-                    rafId = requestAnimationFrame(tick);
-                } else {
-                    timerRunning = false;
-                    rafId = null;
-                    if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
-                    mostrarAlertaTiempo();
+        // --- TIMER ---
+        function empezarTimer() {
+            mostrarSeccion('juego');
+            tiempoRestante = tiempoTotal;
+            actualizarTimerVisual();
+            
+            if(timerInterval) clearInterval(timerInterval);
+            
+            timerInterval = setInterval(() => {
+                tiempoRestante--;
+                actualizarTimerVisual();
+                if (tiempoRestante <= 0) {
+                    clearInterval(timerInterval);
+                    finalizarJuego();
                 }
-            }
-
-            rafId = requestAnimationFrame(tick);
+            }, 1000);
         }
 
-        function stopTemporizador() {
-            timerRunning = false;
-            if (rafId) cancelAnimationFrame(rafId);
-            rafId = null;
-        }
-
-        /* --- NUEVA FUNCIÓN OPTIMIZADA (LATE TODO JUNTO) --- */
-        function actualizarTimerUI(segundos) {
-            const numElem = document.getElementById('timerNumber');
+        function actualizarTimerVisual() {
+            const num = document.getElementById('timerDisplay');
             const circle = document.getElementById('timerCircle');
-            const wrapper = document.querySelector('.timer-wrap'); // SELECCIONAMOS EL CONTENEDOR
+            const wrap = document.getElementById('timerWrap');
             
-            const duracionSelect = document.getElementById('duracionSelect');
-            const duracion = duracionSelect ? parseInt(duracionSelect.value) : 60;
-            
-            if(numElem) numElem.innerText = Math.ceil(segundos);
-            
-            const pct = Math.max(0, Math.min(1, segundos / duracion));
-            const circumference = 283; 
-            const offset = circumference - (pct * circumference);
-            
-            if(circle) {
-                circle.style.strokeDashoffset = offset;
+            num.innerText = tiempoRestante;
 
-                // --- LÓGICA DE LOS 15 SEGUNDOS ---
-                if (segundos <= 15) {
-                    // ACTIVAMOS PÁNICO EN EL CONTENEDOR (Todo late junto)
-                    if(wrapper) wrapper.classList.add('critical');
-                    
-                    // Cambios de color individuales
-                    circle.classList.add('critical');
-                    if(numElem) numElem.classList.add('critical');
-                    
-                    // Limpiamos estilos inline
-                    circle.style.stroke = ''; 
-                    circle.style.filter = '';
-                } else {
-                    // DESACTIVAMOS PÁNICO
-                    if(wrapper) wrapper.classList.remove('critical');
-                    
-                    circle.classList.remove('critical');
-                    if(numElem) numElem.classList.remove('critical');
-                    
-                    // Restauramos estilos normales
-                    circle.style.stroke = 'var(--accent)';
-                    circle.style.filter = 'drop-shadow(0 0 4px var(--accent-glow))';
-                }
+            // Calcular offset del stroke (283 es el perímetro aprox)
+            const max = 283;
+            const offset = max - (tiempoRestante / tiempoTotal) * max;
+            circle.style.strokeDashoffset = offset;
+
+            // Efectos de Pánico
+            if (tiempoRestante <= 15) {
+                wrap.classList.add('critical');
+                circle.classList.add('critical');
+                num.classList.add('critical');
+                if(navigator.vibrate && tiempoRestante % 2 === 0) navigator.vibrate(100);
+            } else {
+                wrap.classList.remove('critical');
+                circle.classList.remove('critical');
+                num.classList.remove('critical');
             }
         }
-        /* ----------------------------------------- */
 
-        function saltarAPuesta() {
-            stopTemporizador();
-            prepararVotacion();
+        function finalizarJuego() {
+            if(timerInterval) clearInterval(timerInterval);
+            renderVotacion();
             mostrarSeccion('votacion');
         }
 
-        function prepararVotacion() {
-            const container = document.getElementById('voteContainer');
-            container.innerHTML = '';
-            container.classList.remove('has-selection');
-            votos = {};
-            jugadores.forEach(jugador => {
-                const btn = document.createElement('button');
-                btn.className = 'vote-card';
-                btn.innerText = jugador;
-                btn.dataset.originalName = jugador;
-                btn.onclick = function() {
-                    registrarVotoUnico(jugador, btn);
-                };
-                container.appendChild(btn);
+        // --- VOTACIÓN ---
+        let votoSeleccionado = null;
+
+        function renderVotacion() {
+            const grid = document.getElementById('voteGrid');
+            grid.innerHTML = '';
+            votoSeleccionado = null;
+            grid.classList.remove('has-selection');
+
+            jugadores.forEach((j, i) => {
+                const div = document.createElement('div');
+                div.className = 'vote-card';
+                div.innerText = j.nombre;
+                div.onclick = () => seleccionarVoto(i, div);
+                grid.appendChild(div);
             });
         }
 
-        function registrarVotoUnico(elegido, btnElement) {
-            const container = document.getElementById('voteContainer');
-            const yaEstabaSeleccionado = btnElement.classList.contains('voted');
-
-            const allBtns = container.querySelectorAll('.vote-card');
-            allBtns.forEach(b => {
-                b.classList.remove('voted');
-                b.innerText = b.dataset.originalName;
-            });
-
-            votos = {};
-
-            if (!yaEstabaSeleccionado) {
-                votos[elegido] = 1;
-                container.classList.add('has-selection');
-                btnElement.classList.add('voted');
-                btnElement.innerText = "Eliminar a\n" + elegido;
-                if (navigator.vibrate) navigator.vibrate(50);
-            } else {
-                container.classList.remove('has-selection');
-            }
+        function seleccionarVoto(index, el) {
+            // UI Toggle
+            document.querySelectorAll('.vote-card').forEach(c => c.classList.remove('voted'));
+            el.classList.add('voted');
+            document.getElementById('voteGrid').classList.add('has-selection');
+            votoSeleccionado = index;
         }
 
-        function mostrarResultado() {
-            let masVotado = null;
-            let max = -1;
-
-            for (const k in votos) {
-                if (votos[k] > max) {
-                    max = votos[k];
-                    masVotado = k;
-                }
-            }
-
-            const res = document.getElementById('textoResultado');
-            const guessSection = document.getElementById('impostorGuessSection');
-
-            const htmlPalabra = `<div style="margin-top:12px; font-size:18px; color:var(--text-muted)">La palabra era <strong style="color:var(--text-main)">${palabraSeleccionada}</strong></div>`;
-
-            if (!masVotado) {
-                res.innerHTML = `El impostor era <span style="color:var(--danger)">${impostor}</span>.${htmlPalabra}`;
-            } else if (masVotado === impostor) {
-                res.innerHTML = `Efectivamente el impostor era <strong style="color:var(--danger)">${impostor}</strong>.${htmlPalabra}`;
-            } else {
-                res.innerHTML = `JAJAJA fallaron, el impostor era <strong style="color:var(--danger)">${impostor}</strong>.${htmlPalabra}`;
-            }
-
-            guessSection.style.display = 'none';
+        function confirmarVoto() {
+            if (votoSeleccionado === null) { alert("Selecciona a alguien."); return; }
+            
+            const eliminado = jugadores[votoSeleccionado];
+            const txt = document.getElementById('resultadoTexto');
+            const chance = document.getElementById('impostorChance');
 
             mostrarSeccion('resultado');
+
+            if (eliminado.esImpostor) {
+                txt.innerHTML = `<span style="color:var(--accent)">¡VICTORIA!</span><br>Atraparon al impostor (${eliminado.nombre})`;
+                // Chance del impostor de adivinar
+                chance.style.display = 'block';
+            } else {
+                txt.innerHTML = `<span style="color:var(--danger)">DERROTA</span><br>El impostor era ${jugadores[impostorIndex].nombre}.<br>Eliminaron a un inocente.`;
+                chance.style.display = 'none';
+            }
         }
 
         function impostorAdivina() {
-            const intento = document.getElementById('guessInput').value.trim();
-            const feed = document.getElementById('guessFeedback');
-            if (!intento) {
-                feed.innerText = 'Escribe algo primero.';
-                return;
-            }
-            if (intento.toLowerCase() === palabraSeleccionada.toLowerCase()) {
-                feed.style.color = '#10b981';
-                feed.innerText = '¡INCREÍBLE! Ganaste.';
+            const input = document.getElementById('guessInput');
+            const val = input.value.trim().toLowerCase();
+            const secreto = palabraSecreta.toLowerCase();
+
+            if (val === secreto) {
+                alert("¡EL IMPOSTOR ADIVINÓ LA PALABRA Y GANA!");
+                // Aquí podrías cambiar el texto de resultado
+                document.getElementById('resultadoTexto').innerHTML = `<span style="color:var(--danger)">VICTORIA IMPOSTOR</span><br>¡Adivinó la palabra secreta!`;
+                document.getElementById('impostorChance').style.display = 'none';
             } else {
-                feed.style.color = 'var(--danger)';
-                feed.innerText = `Nop. Era "${palabraSeleccionada}".`;
+                alert(`Falló. La palabra era: ${palabraSecreta}`);
+                document.getElementById('impostorChance').style.display = 'none';
             }
         }
 
-        document.addEventListener('keydown', e => {
+        function resetGame() {
+            mostrarSeccion('admin');
+        }
+
+        // --- DARK MODE & TOOLS ---
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            // Guardar preferencia si quisieras
+        }
+
+        // ENTER KEY SUPPORT
+        document.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 const f = document.activeElement;
                 if (f.id === 'nuevaPalabra') agregarPalabra();
