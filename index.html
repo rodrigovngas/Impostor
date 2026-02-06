@@ -1447,41 +1447,34 @@ button.soft:active {
 
         /* --- NUEVA FUNCIÓN OPTIMIZADA (LATE TODO JUNTO) --- */
         
-(function() {
-  let cachedCircumference = null;
-  function ensureCircumference(circle){
-    if (!circle) return 283;
+function actualizarTimerUI(segundos) {
+  const num = document.getElementById('timerNumber');
+  const circle = document.getElementById('timerCircle');
+  const wrap = document.querySelector('.timer-wrap');
+  const durSelect = document.getElementById('duracionSelect');
+  const dur = durSelect ? parseInt(durSelect.value, 10) : duracion;
+
+  if (num) num.textContent = Math.ceil(segundos);
+
+  if (circle) {
     const r = circle.r.baseVal.value;
-    cachedCircumference = 2 * Math.PI * r;
-    circle.style.strokeDasharray = cachedCircumference;
-    return cachedCircumference;
-  }
-  window.actualizarTimerUI = function(segundos) {
-    const num = document.getElementById('timerNumber');
-    const circle = document.getElementById('timerCircle');
-    const wrap = document.querySelector('.timer-wrap');
-    const durSelect = document.getElementById('duracionSelect');
-    const dur = durSelect ? parseInt(durSelect.value, 10) : 60;
-
-    if (num) num.innerText = Math.ceil(segundos);
-
+    const circumference = 2 * Math.PI * r;
+    circle.style.strokeDasharray = circumference;
     const pct = Math.max(0, Math.min(1, segundos / dur));
-    const circ = cachedCircumference || ensureCircumference(circle);
-    const offset = circ - (pct * circ);
+    circle.style.strokeDashoffset = circumference * (1 - pct);
+  }
 
-    if (circle) circle.style.strokeDashoffset = offset;
-
-    if (segundos <= 15) {
-      wrap?.classList.add('critical');
-      circle?.classList.add('critical');
-      num?.classList.add('critical');
-    } else {
-      wrap?.classList.remove('critical');
-      circle?.classList.remove('critical');
-      num?.classList.remove('critical');
-    }
-  };
-})(); else {
+  if (segundos <= 15) {
+    wrap?.classList.add('critical');
+    circle?.classList.add('critical');
+    num?.classList.add('critical');
+  } else {
+    wrap?.classList.remove('critical');
+    circle?.classList.remove('critical');
+    num?.classList.remove('critical');
+  }
+}
+ else {
                     // DESACTIVAMOS PÁNICO
                     if(wrapper) wrapper.classList.remove('critical');
                     
