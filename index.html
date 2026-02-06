@@ -261,6 +261,7 @@
             overflow: visible;
             animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1);
             backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
         }
 
         @keyframes slideUpFade {
@@ -743,34 +744,35 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(4px);
             z-index: 999;
             display: none;
-            align-items: center;
+            align-items: flex-end;
             justify-content: center;
             opacity: 0;
             transition: opacity 0.3s ease;
         }
 
         .toast-overlay.active {
+            display: flex;
             opacity: 1;
         }
 
         .toast-content {
+            width: 100%;
+            max-width: 440px;
             background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 24px;
-            padding: 30px;
-            width: 85%;
-            max-width: 320px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-            transform: scale(0.9);
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            text-align: center;
+            border-top-left-radius: 32px;
+            border-top-right-radius: 32px;
+            padding: 32px 24px;
+            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
+            border-top: 1px solid var(--card-border);
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .toast-overlay.active .toast-content {
-            transform: scale(1);
+            transform: translateY(0);
         }
 
         .toast-title {
@@ -842,16 +844,13 @@
                         <option value="300">5 minutos</option>
                     </select>
                 </div>
+                <div style="align-self:flex-end">
+                    <button style="width:100%" onclick="iniciarJuego()">¡Jugar!</button>
+                </div>
             </div>
 
-            <div style="margin-top:30px">
-                <button class="hold-btn" id="btnIniciar" onmousedown="iniciarJuego(this)" ontouchstart="iniciarJuego(this)" onmouseup="cancelarInicio(this)" onmouseleave="cancelarInicio(this)" ontouchend="cancelarInicio(this)">
-                    Mantener para Iniciar
-                </button>
-            </div>
-
-            <div style="margin-top:16px; text-align:center">
-                <button class="ghost danger" style="width:100%" onclick="reiniciarTodo()">Reiniciar datos</button>
+            <div style="margin-top:16px" class="row">
+                <button class="danger ghost" style="flex:1" onclick="mostrarConfirmacion()">Reset Total</button>
             </div>
         </div>
 
@@ -941,9 +940,9 @@
 
     <div id="timeOutOverlay" class="toast-overlay" style="z-index: 1000;">
         <div class="toast-content" onclick="event.stopPropagation()">
-            <div class="toast-title">¡Tiempo agotado!</div>
-            <div class="toast-msg">Es hora de votar quién es el impostor.</div>
-            <button style="width:100%" onclick="finalizarTiempoYContinuar()">Ir a votar</button>
+            <div class="toast-title">¡Tiempo terminado!</div>
+            <div class="toast-msg">Es momento de votar por el impostor.</div>
+            <button style="width:100%" onclick="finalizarTiempoYContinuar()">Aceptar</button>
         </div>
     </div>
 
@@ -970,7 +969,7 @@
         let impostor = '';
         let palabraSeleccionada = '';
         let indiceActual = 0;
-        let votos = {}; // Registro de votos (opcional)
+        let votos = {};
 
         // SVG ICONOS
         const SVG_PLAY = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`;
@@ -1003,20 +1002,19 @@
                     el.style.display = 'block';
                     el.style.animation = 'none';
                     el.offsetHeight; // Trigger reflow
-                    el.style.animation = null; // Reactiva la animación CSS si la tiene
+                    el.style.animation = null; 
                 } else {
                     el.style.display = 'none';
                 }
             });
         }
 
-        // --- GESTIÓN DE PALABRAS (CON VALIDACIÓN MEJORADA) ---
+        // --- GESTIÓN DE PALABRAS (VALIDACIÓN IMPLEMENTADA) ---
         function agregarPalabra() {
             const input = document.getElementById('nuevaPalabra');
-            const rawVal = input.value;
-            const p = rawVal.trim();
-
-            // Limpiar mensaje de error anterior
+            const p = input.value.trim();
+            
+            // Limpiar mensaje previo
             input.setCustomValidity('');
 
             // 1. Validar vacío
@@ -1077,13 +1075,12 @@
             });
         }
 
-        // --- GESTIÓN DE JUGADORES (CON VALIDACIÓN MEJORADA) ---
+        // --- GESTIÓN DE JUGADORES (VALIDACIÓN IMPLEMENTADA) ---
         function agregarJugador() {
             const input = document.getElementById('nombreJugador');
-            const rawVal = input.value;
-            const name = rawVal.trim();
+            const name = input.value.trim();
 
-            // Limpiar mensaje de error anterior
+            // Limpiar mensaje previo
             input.setCustomValidity('');
 
             // 1. Validar vacío
@@ -1144,25 +1141,61 @@
             });
         }
 
-        // --- PERSISTENCIA DE DATOS ---
-        function cargarDatos() {
-            const p = localStorage.getItem('impostor_palabras');
-            const j = localStorage.getItem('impostor_jugadores');
-            if (p) palabras = JSON.parse(p);
-            if (j) jugadores = JSON.parse(j);
-        }
-
-        function guardarDatos() {
-            localStorage.setItem('impostor_palabras', JSON.stringify(palabras));
-            localStorage.setItem('impostor_jugadores', JSON.stringify(jugadores));
-        }
-
         function reiniciarTodo() {
             mostrarConfirmacion();
         }
-        
+
         function resetGameData() {
-            // Reinicia variables internas si es necesario
+            jugadoresMezclados = [];
+            impostor = null;
+            palabraSeleccionada = '';
+            votos = {};
+            stopTemporizador();
+        }
+
+        // --- INICIAR JUEGO ---
+        function iniciarJuego() {
+            if (jugadores.length < 3) {
+                showAlertMessage('Faltan jugadores', 'Se requieren mínimo 3 jugadores.');
+                return;
+            }
+            if (palabras.length < 1) {
+                showAlertMessage('Faltan datos', 'Añade al menos 1 palabra.');
+                return;
+            }
+            nuevaRonda();
+        }
+
+        function nuevaRonda() {
+            let palabrasDisponibles = [...palabras];
+            // Si quieres filtrar ya usadas, lógica aquí.
+            if (palabrasDisponibles.length === 0) {
+                 const ov = document.getElementById('alertFinOverlay');
+                 ov.style.display = 'flex';
+                 ov.offsetHeight;
+                 ov.classList.add('active');
+                 return;
+            }
+            
+            const randomIndex = Math.floor(Math.random() * palabrasDisponibles.length);
+            palabraSeleccionada = palabrasDisponibles[randomIndex];
+            
+            jugadoresMezclados = mezclarArray([...jugadores]);
+            impostor = jugadoresMezclados[Math.floor(Math.random() * jugadoresMezclados.length)];
+            
+            indiceActual = 0;
+            
+            document.getElementById('totalAsignacion').innerText = jugadoresMezclados.length;
+            cargarJugador();
+            mostrarSeccion('asignacion');
+            
+            duracion = parseInt(document.getElementById('duracionSelect').value);
+            stopTemporizador();
+            tiempoRestante = duracion;
+            actualizarTimerUI(duracion);
+            
+            document.getElementById('guessInput').value = '';
+            document.getElementById('guessFeedback').innerText = '';
         }
 
         // --- MODALES Y ALERTAS ---
@@ -1187,6 +1220,7 @@
             jugadores = [];
             localStorage.removeItem('impostor_palabras');
             localStorage.removeItem('impostor_jugadores');
+            resetGameData();
             renderPalabras();
             renderJugadores();
             mostrarSeccion('admin');
@@ -1233,8 +1267,7 @@
             ov.classList.remove('active');
             setTimeout(() => {
                 ov.style.display = 'none';
-                // Si estábamos en votación y ganó impostor, quizás volver al admin?
-                // Por defecto dejamos al usuario donde está.
+                mostrarSeccion('admin');
             }, 300);
         }
 
@@ -1247,70 +1280,17 @@
             return array;
         }
 
-        /* --- GESTIÓN DE INICIO (BOTÓN MANTENER) --- */
-        let pressTimer;
-        let btnElement;
-
-        function iniciarJuego(btn) {
-            if (palabras.length < 1) {
-                showAlertMessage('Faltan datos', 'Añade al menos 1 palabra.');
-                return;
-            }
-            if (jugadores.length < 3) {
-                showAlertMessage('Faltan jugadores', 'Mínimo 3 jugadores para jugar.');
-                return;
-            }
-
-            btnElement = btn;
-            btnElement.style.transform = 'scale(0.95)';
-            btnElement.style.borderStyle = 'solid';
-            btnElement.style.background = 'var(--accent)';
-            btnElement.style.color = '#fff';
-            
-            // Efecto visual de carga podría ir aquí
-            
-            pressTimer = setTimeout(() => {
-                // INICIAR PARTIDA
-                nuevaRonda();
-            }, 800); // 800ms para mantener presionado
+        /* --- GESTIÓN DE DATOS --- */
+        function guardarDatos() {
+            localStorage.setItem('impostor_palabras', JSON.stringify(palabras));
+            localStorage.setItem('impostor_jugadores', JSON.stringify(jugadores));
         }
 
-        function cancelarInicio(btn) {
-            clearTimeout(pressTimer);
-            if (btnElement) {
-                btnElement.style.transform = 'scale(1)';
-                btnElement.style.borderStyle = 'dashed';
-                btnElement.style.background = 'var(--accent-soft)';
-                btnElement.style.color = 'var(--accent)';
-            }
-        }
-
-        function nuevaRonda() {
-            // Seleccionar palabra y jugadores
-            let palabrasDisponibles = [...palabras];
-            // En una app real, podrías filtrar palabras ya usadas. Aquí usamos random simple.
-            const randomIndex = Math.floor(Math.random() * palabrasDisponibles.length);
-            palabraSeleccionada = palabrasDisponibles[randomIndex];
-            
-            jugadoresMezclados = mezclarArray([...jugadores]);
-            impostor = jugadoresMezclados[Math.floor(Math.random() * jugadoresMezclados.length)];
-            
-            indiceActual = 0;
-            
-            // Preparar UI Asignación
-            document.getElementById('totalAsignacion').innerText = jugadoresMezclados.length;
-            cargarJugador();
-            mostrarSeccion('asignacion');
-            
-            // Preparar Timer
-            duracion = parseInt(document.getElementById('duracionSelect').value);
-            stopTemporizador();
-            tiempoRestante = duracion;
-            actualizarTimerUI(duracion);
-            
-            // Limpiar input adivinar
-            document.getElementById('guessInput').value = '';
-            document.getElementById('guessFeedback').innerText = '';
+        function cargarDatos() {
+            const p = localStorage.getItem('impostor_palabras');
+            const j = localStorage.getItem('impostor_jugadores');
+            if (p) palabras = JSON.parse(p);
+            if (j) jugadores = JSON.parse(j);
         }
 
         function cargarJugador() {
@@ -1321,12 +1301,10 @@
             const revealBox = document.getElementById('textoPalabra');
             const btn = document.getElementById('btnReveal');
             
-            // Reset estados
             revealBox.style.display = 'none';
             btn.style.display = 'flex';
             btn.style.opacity = '1';
             
-            // Bloquear botón siguiente hasta ver
             document.getElementById('btnSiguiente').classList.add('btn-locked');
         }
 
@@ -1334,8 +1312,8 @@
             document.getElementById('textoPalabra').style.display = 'none';
             indiceActual++;
             if (indiceActual >= jugadoresMezclados.length) {
-                // Todos han visto su rol
                 document.getElementById('botonIniciarTimer').innerHTML = SVG_PLAY + " Iniciar";
+                prepararVotacion();
                 mostrarSeccion('pistas');
                 return;
             }
@@ -1361,15 +1339,12 @@
             btnReveal.style.display = 'none';
             revealBox.style.display = 'flex';
             
-            // Habilitar siguiente
             document.getElementById('btnSiguiente').classList.remove('btn-locked');
             if (navigator.vibrate) navigator.vibrate(50);
         }
 
         function hideContent(e) {
-            // Opcional: Si quieres que se oculte al soltar, descomenta esto.
-            // Pero la mecánica habitual es "tocar para ver" y luego darle a siguiente.
-            // Aquí lo dejamos visible para que el jugador lo lea bien hasta que de a "Siguiente".
+            // Se mantiene revelado hasta dar siguiente
         }
 
         /* --- TEMPORIZADOR --- */
@@ -1409,7 +1384,6 @@
             const numElem = document.getElementById('timerNumber');
             numElem.innerText = segundos;
             
-            // Círculo
             const circle = document.getElementById('timerCircle');
             const wrapper = document.getElementById('timerWrapper');
             const total = duracion;
@@ -1420,7 +1394,6 @@
             if (circle) {
                 circle.style.strokeDashoffset = offset;
                 
-                // PÁNICO < 15s
                 if (segundos <= 15 && segundos > 0) {
                     if (wrapper) wrapper.classList.add('critical');
                     circle.classList.add('critical');
@@ -1453,14 +1426,8 @@
                 btn.className = 'vote-card';
                 btn.innerText = jugador;
                 btn.onclick = () => {
-                   // Lógica simple de selección visual
-                   // En un juego local "pass-n-play", la votación es verbal, 
-                   // esto es solo visual para ayudar.
                    const yaVotado = btn.classList.contains('voted');
-                   
-                   // Limpiar otros
                    Array.from(container.children).forEach(c => c.classList.remove('voted'));
-                   
                    if (!yaVotado) {
                        btn.classList.add('voted');
                        container.classList.add('has-selection');
@@ -1478,7 +1445,7 @@
             
             // Limpiar error previo
             input.setCustomValidity('');
-            
+
             if (!val) {
                 input.setCustomValidity('Escribe la palabra que crees que es.');
                 input.reportValidity();
@@ -1486,10 +1453,8 @@
             }
 
             if (val.toLowerCase() === palabraSeleccionada.toLowerCase()) {
-                // GANA IMPOSTOR
                 showAlertMessage("¡IMPOSTOR GANA!", "La palabra secreta era: " + palabraSeleccionada);
             } else {
-                // FALLA IMPOSTOR
                 document.getElementById('guessFeedback').innerText = "Incorrecto...";
                 document.getElementById('guessFeedback').style.color = "var(--danger)";
                 setTimeout(() => {
@@ -1510,14 +1475,14 @@
             }
         });
 
-        // Cargar al inicio
+        // --- INICIALIZACIÓN: CARGAR DATOS GUARDADOS ---
         cargarDatos();
         renderPalabras();
         renderJugadores();
         mostrarSeccion('admin');
 
         /* --------------------------------------------------------------------------------
-           EVENTOS TÁCTILES Y GESTOS (PREVENIR ZOOM)
+           EVENTOS TÁCTILES Y GESTOS
         -------------------------------------------------------------------------------- */
         document.addEventListener('gesturestart', function(e) {
             e.preventDefault();
