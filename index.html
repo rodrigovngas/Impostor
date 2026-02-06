@@ -804,6 +804,20 @@ button.soft:active {
             color: var(--text-main);
             text-shadow: none;
         }
+
+        /* ========== INLINE ERROR ========== */
+        .inline-error {
+            font-size: 13px;
+            margin-top: 6px;
+            padding-left: 6px;
+            color: var(--danger);
+            font-weight: 600;
+            display: none;
+        }
+
+        .inline-error.show {
+            display: block;
+        }
     </style>
 </head>
 
@@ -840,6 +854,8 @@ button.soft:active {
                 <input type="text" id="nuevaPalabra" placeholder="Ej. Cybertruck, Zumpango..." />
                 <button class="smallbtn" onclick="agregarPalabra()">+</button>
             </div>
+            <!-- inline error debajo del input de palabra -->
+            <div id="errorPalabra" class="inline-error"></div>
 
             <ul id="listaPalabras"></ul>
 
@@ -850,6 +866,8 @@ button.soft:active {
                 <input type="text" id="nombreJugador" placeholder="Nombre del jugador" />
                 <button class="smallbtn" onclick="agregarJugador()">+</button>
             </div>
+            <!-- inline error debajo del input de jugador -->
+            <div id="errorJugador" class="inline-error"></div>
 
             <ul id="listaJugadores"></ul>
 
@@ -1201,6 +1219,7 @@ button.soft:active {
            - cleanInput: trim y colapsa espacios múltiples
            - normalizeForCompare: quita acentos y pasa a minúsculas para comparar
            - existsInArray: búsqueda insensible a mayúsculas/acento
+           - showInlineError / clearInlineError: mostrar errores debajo del input
            ------------------------------------------------------------------ */
         function cleanInput(str) {
             if (typeof str !== 'string') return '';
@@ -1219,19 +1238,35 @@ button.soft:active {
             return arr.some(item => normalizeForCompare(item) === norm);
         }
 
+        function showInlineError(id, msg) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.innerText = msg;
+            el.classList.add('show');
+        }
+
+        function clearInlineError(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.innerText = '';
+            el.classList.remove('show');
+        }
+
         function agregarPalabra() {
             const input = document.getElementById('nuevaPalabra');
             const raw = input.value;
             const cleaned = cleanInput(raw);
 
+            clearInlineError('errorPalabra');
+
             if (!cleaned) {
-                showAlertMessage('Entrada vacía', 'Escribe una palabra válida (no solo espacios).');
+                showInlineError('errorPalabra', 'Escribe una palabra válida (no solo espacios).');
                 input.focus();
                 return;
             }
 
             if (existsInArray(palabras, cleaned)) {
-                showAlertMessage('Duplicado', `La palabra "${cleaned}" ya se encuentra en la lista.`);
+                showInlineError('errorPalabra', `La palabra "${cleaned}" ya se encuentra en la lista.`);
                 input.focus();
                 return;
             }
@@ -1267,14 +1302,16 @@ button.soft:active {
             const raw = input.value;
             const cleaned = cleanInput(raw);
 
+            clearInlineError('errorJugador');
+
             if (!cleaned) {
-                showAlertMessage('Entrada vacía', 'Escribe un nombre de jugador válido (no solo espacios).');
+                showInlineError('errorJugador', 'Escribe un nombre de jugador válido (no solo espacios).');
                 input.focus();
                 return;
             }
 
             if (existsInArray(jugadores, cleaned)) {
-                showAlertMessage('Duplicado', `El jugador "${cleaned}" ya se encuentra en la lista.`);
+                showInlineError('errorJugador', `El jugador "${cleaned}" ya se encuentra en la lista.`);
                 input.focus();
                 return;
             }
@@ -1675,6 +1712,12 @@ button.soft:active {
         }, {
             passive: false
         });
+
+        /* ========= LIMPIAR ERRORES AL ESCRIBIR ========= */
+        const inpPal = document.getElementById('nuevaPalabra');
+        if (inpPal) inpPal.addEventListener('input', () => clearInlineError('errorPalabra'));
+        const inpJug = document.getElementById('nombreJugador');
+        if (inpJug) inpJug.addEventListener('input', () => clearInlineError('errorJugador'));
     </script>
 </body>
 
