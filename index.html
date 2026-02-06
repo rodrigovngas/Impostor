@@ -813,10 +813,17 @@ button.soft:active {
             color: var(--danger);
             font-weight: 600;
             display: none;
+            opacity: 1;
+            transition: opacity 0.5s ease;
         }
 
         .inline-error.show {
             display: block;
+            opacity: 1;
+        }
+
+        .inline-error.hide {
+            opacity: 0;
         }
     </style>
 </head>
@@ -1176,7 +1183,7 @@ button.soft:active {
         let indiceActual = 0;
         let votos = {};
         let duracion = 60;
-                let tiempoRestante = 0;
+        let tiempoRestante = 0;
         let timerRunning = false;
         let rafId = null;
         let startTs = null;
@@ -1215,12 +1222,17 @@ button.soft:active {
         }
 
         /* ------------------------------------------------------------------
-           VALIDACIÓN Y LIMPIEZA DE INPUTS (NUEVO)
+           VALIDACIÓN Y LIMPIEZA DE INPUTS (ACTUALIZADO)
            - cleanInput: trim y colapsa espacios múltiples
            - normalizeForCompare: quita acentos y pasa a minúsculas para comparar
            - existsInArray: búsqueda insensible a mayúsculas/acento
-           - showInlineError / clearInlineError: mostrar errores debajo del input
+           - isValidChars: bloquea emojis y caracteres especiales
+           - showInlineError / clearInlineError: mostrar errores debajo del input (desvanecen)
            ------------------------------------------------------------------ */
+
+        // Guardar timeouts por id para limpiar si es necesario
+        const inlineErrorTimeouts = {};
+
         function cleanInput(str) {
             if (typeof str !== 'string') return '';
             // Reemplaza múltiples espacios por uno y trim
@@ -1238,18 +1250,50 @@ button.soft:active {
             return arr.some(item => normalizeForCompare(item) === norm);
         }
 
-        function showInlineError(id, msg) {
+        // Permitir letras (unicode), números, espacios, guion y apóstrofe
+        // Esto bloquea emojis y la mayoría de caracteres especiales.
+        function isValidChars(str) {
+            if (typeof str !== 'string') return false;
+            // ^[letters numbers space ' - ]+$ using Unicode property escapes
+            const pattern = /^[\p{L}\p{N}\s'\-\u2019]+$/u;
+            return pattern.test(str);
+        }
+
+        function showInlineError(id, msg, autoHide = true) {
             const el = document.getElementById(id);
             if (!el) return;
+            // limpiar timeout anterior si existe
+            if (inlineErrorTimeouts[id]) {
+                clearTimeout(inlineErrorTimeouts[id]);
+                delete inlineErrorTimeouts[id];
+            }
             el.innerText = msg;
+            el.classList.remove('hide');
             el.classList.add('show');
+
+            if (autoHide) {
+                inlineErrorTimeouts[id] = setTimeout(() => {
+                    // iniciar desvanecimiento
+                    el.classList.add('hide');
+                    // después de la transición, ocultar y limpiar texto
+                    setTimeout(() => {
+                        el.classList.remove('show', 'hide');
+                        el.innerText = '';
+                        delete inlineErrorTimeouts[id];
+                    }, 500);
+                }, 3000); // 3s visible, luego 0.5s fade
+            }
         }
 
         function clearInlineError(id) {
             const el = document.getElementById(id);
             if (!el) return;
+            if (inlineErrorTimeouts[id]) {
+                clearTimeout(inlineErrorTimeouts[id]);
+                delete inlineErrorTimeouts[id];
+            }
+            el.classList.remove('show', 'hide');
             el.innerText = '';
-            el.classList.remove('show');
         }
 
         function agregarPalabra() {
@@ -1259,14 +1303,30 @@ button.soft:active {
 
             clearInlineError('errorPalabra');
 
-            if (!cleaned) {
-                showInlineError('errorPalabra', 'Escribe una palabra válida (no solo espacios).');
+            // longitud
+            if (!cleaned || cleaned.length < 2) {
+                showInlineError('errorPalabra', 'Mínimo 2 caracteres.');
+                input.focus();
+                return;
+            }
+            if (cleaned.length > 20) {
+                showInlineError('errorPalabra', 'Máximo 20 caracteres.');
                 input.focus();
                 return;
             }
 
+            // caracteres permitidos
+            if (!isValidChars(cleaned)) {
+                showInlineError('errorPalabra', 'Caracteres no permitidos. Usa letras y números.');
+                input.focus();
+                return;
+            }
+
+            // duplicado
             if (existsInArray(palabras, cleaned)) {
-                showInlineError('errorPalabra', `La palabra "${cleaned}" ya se encuentra en la lista.`);
+                showInlineError('errorPalabra', `La palabra "${cleaned}" ya existe. Campo borrado para ingresar otra.`);
+                // BORRAR automáticamente el input para ingresar otro (como pediste)
+                input.value = '';
                 input.focus();
                 return;
             }
@@ -1304,14 +1364,30 @@ button.soft:active {
 
             clearInlineError('errorJugador');
 
-            if (!cleaned) {
-                showInlineError('errorJugador', 'Escribe un nombre de jugador válido (no solo espacios).');
+            // longitud
+            if (!cleaned || cleaned.length < 2) {
+                showInlineError('errorJugador', 'Mínimo 2 caracteres.');
+                input.focus();
+                return;
+            }
+            if (cleaned.length > 20) {
+                showInlineError('errorJugador', 'Máximo 20 caracteres.');
                 input.focus();
                 return;
             }
 
+            // caracteres permitidos
+            if (!isValidChars(cleaned)) {
+                showInlineError('errorJugador', 'Caracteres no permitidos. Usa letras y números.');
+                input.focus();
+                return;
+            }
+
+            // duplicado
             if (existsInArray(jugadores, cleaned)) {
-                showInlineError('errorJugador', `El jugador "${cleaned}" ya se encuentra en la lista.`);
+                showInlineError('errorJugador', `El jugador "${cleaned}" ya existe. Campo borrado para ingresar otro.`);
+                // BORRAR automáticamente el input para ingresar otro (como pediste)
+                input.value = '';
                 input.focus();
                 return;
             }
@@ -1484,11 +1560,13 @@ button.soft:active {
             document.removeEventListener('touchcancel', hideContent);
         }
 
-        btnReveal.addEventListener('mousedown', showContent);
-        btnReveal.addEventListener('touchstart', showContent, {
-            passive: false
-        });
-
+        // proteger si btnReveal no existe al cargar script temprano
+        if (btnReveal) {
+            btnReveal.addEventListener('mousedown', showContent);
+            btnReveal.addEventListener('touchstart', showContent, {
+                passive: false
+            });
+        }
 
         function iniciarTemporizador() {
             const btn = document.getElementById('botonIniciarTimer');
@@ -1670,9 +1748,9 @@ button.soft:active {
         document.addEventListener('keydown', e => {
             if (e.key === 'Enter') {
                 const f = document.activeElement;
-                if (f.id === 'nuevaPalabra') agregarPalabra();
-                if (f.id === 'nombreJugador') agregarJugador();
-                if (f.id === 'guessInput') impostorAdivina();
+                if (f && f.id === 'nuevaPalabra') agregarPalabra();
+                if (f && f.id === 'nombreJugador') agregarJugador();
+                if (f && f.id === 'guessInput') impostorAdivina();
             }
         });
 
@@ -1716,6 +1794,7 @@ button.soft:active {
         /* ========= LIMPIAR ERRORES AL ESCRIBIR ========= */
         const inpPal = document.getElementById('nuevaPalabra');
         if (inpPal) inpPal.addEventListener('input', () => clearInlineError('errorPalabra'));
+
         const inpJug = document.getElementById('nombreJugador');
         if (inpJug) inpJug.addEventListener('input', () => clearInlineError('errorJugador'));
     </script>
