@@ -804,15 +804,6 @@ button.soft:active {
             color: var(--text-main);
             text-shadow: none;
         }
-
-        #errorPalabra, #errorJugador {
-            color: var(--danger);
-            font-size: 12px;
-            margin-top: 4px;
-            padding-left: 4px;
-            opacity: 0;
-            transition: opacity 0.5s ease-out;
-        }
     </style>
 </head>
 
@@ -849,7 +840,7 @@ button.soft:active {
                 <input type="text" id="nuevaPalabra" placeholder="Ej. Cybertruck, Zumpango..." />
                 <button class="smallbtn" onclick="agregarPalabra()">+</button>
             </div>
-            <div id="errorPalabra"></div>
+            <div id="errorPalabra" style="color:var(--danger); font-size:12px; margin-top:4px; padding-left:4px;"></div>
 
             <ul id="listaPalabras"></ul>
 
@@ -860,7 +851,7 @@ button.soft:active {
                 <input type="text" id="nombreJugador" placeholder="Nombre del jugador" />
                 <button class="smallbtn" onclick="agregarJugador()">+</button>
             </div>
-            <div id="errorJugador"></div>
+            <div id="errorJugador" style="color:var(--danger); font-size:12px; margin-top:4px; padding-left:4px;"></div>
 
             <ul id="listaJugadores"></ul>
 
@@ -1212,21 +1203,16 @@ button.soft:active {
         }
 
         function showError(errorElem, message) {
-            errorElem.style.opacity = '0';
             errorElem.innerText = message;
-            errorElem.offsetHeight; // Forzar reflow
-            errorElem.style.opacity = '1';
-            setTimeout(() => {
-                errorElem.style.opacity = '0';
-            }, 3000);
             setTimeout(() => {
                 errorElem.innerText = '';
-            }, 3500);
+            }, 3000);
         }
 
         function agregarPalabra() {
             const input = document.getElementById('nuevaPalabra');
             const errorElem = document.getElementById('errorPalabra');
+            errorElem.innerText = ''; // Limpiar error anterior
             let p = input.value.trim();
 
             if (!p) {
@@ -1288,6 +1274,7 @@ button.soft:active {
         function agregarJugador() {
             const input = document.getElementById('nombreJugador');
             const errorElem = document.getElementById('errorJugador');
+            errorElem.innerText = ''; // Limpiar error anterior
             let name = input.value.trim();
 
             if (!name) {
