@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content" />
+    <title>El Impostor</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+    <div class="app">
+
+        <header>
+            <div class="logo-area">
+                <h1>El Impostor<span class="status-dot"></span></h1>
+                <div class="sub">TRAKAS HDSPM</div>
+            </div>
+
+            <button class="dark-toggle" onclick="toggleDarkMode()" title="Cambiar tema">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="5" />
+                    <line x1="12" y1="1" x2="12" y2="3" />
+                    <line x1="12" y1="21" x2="12" y2="23" />
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                    <line x1="1" y1="12" x2="3" y2="12" />
+                    <line x1="21" y1="12" x2="23" y2="12" />
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                </svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                </svg>
+            </button>
+        </header>
+
+        <div id="admin" class="card">
+            <label>Añadir palabra</label>
+            <div class="row">
+                <input type="text" id="nuevaPalabra" placeholder="Ej. Cybertruck, Zumpango..." />
+                <button class="smallbtn" onclick="agregarPalabra()">+</button>
+            </div>
+            <div id="errorPalabra" class="error-msg"></div>
+
+
+            <ul id="listaPalabras"></ul>
+
+            <hr style="margin:24px 0; border:none; border-top:1px solid var(--card-border)" />
+
+            <label>Añadir jugador</label>
+            <div class="row">
+                <input type="text" id="nombreJugador" placeholder="Nombre del jugador" />
+                <button class="smallbtn" onclick="agregarJugador()">+</button>
+            </div>
+            <div id="errorJugador" class="error-msg"></div>
+
+            <ul id="listaJugadores"></ul>
+
+            <div style="margin-top:24px" class="row">
+                <div style="flex:1">
+                    <label>Tiempo ronda</label>
+                    <select id="duracionSelect">
+                        <option value="60" selected>1 minuto</option>
+                        <option value="120">2 minutos</option>
+                        <option value="180">3 minutos</option>
+                        <option value="240">4 minutos</option>
+                        <option value="300">5 minutos</option>
+                    </select>
+                </div>
+                <div style="align-self:flex-end">
+                    <button style="width:100%" onclick="iniciarJuego()">¡Jugar!</button>
+                </div>
+            </div>
+
+            <div style="margin-top:16px" class="row">
+                <button class="danger ghost" style="flex:1" onclick="mostrarConfirmacion()">Reset Total</button>
+            </div>
+        </div>
+
+        <div id="asignacion" class="card" style="display:none">
+            <div style="display:flex; justify-content:space-between; align-items:center; opacity:0.6;">
+                <div style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px;">Turno de</div>
+                <div style="font-size:14px; font-variant-numeric: tabular-nums;">
+                    <span id="indiceAsignacion">1</span> / <span id="totalAsignacion">1</span>
+                </div>
+            </div>
+            <div class="assign-name" id="nombreJugadorAsignacion">Jugador</div>
+            <div style="display:flex; gap:16px; flex-direction:column; margin-top:10px;">
+                <div style="position:relative; width:100%">
+                    <button id="btnReveal" class="hold-btn" oncontextmenu="return false;">MANTÉN PARA VER TU ROL</button>
+                    <div id="textoPalabra" class="reveal"></div>
+                </div>
+                <button id="btnSiguiente" onclick="siguienteJugador()" style="margin-top:8px; width:100%">Entendido, siguiente</button>
+            </div>
+        </div>
+
+        <div id="pistas" class="card" style="display:none">
+            <div style="display:flex; justify-content:space-between; align-items:center">
+                <div>
+                    <div style="font-size:12px; color:var(--text-muted); font-weight:600; text-transform:uppercase">Go Go Go</div>
+                    <div style="font-weight:800; font-size:18px; color:var(--text-main)">Describan la palabra</div>
+                </div>
+            </div>
+            
+            <div class="timer-wrap">
+                <svg class="timer-svg" viewBox="0 0 100 100">
+                    <circle class="circle-bg" cx="50" cy="50" r="45"></circle>
+                    <circle id="timerCircle" class="circle-fg" cx="50" cy="50" r="45"></circle>
+                </svg>
+                <div class="timer-number" id="timerNumber">60</div>
+            </div>
+
+            <div class="controls">
+                <button id="botonIniciarTimer" style="flex:1.5" onclick="iniciarTemporizador()">
+                    <svg viewBox="0 0 24 24">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg> Iniciar
+                </button>
+                <button class="soft" style="flex:1" onclick="saltarAPuesta()">Votación</button>
+            </div>
+        </div>
+
+        <div id="votacion" class="card" style="display:none">
+            <div style="text-align:center; margin-bottom:16px;">
+                <div style="font-size:12px; color:var(--text-muted); font-weight:700; text-transform:uppercase">Votación final</div>
+                <div style="font-weight:900; font-size:20px; color:var(--text-main)">¿Quién es el impostor?</div>
+            </div>
+            <div id="voteContainer" class="vote-grid"></div>
+            <button style="margin-top:20px; width:100%" class="soft" onclick="mostrarResultado()">Ver Resultados</button>
+        </div>
+
+        <div id="resultado" class="card" style="display:none">
+            <div style="text-align:center">
+                <div style="font-size:12px; color:var(--text-muted); font-weight:700; text-transform:uppercase">Resultado</div>
+                <div class="result-text" id="textoResultado"></div>
+            </div>
+            <div id="impostorGuessSection" style="margin-top:24px; padding:20px; border:1px solid var(--danger); border-radius:24px; background:var(--danger-soft); display:none">
+                <label id="impostorGuessLabel" style="color:var(--danger); font-weight:800; font-size:18px; text-align:center; display:block; margin-bottom:8px"></label>
+                <p style="font-size:14px; text-align:center; margin-bottom:16px; color:var(--text-main); opacity:0.8;">Si adivinas la palabra, ganas la partida.</p>
+                <div style="display:flex; gap:8px">
+                    <input type="text" id="guessInput" placeholder="Palabra secreta..." style="background:var(--card-bg)" />
+                </div>
+                <button class="danger" style="width:100%; margin-top:12px;" onclick="impostorAdivina()">Intentar Adivinar</button>
+                <div id="guessFeedback" style="margin-top:12px; font-weight:700; font-size:15px; text-align:center"></div>
+            </div>
+            <div style="margin-top:30px; display:flex; flex-direction:column; gap:12px;">
+                <button onclick="nuevaRonda()">Jugar otra vez</button>
+                <button class="soft" onclick="mostrarSeccion('admin')">Volver al menú</button>
+            </div>
+        </div>
+
+        <div class="spacer"></div>
+        <footer class="footer">Development by VNGAS</footer>
+
+    </div>
+
+    <div id="toastOverlay" class="toast-overlay">
+        <div class="toast-content" onclick="event.stopPropagation()">
+            <div class="toast-title">¿Reiniciar todo?</div>
+            <div class="toast-msg">Se borrarán todos los jugadores y palabras guardadas.</div>
+            <div class="row">
+                <button class="ghost" style="flex:1" onclick="cerrarConfirmacion()">Cancelar</button>
+                <button class="danger" style="flex:1" onclick="confirmarReinicio()">Sí, borrar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="alertFinOverlay" class="toast-overlay" style="z-index: 1000;">
+        <div class="toast-content" onclick="event.stopPropagation()">
+            <div class="toast-title">¡Se acabaron!</div>
+            <div class="toast-msg">Ya no quedan palabras nuevas en la lista.</div>
+            <button style="width:100%" onclick="irAlInicio()">Volver al menú</button>
+        </div>
+    </div>
+
+    <div id="timeOutOverlay" class="toast-overlay" style="z-index: 1000;">
+        <div class="toast-content" onclick="event.stopPropagation()">
+            <div class="toast-title">¡Tiempo terminado!</div>
+            <div class="toast-msg">Es momento de votar por el impostor.</div>
+            <button style="width:100%" onclick="finalizarTiempoYContinuar()">Aceptar</button>
+        </div>
+    </div>
+
+    <div id="genericAlertOverlay" class="toast-overlay" style="z-index: 1001;">
+        <div class="toast-content" onclick="event.stopPropagation()">
+            <div id="genericAlertTitle" class="toast-title">Título</div>
+            <div id="genericAlertMsg" class="toast-msg">Mensaje</div>
+            <div class="row">
+                <button style="flex:1" onclick="cerrarAlertaGenerica()">Aceptar</button>
+            </div>
+        </div>
+    </div>
+    <script src="js/script.js"></script>
+</body>
+
+</html>
