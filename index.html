@@ -358,79 +358,162 @@
             box-shadow: 0 4px 15px var(--danger-soft);
         }
 
-        button.soft {
-            background: var(--accent-soft);
-            border-color: transparent;
-            color: var(--accent);
-            box-shadow: none;
-        }
+        /* Botón suave: activo pero secundario */
+button.soft {
+    background: var(--accent-soft);
+    border-color: transparent; /* Sin borde fuerte */
+    color: var(--accent);
+    box-shadow: none;
+}
 
-        button.soft:active {
-            background: var(--accent);
-            color: #fff;
-        }
+button.soft:active {
+    background: var(--accent); /* Al presionar se rellena de color */
+    color: var(--card-bg);
+    transform: scale(0.96);
+}
 
-        .btn-icon {
+/* Opcional: Hover para PC */
+@media (hover: hover) {
+    button.soft:hover {
+        background: var(--accent-glow);
+        color: var(--accent);
+    }
+}
+
+        button.dark-toggle {
+            border: 1px solid var(--card-border);
             padding: 0;
-            width: 44px;
-            height: 44px;
+            background: var(--card-bg);
+            box-shadow: var(--card-shadow);
+            color: var(--text-main);
             min-height: 44px;
-            border-radius: 14px;
-            border: none;
-            background: var(--input-bg);
-            color: var(--text-muted);
-            box-shadow: none;
         }
 
-        .btn-icon svg {
-            width: 20px;
-            height: 20px;
-            stroke-width: 2.5px;
+        .hold-btn {
+            width: 100%;
+            padding: 40px 20px;
+            border: 2px dashed var(--accent);
+            background: var(--accent-soft);
+            color: var(--accent);
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: none;
+            display: flex;
+        }
+
+        .hold-btn:active {
+            background: var(--accent);
+            color: white;
+            border-style: solid;
+            transform: scale(0.98);
+        }
+
+        @media (hover: hover) {
+            button:hover {
+                background: var(--accent-soft);
+                box-shadow: 0 8px 25px var(--accent-soft);
+            }
+
+            button.ghost:hover {
+                border-color: var(--text-muted);
+                color: var(--text-main);
+                background: var(--input-bg);
+            }
+
+            button.danger:hover {
+                background: var(--danger-soft);
+                box-shadow: 0 8px 25px var(--danger-soft);
+            }
+
+            .dark-toggle:hover {
+                transform: scale(1.05);
+            }
+
+            .btn-icon:hover {
+                background: var(--input-bg);
+                color: var(--text-main);
+            }
+
+            .btn-delete:hover {
+                background: var(--danger-soft);
+                color: var(--danger);
+            }
+
+            .btn-edit:hover {
+                color: var(--accent);
+                background: transparent;
+            }
         }
 
         .btn-locked {
-            opacity: 0.5;
+            background: var(--input-bg) !important;
+            border-color: var(--input-bg) !important;
+            color: var(--text-muted) !important;
             pointer-events: none;
-            filter: grayscale(1);
+            box-shadow: none !important;
+            opacity: 0.6;
         }
 
-        /* --- LISTAS --- */
-        ul {
-            list-style: none;
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .smallbtn {
             padding: 0;
-            margin: 0;
+            width: 54px;
+            height: 54px;
+            font-size: 26px;
+            border-radius: 18px;
+            flex-shrink: 0;
+            min-height: 54px;
+        }
+
+        ul {
+            padding: 0;
+            margin: 10px 0 0 0;
+            list-style: none;
         }
 
         li {
-            background: var(--item-bg);
-            border: 1px solid var(--item-border);
-            padding: 12px 16px;
-            border-radius: 16px;
             margin-bottom: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-weight: 600;
-            font-size: 15px;
-            animation: slideIn 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
+            background: var(--item-bg);
+            border: 1px solid var(--item-border);
+            padding: 14px 18px;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 500;
+            animation: slideInLeft 0.3s ease;
         }
 
-        @keyframes slideIn {
+        @keyframes slideInLeft {
             from { opacity: 0; transform: translateX(-10px); }
             to { opacity: 1; transform: translateX(0); }
         }
 
-        li span {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 70%;
+        .actions {
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
 
-        .btn-delete {
-            width: 36px;
-            height: 36px;
-            min-height: 36px;
+        .btn-icon {
+            border: none;
+            background: transparent;
+            padding: 8px;
+            border-radius: 12px;
+            color: var(--text-muted);
+            box-shadow: none;
+            width: auto;
+            height: auto;
+            min-height: auto;
+        }
+
+        .btn-icon:active {
             background: var(--input-bg);
             color: var(--text-main);
         }
@@ -471,51 +554,51 @@
 
         @keyframes boxPulse {
             0% { transform: scale(1); box-shadow: 0 0 0 0 var(--accent-soft); }
-            50% { transform: scale(1.02); box-shadow: 0 0 20px 10px var(--accent-soft); }
+            50% { transform: scale(1.02); box-shadow: 0 0 20px var(--accent-soft); }
             100% { transform: scale(1); box-shadow: 0 0 0 0 var(--accent-soft); }
+        }
+
+        .reveal-title {
+            font-size: 14px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .reveal-word {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--text-main);
         }
 
         .reveal.impostor-mode {
             background: var(--danger-soft);
             border-color: var(--danger);
-            animation: dangerPulse 2s infinite;
-        }
-
-        @keyframes dangerPulse {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 var(--danger-soft); }
-            50% { transform: scale(1.02); box-shadow: 0 0 20px 10px var(--danger-soft); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 var(--danger-soft); }
-        }
-
-        .reveal-title {
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
-            font-weight: 700;
-            opacity: 0.7;
-        }
-
-        .reveal-word {
-            font-size: 36px;
-            font-weight: 800;
-            color: var(--accent);
-            line-height: 1.1;
+            animation: dangerPulse 1.5s infinite;
         }
 
         .reveal-impostor-text {
             font-size: 36px;
-            font-weight: 800;
+            font-weight: 900;
             color: var(--danger);
-            line-height: 1.1;
+            letter-spacing: -1px;
+            text-shadow: 0 4px 20px var(--danger-glow);
         }
 
-        /* --- TEMPORIZADOR --- */
+        @keyframes dangerPulse {
+            0% { box-shadow: 0 0 0 0 var(--danger-soft); transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { box-shadow: 0 0 0 15px transparent; transform: scale(1); }
+        }
+
+        /* --- NUEVO CSS PARA TIMER CIRCULAR (Smartwatch) --- */
         .timer-wrap {
             position: relative;
-            width: 160px;
-            height: 160px;
-            margin: 0 auto 30px auto;
+            width: 220px;
+            height: 220px;
+            margin: 10px auto 20px auto;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -527,58 +610,63 @@
             left: 0;
             width: 100%;
             height: 100%;
-            transform: rotate(-90deg);
-            overflow: visible;
+            transform: rotate(-90deg); /* Para que empiece arriba */
+            pointer-events: none;
+            overflow: visible; /* IMPORTANTE: Permite que el latido salga del borde */
         }
 
         .circle-bg {
             fill: none;
-            stroke: var(--card-border);
-            stroke-width: 8;
+            stroke: var(--input-bg);
+            stroke-width: 10;
         }
 
         .circle-fg {
             fill: none;
             stroke: var(--accent);
-            stroke-width: 8;
+            stroke-width: 10;
             stroke-linecap: round;
-            stroke-dasharray: 283;
+            stroke-dasharray: 283; /* 2 * pi * 45 ≈ 283 */
             stroke-dashoffset: 0;
-            transition: stroke-dashoffset 1s linear, stroke 0.3s, filter 0.3s;
+            transition: stroke-dashoffset 0.1s linear, stroke 0.3s ease;
             filter: drop-shadow(0 0 4px var(--accent-glow));
         }
 
         .timer-number {
-            font-size: 56px;
-            font-weight: 800;
+            font-size: 72px;
+            font-weight: 900;
             color: var(--text-main);
+            line-height: 1;
             z-index: 2;
-            font-feature-settings: "tnum";
             font-variant-numeric: tabular-nums;
+            transition: color 0.3s ease;
         }
 
+        /* --- ESTILOS DE PÁNICO (ÚLTIMOS 15 SEGUNDOS) --- */
         @keyframes heartBeat {
             0% { transform: scale(1); }
-            15% { transform: scale(1.15); }
-            30% { transform: scale(1); }
-            45% { transform: scale(1.15); }
-            60% { transform: scale(1); }
+            50% { transform: scale(1.05); } /* Crece un 5% todo el conjunto */
+            100% { transform: scale(1); }
         }
 
+        /* APLICAMOS EL LATIDO AL CONTENEDOR ENTERO */
         .timer-wrap.critical {
             animation: heartBeat 1s infinite ease-in-out;
         }
 
+        /* El círculo solo cambia de color (ya no tiene la animación aquí) */
         .circle-fg.critical {
             stroke: var(--danger) !important;
             filter: drop-shadow(0 0 10px var(--danger)) !important;
         }
 
+        /* El número solo cambia de color */
         .timer-number.critical {
             color: var(--danger) !important;
         }
 
         /* ------------------------------------------------ */
+
         .controls {
             display: flex;
             gap: 12px;
@@ -605,107 +693,118 @@
             font-size: 16px;
             cursor: pointer;
             transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
-            word-break: break-word;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80px;
         }
 
         .vote-card:active {
             transform: scale(0.95);
         }
 
-        .vote-card.selected {
-            border-color: var(--danger);
-            background: var(--danger-soft);
-            color: var(--danger);
-            box-shadow: 0 4px 15px var(--danger-soft);
-        }
-
         .vote-card.voted {
-            opacity: 0.5;
-            pointer-events: none;
-            filter: grayscale(1);
-            border-color: var(--item-border);
-            background: var(--input-bg);
-            color: var(--text-muted);
-        }
-
-        .res-big {
-            font-size: 48px;
-            font-weight: 900;
-            margin: 20px 0 10px 0;
-            line-height: 1;
-            text-align: center;
+            background: var(--accent-soft);
             color: var(--accent);
+            border-color: var(--accent);
+            transform: scale(1.02);
+            box-shadow: 0 10px 25px var(--accent-soft);
         }
 
-        .res-desc {
-            font-size: 18px;
-            color: var(--text-muted);
+        .vote-grid.has-selection .vote-card:not(.voted) {
+            opacity: 0.4;
+            transform: scale(0.95);
+            filter: grayscale(1);
+        }
+
+        .result-text {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin: 10px 0;
+            line-height: 1.3;
+        }
+
+        .footer {
             text-align: center;
-            margin-bottom: 30px;
-            line-height: 1.5;
+            margin-top: auto;
+            padding: 20px 0;
+            color: var(--text-muted);
+            font-size: 12px;
             font-weight: 500;
+            opacity: 0.7;
         }
 
-        /* --- ALERTAS / MODALES --- */
-        .overlay {
+        .toast-overlay {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(8px);
-            z-index: 100;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            z-index: 999;
             display: none;
-            align-items: center;
+            align-items: flex-end;
             justify-content: center;
-            padding: 20px;
-            box-sizing: border-box;
             opacity: 0;
             transition: opacity 0.3s ease;
         }
 
-        .overlay.active {
+        .toast-overlay.active {
+            display: flex;
             opacity: 1;
         }
 
-        .overlay-card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 28px;
-            padding: 30px;
+        .toast-content {
             width: 100%;
-            max-width: 340px;
-            box-shadow: var(--card-shadow);
-            transform: scale(0.9);
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            max-width: 440px;
+            background: var(--card-bg);
+            border-top-left-radius: 32px;
+            border-top-right-radius: 32px;
+            padding: 32px 24px;
+            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
+            border-top: 1px solid var(--card-border);
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             text-align: center;
         }
 
-        .overlay.active .overlay-card {
-            transform: scale(1);
+        .toast-overlay.active .toast-content {
+            transform: translateY(0);
         }
 
-        .overlay-title {
+        .toast-title {
             font-size: 22px;
             font-weight: 800;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             color: var(--text-main);
         }
 
-        .overlay-msg {
-            font-size: 16px;
+        .toast-msg {
+            font-size: 15px;
             color: var(--text-muted);
             margin-bottom: 24px;
-            line-height: 1.4;
         }
 
-        .overlay-btns {
-            display: flex;
-            gap: 12px;
+        #listaPalabras li span {
+            display: inline-block;
+            color: transparent;
+            text-shadow: 0 0 10px var(--text-main);
+            cursor: help;
+            transition: all 0.3s ease;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            padding: 0 4px;
         }
 
-        .overlay-btns button {
-            flex: 1;
+        #listaPalabras li span:hover,
+        #listaPalabras li span:active {
+            color: var(--text-main);
+            text-shadow: none;
         }
-        
+
         /* --- ANIMACIÓN MENSAJE ERROR INLINE --- */
         .error-msg {
             font-size: 13px;
@@ -724,7 +823,6 @@
             opacity: 1;
             margin-top: 4px;
         }
-
     </style>
 </head>
 
@@ -736,6 +834,7 @@
                 <h1>El Impostor<span class="status-dot"></span></h1>
                 <div class="sub">TRAKAS HDSPM</div>
             </div>
+
             <button class="dark-toggle" onclick="toggleDarkMode()" title="Cambiar tema">
                 <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <circle cx="12" cy="12" r="5" />
@@ -749,100 +848,111 @@
                     <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
                 </svg>
                 <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
                 </svg>
             </button>
         </header>
 
         <div id="admin" class="card">
-            <label>AÑADIR PALABRA</label>
-            <div style="display:flex; gap:8px">
-                <input type="text" id="nuevaPalabra" placeholder="Ej: Pizza" />
-                <button onclick="agregarPalabra()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                </button>
+            <label>Añadir palabra</label>
+            <div class="row">
+                <input type="text" id="nuevaPalabra" placeholder="Ej. Cybertruck, Zumpango..." />
+                <button class="smallbtn" onclick="agregarPalabra()">+</button>
             </div>
             <div id="errorPalabra" class="error-msg"></div>
 
-            <div class="spacer" style="height:24px"></div>
 
-            <label>AÑADIR JUGADOR</label>
-            <div style="display:flex; gap:8px">
-                <input type="text" id="nombreJugador" placeholder="Nombre" />
-                <button onclick="agregarJugador()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                </button>
+            <ul id="listaPalabras"></ul>
+
+            <hr style="margin:24px 0; border:none; border-top:1px solid var(--card-border)" />
+
+            <label>Añadir jugador</label>
+            <div class="row">
+                <input type="text" id="nombreJugador" placeholder="Nombre del jugador" />
+                <button class="smallbtn" onclick="agregarJugador()">+</button>
             </div>
             <div id="errorJugador" class="error-msg"></div>
 
-            <div class="spacer" style="height:24px"></div>
+            <ul id="listaJugadores"></ul>
 
-            <label>LISTA DE JUGADORES</label>
-            <ul id="listaJugadores">
-                </ul>
+            <div style="margin-top:24px" class="row">
+                <div style="flex:1">
+                    <label>Tiempo ronda</label>
+                    <select id="duracionSelect">
+                        <option value="60" selected>1 minuto</option>
+                        <option value="120">2 minutos</option>
+                        <option value="180">3 minutos</option>
+                        <option value="240">4 minutos</option>
+                        <option value="300">5 minutos</option>
+                    </select>
+                </div>
+                <div style="align-self:flex-end">
+                    <button style="width:100%" onclick="iniciarJuego()">¡Jugar!</button>
+                </div>
+            </div>
 
-            <div class="spacer" style="height:24px"></div>
-
-            <button style="width:100%" onclick="prepararJuego()">COMENZAR JUEGO</button>
-            
-            <div style="margin-top:16px">
-                 <button class="ghost danger" style="width:100%" onclick="reiniciarTodo()">REINICIAR TODO</button>
+            <div style="margin-top:16px" class="row">
+                <button class="danger ghost" style="flex:1" onclick="mostrarConfirmacion()">Reset Total</button>
             </div>
         </div>
 
-        <div id="asignacion" class="card" style="display:none; text-align:center;">
-            <label>TURNO DE</label>
-            <div id="nombreAsignacion" class="assign-name">Jugador 1</div>
-            
-            <p style="font-size:15px; color:var(--text-muted); margin-bottom:24px; padding:0 20px; line-height:1.5;">
-                Pasa el teléfono a este jugador. Nadie más debe ver la pantalla.
-            </p>
-
-            <div style="position:relative; min-height:120px; display:flex; align-items:center; justify-content:center;">
-                <button id="btnReveal" style="width:100%; height:120px; font-size:18px; flex-direction:column; gap:10px;" 
-                        onmousedown="showContent(event)" 
-                        ontouchstart="showContent(event)">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                        <circle cx="12" cy="12" r="3"></circle>
-                    </svg>
-                    MANTÉN PRESIONADO PARA VER
-                </button>
-
-                <div id="textoPalabra" class="reveal">
-                    </div>
+        <div id="asignacion" class="card" style="display:none">
+            <div style="display:flex; justify-content:space-between; align-items:center; opacity:0.6;">
+                <div style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px;">Turno de</div>
+                <div style="font-size:14px; font-variant-numeric: tabular-nums;">
+                    <span id="indiceAsignacion">1</span> / <span id="totalAsignacion">1</span>
+                </div>
             </div>
-
-            <div class="spacer" style="height:30px"></div>
-            
-            <button id="btnSiguiente" class="btn-locked" style="width:100%" onclick="siguienteAsignacion()">
-                SIGUIENTE JUGADOR
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-            </button>
+            <div class="assign-name" id="nombreJugadorAsignacion">Jugador</div>
+            <div style="display:flex; gap:16px; flex-direction:column; margin-top:10px;">
+                <div style="position:relative; width:100%">
+                    <button id="btnReveal" class="hold-btn" oncontextmenu="return false;">MANTÉN PARA VER TU ROL</button>
+                    <div id="textoPalabra" class="reveal"></div>
+                </div>
+                <button id="btnSiguiente" onclick="siguienteJugador()" style="margin-top:8px; width:100%">Entendido, siguiente</button>
+            </div>
         </div>
 
-        <div id="pistas" class="card" style="display:none; text-align:center;">
-            <label>RONDA DE DISCUSIÓN</label>
+        <div id="pistas" class="card" style="display:none">
+            <div style="display:flex; justify-content:space-between; align-items:center">
+                <div>
+                    <div style="font-size:12px; color:var(--text-muted); font-weight:600; text-transform:uppercase">Go Go Go</div>
+                    <div style="font-weight:800; font-size:18px; color:var(--text-main)">Describan la palabra</div>
+                </div>
+            </div>
             
-            <div class="timer-wrap" id="timerWrap">
+            <div class="timer-wrap">
                 <svg class="timer-svg" viewBox="0 0 100 100">
                     <circle class="circle-bg" cx="50" cy="50" r="45"></circle>
-                    <circle class="circle-fg" id="timerProgress" cx="50" cy="50" r="45"></circle>
+                    <circle id="timerCircle" class="circle-fg" cx="50" cy="50" r="45"></circle>
                 </svg>
-                <div class="timer-number" id="timerNumber">00:00</div>
+                <div class="timer-number" id="timerNumber">60</div>
             </div>
 
             <div class="controls">
-                <button id="btnStart" class="soft" style="flex:1" onclick="startTemporizador()">INICIAR</button>
-                <button id="btnPause" class="ghost" style="flex:1" onclick="pauseTemporizador()">PAUSA</button>
+                <button id="botonIniciarTimer" style="flex:1.5" onclick="iniciarTemporizador()">
+                    <svg viewBox="0 0 24 24">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg> Iniciar
+                </button>
+                <button class="soft" style="flex:1" onclick="saltarAPuesta()">Votación</button>
             </div>
-            
+        </div>
+
+        <div id="votacion" class="card" style="display:none">
+            <div style="text-align:center; margin-bottom:16px;">
+                <div style="font-size:12px; color:var(--text-muted); font-weight:700; text-transform:uppercase">Votación final</div>
+                <div style="font-weight:900; font-size:20px; color:var(--text-main)">¿Quién es el impostor?</div>
+            </div>
+            <div id="voteContainer" class="vote-grid"></div>
+            <button style="margin-top:20px; width:100%" class="soft" onclick="mostrarResultado()">Ver Resultados</button>
+        </div>
+
+        <div id="resultado" class="card" style="display:none">
+            <div style="text-align:center">
+                <div style="font-size:12px; color:var(--text-muted); font-weight:700; text-transform:uppercase">Resultado</div>
+                <div class="result-text" id="textoResultado"></div>
+            </div>
             <div id="impostorGuessSection" style="margin-top:24px; padding:20px; border:1px solid var(--danger); border-radius:24px; background:var(--danger-soft); display:none">
                 <label id="impostorGuessLabel" style="color:var(--danger); font-weight:800; font-size:18px; text-align:center; display:block; margin-bottom:8px"></label>
                 <p style="font-size:14px; text-align:center; margin-bottom:16px; color:var(--text-main); opacity:0.8;">Si adivinas la palabra, ganas la partida.</p>
@@ -852,134 +962,243 @@
                 <button class="danger" style="width:100%; margin-top:12px;" onclick="impostorAdivina()">Intentar Adivinar</button>
                 <div id="guessFeedback" style="margin-top:12px; font-weight:700; font-size:15px; text-align:center"></div>
             </div>
-
-            <div style="margin-top:30px; border-top:1px solid var(--item-border); padding-top:20px;">
-                <button class="danger ghost" style="width:100%" onclick="finalizarDiscusion()">VOTAR PARA EXPULSAR</button>
+            <div style="margin-top:30px; display:flex; flex-direction:column; gap:12px;">
+                <button onclick="nuevaRonda()">Jugar otra vez</button>
+                <button class="soft" onclick="mostrarSeccion('admin')">Volver al menú</button>
             </div>
-        </div>
-
-        <div id="votacion" class="card" style="display:none;">
-            <label style="text-align:center; margin-bottom:20px;">¿QUIÉN ES EL IMPOSTOR?</label>
-            <div id="voteContainer" class="vote-grid">
-                </div>
-            <div class="spacer" style="height:30px"></div>
-            <button class="danger" style="width:100%" onclick="procesarVotacion()">CONFIRMAR VOTOS</button>
-        </div>
-
-        <div id="resultado" class="card" style="display:none; text-align:center;">
-            <div style="font-size:60px; margin-bottom:10px;">🎭</div>
-            <div id="resTitulo" class="res-big"></div>
-            <div id="resMensaje" class="res-desc"></div>
-            <button style="width:100%" onclick="irAlInicio()">VOLVER A JUGAR</button>
         </div>
 
         <div class="spacer"></div>
+        <footer class="footer">Development by VNGAS</footer>
+
     </div>
 
-    <div id="toastOverlay" class="overlay">
-        <div class="overlay-card">
-            <div class="overlay-title">¿Reiniciar?</div>
-            <div class="overlay-msg">Se borrarán todos los jugadores y palabras guardadas.</div>
-            <div class="overlay-btns">
-                <button class="ghost" onclick="cerrarConfirmacion()">Cancelar</button>
-                <button class="danger" onclick="confirmarReinicio()">Sí, borrar</button>
+    <div id="toastOverlay" class="toast-overlay">
+        <div class="toast-content" onclick="event.stopPropagation()">
+            <div class="toast-title">¿Reiniciar todo?</div>
+            <div class="toast-msg">Se borrarán todos los jugadores y palabras guardadas.</div>
+            <div class="row">
+                <button class="ghost" style="flex:1" onclick="cerrarConfirmacion()">Cancelar</button>
+                <button class="danger" style="flex:1" onclick="confirmarReinicio()">Sí, borrar</button>
             </div>
         </div>
     </div>
 
-    <div id="alertTimeOverlay" class="overlay">
-        <div class="overlay-card">
-            <div class="overlay-title">¡Tiempo Agotado!</div>
-            <div class="overlay-msg">La discusión ha terminado. Es hora de votar.</div>
-            <button style="width:100%" onclick="cerrarAlertaTiempo()">IR A VOTAR</button>
+    <div id="alertFinOverlay" class="toast-overlay" style="z-index: 1000;">
+        <div class="toast-content" onclick="event.stopPropagation()">
+            <div class="toast-title">¡Se acabaron!</div>
+            <div class="toast-msg">Ya no quedan palabras nuevas en la lista.</div>
+            <button style="width:100%" onclick="irAlInicio()">Volver al menú</button>
         </div>
     </div>
-    
-    <div id="genericAlertOverlay" class="overlay">
-        <div class="overlay-card">
-            <div id="genericAlertTitle" class="overlay-title"></div>
-            <div id="genericAlertMsg" class="overlay-msg"></div>
-            <button style="width:100%" onclick="cerrarAlertaGenerica()">ACEPTAR</button>
+
+    <div id="timeOutOverlay" class="toast-overlay" style="z-index: 1000;">
+        <div class="toast-content" onclick="event.stopPropagation()">
+            <div class="toast-title">¡Tiempo terminado!</div>
+            <div class="toast-msg">Es momento de votar por el impostor.</div>
+            <button style="width:100%" onclick="finalizarTiempoYContinuar()">Aceptar</button>
         </div>
     </div>
-    
-    <div id="alertFinOverlay" class="overlay">
-        <div class="overlay-card">
-            <div id="alertFinTitle" class="overlay-title"></div>
-            <div id="alertFinMsg" class="overlay-msg"></div>
-            <button style="width:100%" onclick="irAlInicio()">ACEPTAR</button>
+
+    <div id="genericAlertOverlay" class="toast-overlay" style="z-index: 1001;">
+        <div class="toast-content" onclick="event.stopPropagation()">
+            <div id="genericAlertTitle" class="toast-title">Título</div>
+            <div id="genericAlertMsg" class="toast-msg">Mensaje</div>
+            <div class="row">
+                <button style="flex:1" onclick="cerrarAlertaGenerica()">Aceptar</button>
+            </div>
         </div>
     </div>
 
     <script>
         /* --------------------------------------------------------------------------------
-           ESTADO DE LA APLICACIÓN
+           SEGURIDAD BÁSICA
         -------------------------------------------------------------------------------- */
+        (function() {
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                return false;
+            }, false);
+            document.onkeydown = function(e) {
+                if (e.keyCode == 123) return false;
+                if (e.ctrlKey && e.shiftKey && (e.keyCode == 'I'.charCodeAt(0) || e.keyCode == 'C'.charCodeAt(0) || e.keyCode == 'J'.charCodeAt(0))) return false;
+                if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
+            }
+        })();
+
+        /* --------------------------------------------------------------------------------
+           LÓGICA PRINCIPAL DEL JUEGO
+        -------------------------------------------------------------------------------- */
+        const titleElement = document.querySelector('h1');
+        const textToType = "El Impostor";
+        let charIndex = 0;
+
+        function typeWriter() {
+            if (charIndex < textToType.length) {
+                let currentText = titleElement.childNodes[0].nodeValue || "";
+                titleElement.childNodes[0].nodeValue = currentText + textToType.charAt(charIndex);
+                charIndex++;
+                setTimeout(typeWriter, 120);
+            } else {
+                setTimeout(() => {
+                    titleElement.childNodes[0].nodeValue = "";
+                    charIndex = 0;
+                    typeWriter();
+                }, 10000);
+            }
+        }
+        titleElement.innerHTML = '<span class="status-dot"></span>';
+        titleElement.insertBefore(document.createTextNode(""), titleElement.firstChild);
+        setTimeout(typeWriter, 300);
+
+        /* --- WAKE LOCK --- */
+        let wakeLock = null;
+        async function requestWakeLock() {
+            if ('wakeLock' in navigator) {
+                try {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    console.log('Wake Lock Activo');
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+        }
+        document.addEventListener('visibilitychange', async () => {
+            if (wakeLock !== null && document.visibilityState === 'visible') {
+                await requestWakeLock();
+            }
+        });
+
+        /* --- LÓGICA ALERTAS --- */
+        function mostrarConfirmacion() {
+            const overlay = document.getElementById('toastOverlay');
+            overlay.style.display = 'flex';
+            overlay.offsetHeight;
+            overlay.classList.add('active');
+            if (navigator.vibrate) navigator.vibrate(50);
+        }
+
+        function cerrarConfirmacion() {
+            const overlay = document.getElementById('toastOverlay');
+            overlay.classList.remove('active');
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 300);
+        }
+
+        function confirmarReinicio() {
+            // Limpia arrays en memoria
+            palabras = [];
+            jugadores = [];
+
+            // Limpia localStorage (NUEVO)
+            localStorage.removeItem('impostor_palabras');
+            localStorage.removeItem('impostor_jugadores');
+
+            resetGameData();
+            renderPalabras();
+            renderJugadores();
+            mostrarSeccion('admin');
+            cerrarConfirmacion();
+        }
+
+        function irAlInicio() {
+            const ov = document.getElementById('alertFinOverlay');
+            ov.classList.remove('active');
+            setTimeout(() => {
+                ov.style.display = 'none';
+                mostrarSeccion('admin');
+            }, 300);
+        }
+
+        function mostrarAlertaTiempo() {
+            const ov = document.getElementById('timeOutOverlay');
+            ov.style.display = 'flex';
+            ov.offsetHeight;
+            ov.classList.add('active');
+        }
+
+        function finalizarTiempoYContinuar() {
+            const ov = document.getElementById('timeOutOverlay');
+            ov.classList.remove('active');
+            setTimeout(() => {
+                ov.style.display = 'none';
+                saltarAPuesta();
+            }, 300);
+        }
+
+        function showAlertMessage(title, msg) {
+            const ov = document.getElementById('genericAlertOverlay');
+            const t = document.getElementById('genericAlertTitle');
+            const m = document.getElementById('genericAlertMsg');
+            t.innerText = title;
+            m.innerText = msg;
+            ov.style.display = 'flex';
+            ov.offsetHeight;
+            ov.classList.add('active');
+            if (navigator.vibrate) navigator.vibrate(50);
+        }
+
+        function cerrarAlertaGenerica() {
+            const ov = document.getElementById('genericAlertOverlay');
+            ov.classList.remove('active');
+            setTimeout(() => {
+                ov.style.display = 'none';
+                mostrarSeccion('admin');
+            }, 300);
+        }
+
+        /* --- FUNCIÓN AUXILIAR: FISHER-YATES SHUFFLE (NUEVO) --- */
+        function mezclarArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        /* --- GESTIÓN DE DATOS CON LOCALSTORAGE (NUEVO) --- */
+        function guardarDatos() {
+            localStorage.setItem('impostor_palabras', JSON.stringify(palabras));
+            localStorage.setItem('impostor_jugadores', JSON.stringify(jugadores));
+        }
+
+        function cargarDatos() {
+            const p = localStorage.getItem('impostor_palabras');
+            const j = localStorage.getItem('impostor_jugadores');
+            if (p) palabras = JSON.parse(p);
+            if (j) jugadores = JSON.parse(j);
+        }
+
+        /* --- LÓGICA DEL JUEGO --- */
         let palabras = [];
+        let palabrasDisponibles = [];
         let jugadores = [];
         let jugadoresMezclados = [];
         let impostor = null;
         let palabraSeleccionada = "";
         let indiceActual = 0;
-        let tiempoRestante = 180; // 3 minutos
-        let intervaloTimer = null;
         let votos = {};
-        
-        let wakeLock = null;
+        let duracion = 60;
+        let tiempoRestante = 0;
+        let timerRunning = false;
+        let rafId = null;
+        let startTs = null;
 
-        // --- WAKE LOCK (MANTENER PANTALLA ENCENDIDA) ---
-        async function requestWakeLock() {
-            try {
-                if ('wakeLock' in navigator) {
-                    wakeLock = await navigator.wakeLock.request('screen');
-                    wakeLock.addEventListener('release', () => {
-                        console.log('Wake Lock released');
-                    });
-                }
-            } catch (err) {
-                console.log(`${err.name}, ${err.message}`);
-            }
+        const SVG_PLAY = '<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
+        const SVG_PAUSE = '<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
+
+        // --- MODO OSCURO AUTOMÁTICO Y MANUAL ---
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        if (window.matchMedia) {
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+                if (e.matches) document.documentElement.classList.add('dark');
+                else document.documentElement.classList.remove('dark');
+            });
         }
 
-        // --- INITIAL SETUP ---
-        document.addEventListener('DOMContentLoaded', () => {
-            // Check system preference
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                document.documentElement.classList.add('dark');
-            }
-
-            // Detectar Enter en inputs
-            const inputs = document.querySelectorAll('input');
-            inputs.forEach(inp => {
-                inp.addEventListener('keypress', function (e) {
-                    if (e.key === 'Enter') {
-                        // Buscar el botón vecino y hacer click
-                        const btn = this.parentElement.querySelector('button');
-                        if (btn) btn.click();
-                        // Si es el input de adivinar
-                        if (this.id === 'guessInput') impostorAdivina();
-                    }
-                });
-            });
-
-            // Focus trap simple para inputs
-            document.addEventListener('focusin', function(e) {
-                if(e.target.tagName === 'INPUT') {
-                    setTimeout(() => {
-                         e.target.scrollIntoView({behavior: "smooth", block: "center"});
-                    }, 300);
-                }
-            });
-            
-            // Re-acquire wake lock on visibility change
-            document.addEventListener('visibilitychange', async () => {
-                if (wakeLock !== null && document.visibilityState === 'visible') {
-                    await requestWakeLock();
-                }
-            });
-        });
-
-        /* --- FUNCIONES DE INTERFAZ Y UTILIDAD --- */
         function toggleDarkMode() {
             document.documentElement.classList.toggle('dark');
         }
@@ -991,7 +1210,7 @@
                 if (s === id) {
                     el.style.display = 'block';
                     el.style.animation = 'none';
-                    el.offsetHeight; 
+                    el.offsetHeight;
                     el.style.animation = null;
                 } else {
                     el.style.display = 'none';
@@ -1003,8 +1222,7 @@
             return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
         }
 
-        /* CAMBIO: Función showError actualizada con animación */
-        function showError(errorElem, message) {
+                function showError(errorElem, message) {
             // Si ya había un temporizador corriendo, lo cancelamos
             if (errorElem.timer) clearTimeout(errorElem.timer);
 
@@ -1025,56 +1243,80 @@
             }, 3000);
         }
 
-        /* --- LÓGICA DE JUEGO --- */
-
         function agregarPalabra() {
             const input = document.getElementById('nuevaPalabra');
             const errorElem = document.getElementById('errorPalabra');
-            
-            // errorElem.innerText = ''; 
+            errorElem.innerText = ''; // Limpiar error anterior
             let p = input.value.trim();
+
             if (!p) {
                 showError(errorElem, 'La palabra no puede estar vacía.');
                 input.value = '';
                 return;
             }
-            // Validar que no exista ya (normalizado)
-            const normP = normalize(p);
-            const exists = palabras.some(w => normalize(w) === normP);
+
+            // Validar solo letras (incluyendo acentos y espacios)
+            const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+            if (!regex.test(p)) {
+                showError(errorElem, 'Solo se permiten letras y espacios.');
+                input.value = '';
+                return;
+            }
+
+            // Validar longitud
+            if (p.length < 2 || p.length > 20) {
+                showError(errorElem, 'La palabra debe tener entre 2 y 20 caracteres.');
+                input.value = '';
+                return;
+            }
+
+            // Validar duplicados (case-insensitive y sin acentos)
+            const normalizedP = normalize(p);
+            const exists = palabras.some(word => normalize(word) === normalizedP);
             if (exists) {
-                showError(errorElem, 'Esa palabra ya está en la lista.');
+                showError(errorElem, 'Esta palabra ya existe.');
                 input.value = '';
                 return;
             }
 
             palabras.push(p);
             guardarDatos(); // Guardar en LocalStorage
-            renderPalabras(); 
-            
+            renderPalabras();
             input.value = '';
             input.focus();
-            
-            // Notificación rápida temporal en el placeholder
-            const oldPlace = input.placeholder;
-            input.placeholder = "¡Agregada!";
-            setTimeout(() => input.placeholder = oldPlace, 1000);
+        }
+
+        function eliminarPalabra(index) {
+            palabras.splice(index, 1);
+            guardarDatos(); // Guardar en LocalStorage
+            renderPalabras();
         }
 
         function renderPalabras() {
-            // No implementación visual necesaria según diseño original
+            const ul = document.getElementById('listaPalabras');
+            ul.innerHTML = '';
+            if (palabras.length === 0) {
+                ul.innerHTML = '<li style="justify-content:center; color:var(--text-muted); font-style:italic; background:transparent; border:none">No hay palabras</li>';
+            }
+            palabras.forEach((p, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span>${p}</span><button class="btn-icon btn-delete" onclick="eliminarPalabra(${index})">&times;</button>`;
+                ul.appendChild(li);
+            });
         }
 
         function agregarJugador() {
             const input = document.getElementById('nombreJugador');
             const errorElem = document.getElementById('errorJugador');
-            
-            // errorElem.innerText = '';
+            errorElem.innerText = ''; // Limpiar error anterior
             let name = input.value.trim();
+
             if (!name) {
                 showError(errorElem, 'El nombre no puede estar vacío.');
                 input.value = '';
                 return;
             }
+
             // Validar solo letras (incluyendo acentos y espacios)
             const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
             if (!regex.test(name)) {
@@ -1082,12 +1324,14 @@
                 input.value = '';
                 return;
             }
+
             // Validar longitud
-            if (name.length < 2 || name.length > 15) {
-                showError(errorElem, 'El nombre debe tener entre 2 y 15 caracteres.');
+            if (name.length < 2 || name.length > 20) {
+                showError(errorElem, 'El nombre debe tener entre 2 y 20 caracteres.');
                 input.value = '';
                 return;
             }
+
             // Validar duplicados (case-insensitive y sin acentos)
             const normalizedName = normalize(name);
             const exists = jugadores.some(jug => normalize(jug) === normalizedName);
@@ -1135,60 +1379,109 @@
             stopTemporizador();
         }
 
-        function prepararJuego() {
+        function iniciarJuego() {
             if (jugadores.length < 3) {
-                alert("Se necesitan al menos 3 jugadores.");
+                showAlertMessage('Faltan jugadores', 'Se requieren mínimo 3 jugadores.');
                 return;
             }
             if (palabras.length === 0) {
-                // Si no hay palabras, agregamos unas por defecto
-                palabras = ["Pizza", "Superman", "Guitarra", "Playa", "Drácula", "Sushi", "Internet", "Gato"];
+                showAlertMessage('Faltan palabras', 'Agrega al menos una palabra.');
+                return;
             }
 
+            duracion = Number(document.getElementById('duracionSelect').value || 60);
+            palabrasDisponibles = [...palabras];
+
             requestWakeLock();
-            
-            // Copia de palabras para no gastarlas todas si se quisiera (opcional)
-            let palabrasDisponibles = [...palabras];
+            nuevaRonda();
+        }
+
+        function nuevaRonda() {
+            votos = {};
+            document.getElementById('guessFeedback').innerText = '';
+            document.getElementById('guessInput').value = '';
+            document.getElementById('impostorGuessSection').style.display = 'none';
+
+            if (palabrasDisponibles.length === 0) {
+                const ov = document.getElementById('alertFinOverlay');
+                ov.style.display = 'flex';
+                ov.offsetHeight;
+                ov.classList.add('active');
+                return;
+            }
+
+            // --- FIX DEFINITIVO PARA ANIMACIÓN (HARD RESET) ---
+            // Reemplazamos el elemento completo para que el navegador olvide 
+            // cualquier estado de animación anterior.
+            const oldWrapper = document.querySelector('.timer-wrap');
+            if (oldWrapper) {
+                const newWrapper = oldWrapper.cloneNode(true);
+                // Aseguramos que el clon nace limpio de clases críticas
+                newWrapper.classList.remove('critical');
+                const newCircle = newWrapper.querySelector('#timerCircle');
+                if(newCircle) {
+                    newCircle.classList.remove('critical');
+                    newCircle.style.stroke = 'var(--accent)';
+                    newCircle.style.filter = 'drop-shadow(0 0 4px var(--accent-glow))';
+                }
+                const newNum = newWrapper.querySelector('#timerNumber');
+                if(newNum) newNum.classList.remove('critical');
+
+                oldWrapper.parentNode.replaceChild(newWrapper, oldWrapper);
+            }
+            // --------------------------
+
             const randomIndex = Math.floor(Math.random() * palabrasDisponibles.length);
             palabraSeleccionada = palabrasDisponibles[randomIndex];
-            // Quitar la palabra usada para que no se repita
             palabrasDisponibles.splice(randomIndex, 1);
 
             jugadoresMezclados = mezclarArray([...jugadores]);
+
             impostor = jugadoresMezclados[Math.floor(Math.random() * jugadoresMezclados.length)];
-            
+
             indiceActual = 0;
-            mostrarAsignacion();
+            document.getElementById('totalAsignacion').innerText = jugadoresMezclados.length;
+            cargarJugador();
+            mostrarSeccion('asignacion');
+            stopTemporizador();
+            tiempoRestante = duracion;
+            actualizarTimerUI(duracion);
         }
 
-        function mostrarAsignacion() {
+        function cargarJugador() {
+            const jugador = jugadoresMezclados[indiceActual];
+            document.getElementById('nombreJugadorAsignacion').innerText = jugador;
+            document.getElementById('indiceAsignacion').innerText = (indiceActual + 1);
+
+            const elem = document.getElementById('textoPalabra');
+            elem.style.display = 'none';
+            elem.className = 'reveal';
+
+            const btn = document.getElementById('btnReveal');
+            btn.style.display = 'flex';
+            btn.style.opacity = '1';
+
+            document.getElementById('btnSiguiente').classList.add('btn-locked');
+        }
+
+        function siguienteJugador() {
+            document.getElementById('textoPalabra').style.display = 'none';
+            indiceActual++;
             if (indiceActual >= jugadoresMezclados.length) {
-                comenzarRonda();
+                document.getElementById('botonIniciarTimer').innerHTML = SVG_PLAY + " Iniciar";
+                prepararVotacion();
+                mostrarSeccion('pistas');
                 return;
             }
-            document.getElementById('nombreAsignacion').innerText = jugadoresMezclados[indiceActual];
-            
-            // Reset UI estado revelar
-            document.getElementById('btnReveal').style.display = 'flex';
-            document.getElementById('textoPalabra').style.display = 'none';
-            document.getElementById('btnSiguiente').classList.add('btn-locked');
-            
-            mostrarSeccion('asignacion');
+            cargarJugador();
         }
 
-        function siguienteAsignacion() {
-             if(document.getElementById('btnSiguiente').classList.contains('btn-locked')) return;
-             indiceActual++;
-             mostrarAsignacion();
-        }
-
-        // Lógica de "Hold to Reveal"
         const btnReveal = document.getElementById('btnReveal');
         const revealBox = document.getElementById('textoPalabra');
 
         function showContent(e) {
             if (e.cancelable && e.type === 'touchstart') e.preventDefault();
-            
+
             const jugador = jugadoresMezclados[indiceActual];
             if (jugador === impostor) {
                 revealBox.className = 'reveal impostor-mode';
@@ -1200,169 +1493,164 @@
 
             btnReveal.style.display = 'none';
             revealBox.style.display = 'flex';
+
             document.getElementById('btnSiguiente').classList.remove('btn-locked');
-            
+
             document.addEventListener('mouseup', hideContent);
             document.addEventListener('touchend', hideContent);
             document.addEventListener('touchcancel', hideContent);
         }
 
-        function hideContent(e) {
-           document.removeEventListener('mouseup', hideContent);
-           document.removeEventListener('touchend', hideContent);
-           document.removeEventListener('touchcancel', hideContent);
+        function hideContent() {
+            revealBox.style.display = 'none';
+            btnReveal.style.display = 'flex';
+            document.removeEventListener('mouseup', hideContent);
+            document.removeEventListener('touchend', hideContent);
+            document.removeEventListener('touchcancel', hideContent);
         }
 
+        btnReveal.addEventListener('mousedown', showContent);
+        btnReveal.addEventListener('touchstart', showContent, {
+            passive: false
+        });
 
-        function comenzarRonda() {
-            resetTemporizador();
-            mostrarSeccion('pistas');
-            // Verificar si el impostor adivina
-            document.getElementById('impostorGuessSection').style.display = 'none';
-        }
 
-        /* --- TEMPORIZADOR --- */
-        function resetTemporizador() {
-            stopTemporizador();
-            tiempoRestante = 180;
-            updateTimerUI();
-            document.getElementById('btnStart').style.display = 'block';
-            document.getElementById('btnPause').style.display = 'none';
-            document.getElementById('impostorGuessSection').style.display = 'none';
-        }
+        function iniciarTemporizador() {
+            const btn = document.getElementById('botonIniciarTimer');
 
-        function startTemporizador() {
-            document.getElementById('btnStart').style.display = 'none';
-            document.getElementById('btnPause').style.display = 'block';
-            document.getElementById('btnPause').innerText = 'PAUSA';
-            
-            intervaloTimer = setInterval(() => {
-                tiempoRestante--;
-                updateTimerUI();
-                if (tiempoRestante <= 0) {
-                    stopTemporizador();
+            if (timerRunning) {
+                stopTemporizador();
+                btn.innerHTML = SVG_PLAY + " Reanudar";
+                return;
+            }
+
+            if (tiempoRestante <= 0) tiempoRestante = duracion;
+
+            btn.innerHTML = SVG_PAUSE + " Pausar";
+            timerRunning = true;
+
+            startTs = performance.now() - ((duracion - tiempoRestante) * 1000);
+
+            function tick(now) {
+                const elapsed = (now - startTs) / 1000;
+                tiempoRestante = Math.max(0, duracion - elapsed);
+
+                actualizarTimerUI(tiempoRestante);
+
+                if (tiempoRestante > 0 && timerRunning) {
+                    rafId = requestAnimationFrame(tick);
+                } else {
+                    timerRunning = false;
+                    rafId = null;
+                    if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
                     mostrarAlertaTiempo();
                 }
-            }, 1000);
-        }
+            }
 
-        function pauseTemporizador() {
-            stopTemporizador();
-            document.getElementById('btnStart').style.display = 'block';
-            document.getElementById('btnStart').innerText = 'CONTINUAR';
-            document.getElementById('btnPause').style.display = 'none';
+            rafId = requestAnimationFrame(tick);
         }
 
         function stopTemporizador() {
-            if (intervaloTimer) clearInterval(intervaloTimer);
-            intervaloTimer = null;
+            timerRunning = false;
+            if (rafId) cancelAnimationFrame(rafId);
+            rafId = null;
         }
 
-        function updateTimerUI() {
-            const minutes = Math.floor(tiempoRestante / 60);
-            const seconds = tiempoRestante % 60;
-            document.getElementById('timerNumber').innerText = 
-                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        /* --- NUEVA FUNCIÓN OPTIMIZADA (LATE TODO JUNTO) --- */
+        function actualizarTimerUI(segundos) {
+            const numElem = document.getElementById('timerNumber');
+            const circle = document.getElementById('timerCircle');
+            const wrapper = document.querySelector('.timer-wrap'); // SELECCIONAMOS EL CONTENEDOR
             
-            const total = 180;
-            const offset = 283 - (tiempoRestante / total) * 283;
-            document.getElementById('timerProgress').style.strokeDashoffset = offset;
+            const duracionSelect = document.getElementById('duracionSelect');
+            const duracion = duracionSelect ? parseInt(duracionSelect.value) : 60;
+            
+            if(numElem) numElem.innerText = Math.ceil(segundos);
+            
+            const pct = Math.max(0, Math.min(1, segundos / duracion));
+            const circumference = 283; 
+            const offset = circumference - (pct * circumference);
+            
+            if(circle) {
+                circle.style.strokeDashoffset = offset;
 
-            // Clases criticas
-            const timerWrap = document.getElementById('timerWrap');
-            const timerCircle = document.getElementById('timerProgress');
-            const timerNumber = document.getElementById('timerNumber');
-
-            if (tiempoRestante <= 15 && tiempoRestante > 0) {
-                if (!timerWrap.classList.contains('critical')) {
-                    timerWrap.classList.add('critical');
-                    timerCircle.classList.add('critical');
-                    timerNumber.classList.add('critical');
+                // --- LÓGICA DE LOS 15 SEGUNDOS ---
+                if (segundos <= 15) {
+                    // ACTIVAMOS PÁNICO EN EL CONTENEDOR (Todo late junto)
+                    if(wrapper) wrapper.classList.add('critical');
+                    
+                    // Cambios de color individuales
+                    circle.classList.add('critical');
+                    if(numElem) numElem.classList.add('critical');
+                    
+                    // Limpiamos estilos inline
+                    circle.style.stroke = ''; 
+                    circle.style.filter = '';
+                } else {
+                    // DESACTIVAMOS PÁNICO
+                    if(wrapper) wrapper.classList.remove('critical');
+                    
+                    circle.classList.remove('critical');
+                    if(numElem) numElem.classList.remove('critical');
+                    
+                    // Restauramos estilos normales
+                    circle.style.stroke = 'var(--accent)';
+                    circle.style.filter = 'drop-shadow(0 0 4px var(--accent-glow))';
                 }
-            } else {
-                 if (tiempoRestante > 15) {
-                    timerWrap.classList.remove('critical');
-                    timerCircle.classList.remove('critical');
-                    timerNumber.classList.remove('critical');
-                    // Restauramos colores originales
-                    timerCircle.style.stroke = 'var(--accent)';
-                    timerCircle.style.filter = 'drop-shadow(0 0 4px var(--accent-glow))';
-                    timerNumber.style.color = 'var(--text-main)';
-                 }
             }
         }
-        
+        /* ----------------------------------------- */
+
         function saltarAPuesta() {
-             mostrarSeccion('pistas');
-             const sec = document.getElementById('impostorGuessSection');
-             const lbl = document.getElementById('impostorGuessLabel');
-             lbl.innerText = `¿Eres ${impostor}?`;
-             sec.style.display = 'block';
-             sec.scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function impostorAdivina() {
-            const inp = document.getElementById('guessInput');
-            const feedback = document.getElementById('guessFeedback');
-            const val = normalize(inp.value.trim());
-            const real = normalize(palabraSeleccionada);
-            
-            if (!val) return;
-
-            if (val === real) {
-                feedback.innerText = "¡CORRECTO!";
-                feedback.style.color = "var(--accent)";
-                setTimeout(() => {
-                    mostrarResultadoFinal("IMPOSTOR GANA", "Adivinó la palabra secreta.");
-                }, 1000);
-            } else {
-                feedback.innerText = "INCORRECTO";
-                feedback.style.color = "var(--text-muted)";
-                setTimeout(() => {
-                    feedback.innerText = "";
-                }, 2000);
-            }
-        }
-
-        function finalizarDiscusion() {
             stopTemporizador();
             prepararVotacion();
             mostrarSeccion('votacion');
         }
 
-        /* --- VOTACIÓN --- */
         function prepararVotacion() {
             const container = document.getElementById('voteContainer');
             container.innerHTML = '';
+            container.classList.remove('has-selection');
             votos = {};
             jugadores.forEach(jugador => {
                 const btn = document.createElement('button');
                 btn.className = 'vote-card';
                 btn.innerText = jugador;
                 btn.dataset.originalName = jugador;
-                btn.onclick = function() { registrarVotoUnico(jugador, btn); };
+                btn.onclick = function() {
+                    registrarVotoUnico(jugador, btn);
+                };
                 container.appendChild(btn);
             });
         }
 
         function registrarVotoUnico(elegido, btnElement) {
             const container = document.getElementById('voteContainer');
-            const yaEstabaSeleccionado = btnElement.classList.contains('selected');
-            
-            Array.from(container.children).forEach(c => c.classList.remove('selected'));
-            
+            const yaEstabaSeleccionado = btnElement.classList.contains('voted');
+
+            const allBtns = container.querySelectorAll('.vote-card');
+            allBtns.forEach(b => {
+                b.classList.remove('voted');
+                b.innerText = b.dataset.originalName;
+            });
+
+            votos = {};
+
             if (!yaEstabaSeleccionado) {
-                btnElement.classList.add('selected');
-                votos = { [elegido]: 1 };
+                votos[elegido] = 1;
+                container.classList.add('has-selection');
+                btnElement.classList.add('voted');
+                btnElement.innerText = "Eliminar a\n" + elegido;
+                if (navigator.vibrate) navigator.vibrate(50);
             } else {
-                votos = {};
+                container.classList.remove('has-selection');
             }
         }
 
-        function procesarVotacion() {
+        function mostrarResultado() {
             let masVotado = null;
-            let max = 0;
-            
+            let max = -1;
+
             for (const k in votos) {
                 if (votos[k] > max) {
                     max = votos[k];
@@ -1370,142 +1658,47 @@
                 }
             }
 
+            const res = document.getElementById('textoResultado');
+            const guessSection = document.getElementById('impostorGuessSection');
+
+            const htmlPalabra = `<div style="margin-top:12px; font-size:18px; color:var(--text-muted)">La palabra era <strong style="color:var(--text-main)">${palabraSeleccionada}</strong></div>`;
+
             if (!masVotado) {
-                mostrarResultadoFinal("EMPATE", "Nadie fue eliminado.");
-                return;
-            }
-
-            if (masVotado === impostor) {
-                mostrarResultadoFinal("¡CIUDADANOS GANAN!", `El impostor era ${impostor}.`);
+                res.innerHTML = `El impostor era <span style="color:var(--danger)">${impostor}</span>.${htmlPalabra}`;
+            } else if (masVotado === impostor) {
+                res.innerHTML = `Efectivamente el impostor era <strong style="color:var(--danger)">${impostor}</strong>.${htmlPalabra}`;
             } else {
-                mostrarResultadoFinal("IMPOSTOR GANA", `Expulsaron a ${masVotado}, que era inocente.\nEl impostor era ${impostor}.`);
+                res.innerHTML = `JAJAJA fallaron, el impostor era <strong style="color:var(--danger)">${impostor}</strong>.${htmlPalabra}`;
             }
-        }
 
-        /* --- RESULTADOS --- */
-        function mostrarResultadoFinal(titulo, mensaje) {
-            document.getElementById('resTitulo').innerText = titulo;
-            document.getElementById('resMensaje').innerText = mensaje;
-            
-            const t = document.getElementById('resTitulo');
-            if (titulo.includes("GANAN")) t.style.color = "var(--accent)";
-            else t.style.color = "var(--danger)";
-            
+            guessSection.style.display = 'none';
+
             mostrarSeccion('resultado');
         }
 
-        /* --- ALERTAS --- */
-        function mostrarConfirmacion() {
-            const overlay = document.getElementById('toastOverlay');
-            overlay.style.display = 'flex';
-            overlay.offsetHeight;
-            overlay.classList.add('active');
-            if (navigator.vibrate) navigator.vibrate(50);
-        }
-
-        function cerrarConfirmacion() {
-            const overlay = document.getElementById('toastOverlay');
-            overlay.classList.remove('active');
-            setTimeout(() => {
-                overlay.style.display = 'none';
-            }, 300);
-        }
-
-        function confirmarReinicio() {
-            palabras = [];
-            jugadores = [];
-            localStorage.removeItem('impostor_palabras');
-            localStorage.removeItem('impostor_jugadores');
-            resetGameData();
-            renderPalabras();
-            renderJugadores();
-            mostrarSeccion('admin');
-            cerrarConfirmacion();
-        }
-
-        function irAlInicio() {
-            const ov = document.getElementById('alertFinOverlay');
-            ov.classList.remove('active');
-            setTimeout(() => {
-                ov.style.display = 'none';
-                mostrarSeccion('admin');
-            }, 300);
-        }
-        
-        function mostrarAlertaTiempo() {
-            const ov = document.getElementById('alertTimeOverlay');
-            ov.style.display = 'flex';
-            ov.offsetHeight;
-            ov.classList.add('active');
-            if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-        }
-        
-        function cerrarAlertaTiempo() {
-             const ov = document.getElementById('alertTimeOverlay');
-             ov.classList.remove('active');
-             setTimeout(() => {
-                ov.style.display = 'none';
-                finalizarDiscusion();
-             }, 300);
-        }
-
-        function cerrarAlertaGenerica() {
-            const ov = document.getElementById('genericAlertOverlay');
-            ov.classList.remove('active');
-            setTimeout(() => {
-                ov.style.display = 'none';
-                mostrarSeccion('admin');
-            }, 300);
-        }
-
-        /* --- FUNCIÓN AUXILIAR: FISHER-YATES SHUFFLE --- */
-        function mezclarArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
+        function impostorAdivina() {
+            const intento = document.getElementById('guessInput').value.trim();
+            const feed = document.getElementById('guessFeedback');
+            if (!intento) {
+                feed.innerText = 'Escribe algo primero.';
+                return;
             }
-            return array;
-        }
-
-        /* --- GESTIÓN DE DATOS CON LOCALSTORAGE --- */
-        function guardarDatos() {
-            localStorage.setItem('impostor_palabras', JSON.stringify(palabras));
-            localStorage.setItem('impostor_jugadores', JSON.stringify(jugadores));
-        }
-
-        function cargarDatos() {
-            const p = localStorage.getItem('impostor_palabras');
-            const j = localStorage.getItem('impostor_jugadores');
-            
-            if (p) {
-                try { palabras = JSON.parse(p); } catch(e) { console.error(e); }
-            }
-            if (j) {
-                try { jugadores = JSON.parse(j); } catch(e) { console.error(e); }
+            if (intento.toLowerCase() === palabraSeleccionada.toLowerCase()) {
+                feed.style.color = '#10b981';
+                feed.innerText = '¡INCREÍBLE! Ganaste.';
+            } else {
+                feed.style.color = 'var(--danger)';
+                feed.innerText = `Nop. Era "${palabraSeleccionada}".`;
             }
         }
-        
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'i' && e.ctrlKey && document.getElementById('pistas').style.display === 'block') {
-                const sec = document.getElementById('impostorGuessSection');
-                if (sec.style.display === 'none') {
-                    saltarAPuesta();
-                } else {
-                    sec.style.display = 'none';
-                }
-            }
-        });
-        
-        document.querySelector('h1').addEventListener('click', (e) => {
-            if (e.detail === 3) {
-                 alert(`Impostor: ${impostor}\nPalabra: ${palabraSeleccionada}`);
-            }
-        });
 
-        window.addEventListener('resize', () => {
-             if(document.activeElement.tagName === 'INPUT') {
-                 document.activeElement.scrollIntoView({behavior:'smooth', block:'center'});
-             }
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Enter') {
+                const f = document.activeElement;
+                if (f.id === 'nuevaPalabra') agregarPalabra();
+                if (f.id === 'nombreJugador') agregarJugador();
+                if (f.id === 'guessInput') impostorAdivina();
+            }
         });
 
         // --- INICIALIZACIÓN: CARGAR DATOS GUARDADOS ---
