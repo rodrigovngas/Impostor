@@ -705,7 +705,7 @@
         .overlay-btns button {
             flex: 1;
         }
-
+        
         /* --- ANIMACIÓN MENSAJE ERROR INLINE --- */
         .error-msg {
             font-size: 13px;
@@ -1003,7 +1003,7 @@
             return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
         }
 
-        /* CAMBIO AQUÍ: Nueva función showError con animación */
+        /* CAMBIO: Función showError actualizada con animación */
         function showError(errorElem, message) {
             // Si ya había un temporizador corriendo, lo cancelamos
             if (errorElem.timer) clearTimeout(errorElem.timer);
@@ -1031,7 +1031,7 @@
             const input = document.getElementById('nuevaPalabra');
             const errorElem = document.getElementById('errorPalabra');
             
-            // errorElem.innerText = ''; // Ya no es necesario limpiar manual
+            // errorElem.innerText = ''; 
             let p = input.value.trim();
             if (!p) {
                 showError(errorElem, 'La palabra no puede estar vacía.');
@@ -1049,12 +1049,8 @@
 
             palabras.push(p);
             guardarDatos(); // Guardar en LocalStorage
-            renderPalabras(); // No hay lista visual de palabras en el diseño, pero mantenemos lógica interna? 
-            // Ah, el diseño original no mostraba lista de palabras, solo de jugadores. 
-            // Pero si existiera funcion renderPalabras, aquí iría. 
-            // Asumo que el usuario quiere guardar palabras.
+            renderPalabras(); 
             
-            // Feedback visual sutil en el botón (opcional)
             input.value = '';
             input.focus();
             
@@ -1064,10 +1060,8 @@
             setTimeout(() => input.placeholder = oldPlace, 1000);
         }
 
-        // Aunque no hay lista visual de palabras en el HTML provisto, 
-        // mantengo la función por consistencia si existía.
         function renderPalabras() {
-            // No implementation needed based on visible HTML
+            // No implementación visual necesaria según diseño original
         }
 
         function agregarJugador() {
@@ -1214,15 +1208,6 @@
         }
 
         function hideContent(e) {
-            // NO HACER NADA - Ahora el usuario ve el rol y luego da click en siguiente.
-            // El diseño "hold" solía ocultar al soltar, pero es mejor UX que se quede revelado hasta dar siguiente
-            // para evitar que se cierre rapido.
-            // SIN EMBARGO, si el usuario quiere "Hold ONLY", descomentar esto:
-            /*
-            btnReveal.style.display = 'flex';
-            revealBox.style.display = 'none';
-            */
-           // Limpieza de eventos
            document.removeEventListener('mouseup', hideContent);
            document.removeEventListener('touchend', hideContent);
            document.removeEventListener('touchcancel', hideContent);
@@ -1295,9 +1280,6 @@
                     timerNumber.classList.add('critical');
                 }
             } else {
-                 // Si no estamos en crítico (o el tiempo es 0 o mayor a 15) quitamos
-                 // OJO: Si llega a 0, a veces queremos mantener el rojo, pero paramos la animación.
-                 // Para simplificar, si val > 15 quitamos critical. Si val == 0 quitamos animación pero dejamos rojo.
                  if (tiempoRestante > 15) {
                     timerWrap.classList.remove('critical');
                     timerCircle.classList.remove('critical');
@@ -1312,7 +1294,6 @@
         
         function saltarAPuesta() {
              mostrarSeccion('pistas');
-             // Muestra sección de adivinar del impostor
              const sec = document.getElementById('impostorGuessSection');
              const lbl = document.getElementById('impostorGuessLabel');
              lbl.innerText = `¿Eres ${impostor}?`;
@@ -1337,7 +1318,6 @@
             } else {
                 feedback.innerText = "INCORRECTO";
                 feedback.style.color = "var(--text-muted)";
-                // Shake effect?
                 setTimeout(() => {
                     feedback.innerText = "";
                 }, 2000);
@@ -1369,15 +1349,10 @@
             const container = document.getElementById('voteContainer');
             const yaEstabaSeleccionado = btnElement.classList.contains('selected');
             
-            // Limpiar selección previa visual
             Array.from(container.children).forEach(c => c.classList.remove('selected'));
             
-            // Toggle
             if (!yaEstabaSeleccionado) {
                 btnElement.classList.add('selected');
-                // En este modo simple, "votos" solo guarda 1 voto del "grupo"
-                // O simulamos que cada quien vota?
-                // Para simplificar, asumimos que tocan a quien quieren echar
                 votos = { [elegido]: 1 };
             } else {
                 votos = {};
@@ -1385,11 +1360,9 @@
         }
 
         function procesarVotacion() {
-            // Contar votos (aquí es simple, es quien esté marcado)
             let masVotado = null;
             let max = 0;
             
-            // Simulación: en realidad 'votos' tiene solo 1 entrada con valor 1
             for (const k in votos) {
                 if (votos[k] > max) {
                     max = votos[k];
@@ -1398,7 +1371,6 @@
             }
 
             if (!masVotado) {
-                // Nadie votó
                 mostrarResultadoFinal("EMPATE", "Nadie fue eliminado.");
                 return;
             }
@@ -1415,7 +1387,6 @@
             document.getElementById('resTitulo').innerText = titulo;
             document.getElementById('resMensaje').innerText = mensaje;
             
-            // Check color
             const t = document.getElementById('resTitulo');
             if (titulo.includes("GANAN")) t.style.color = "var(--accent)";
             else t.style.color = "var(--danger)";
@@ -1441,10 +1412,8 @@
         }
 
         function confirmarReinicio() {
-            // Limpia arrays en memoria
             palabras = [];
             jugadores = [];
-            // Limpia localStorage (NUEVO)
             localStorage.removeItem('impostor_palabras');
             localStorage.removeItem('impostor_jugadores');
             resetGameData();
@@ -1489,7 +1458,7 @@
             }, 300);
         }
 
-        /* --- FUNCIÓN AUXILIAR: FISHER-YATES SHUFFLE (NUEVO) --- */
+        /* --- FUNCIÓN AUXILIAR: FISHER-YATES SHUFFLE --- */
         function mezclarArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -1498,7 +1467,7 @@
             return array;
         }
 
-        /* --- GESTIÓN DE DATOS CON LOCALSTORAGE (NUEVO) --- */
+        /* --- GESTIÓN DE DATOS CON LOCALSTORAGE --- */
         function guardarDatos() {
             localStorage.setItem('impostor_palabras', JSON.stringify(palabras));
             localStorage.setItem('impostor_jugadores', JSON.stringify(jugadores));
@@ -1516,12 +1485,7 @@
             }
         }
         
-        // Listeners globales para detectar "Impostor Guess" desde botón oculto?
-        // (En la versión anterior habia un botón secreto, en esta parece que es por tiempo o por voto directo)
-        // Agregamos un "cheat" o listener de teclas? No, mantengamos simple.
-        
         document.addEventListener('keydown', (e) => {
-            // Tecla "i" para toggle impostor guess? Solo en PC
             if (e.key === 'i' && e.ctrlKey && document.getElementById('pistas').style.display === 'block') {
                 const sec = document.getElementById('impostorGuessSection');
                 if (sec.style.display === 'none') {
@@ -1532,26 +1496,21 @@
             }
         });
         
-        // Listener click en titulo para debug?
         document.querySelector('h1').addEventListener('click', (e) => {
             if (e.detail === 3) {
-                 // Triple click header
                  alert(`Impostor: ${impostor}\nPalabra: ${palabraSeleccionada}`);
             }
         });
 
-        // Asegurarse de que al redimensionar (teclado móvil) no rompa el layout
         window.addEventListener('resize', () => {
-             // Opcional: scroll a elemento activo
              if(document.activeElement.tagName === 'INPUT') {
                  document.activeElement.scrollIntoView({behavior:'smooth', block:'center'});
              }
         });
 
-        // Loop de juego principal: nada que hacer, es por eventos.
-        // Al cargar la página:
+        // --- INICIALIZACIÓN: CARGAR DATOS GUARDADOS ---
         cargarDatos();
-        renderPalabras(); // (vacio)
+        renderPalabras();
         renderJugadores();
         mostrarSeccion('admin');
 
