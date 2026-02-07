@@ -358,25 +358,27 @@
             box-shadow: 0 4px 15px var(--danger-soft);
         }
 
-        button.soft {
-            background: var(--accent-soft);
-            border-color: transparent;
-            color: var(--accent);
-            box-shadow: none;
-        }
+        /* Botón suave: activo pero secundario */
+button.soft {
+    background: var(--accent-soft);
+    border-color: transparent; /* Sin borde fuerte */
+    color: var(--accent);
+    box-shadow: none;
+}
 
-        button.soft:active {
-            background: var(--accent);
-            color: var(--card-bg);
-            transform: scale(0.96);
-        }
+button.soft:active {
+    background: var(--accent); /* Al presionar se rellena de color */
+    color: var(--card-bg);
+    transform: scale(0.96);
+}
 
-        @media (hover: hover) {
-            button.soft:hover {
-                background: var(--accent-glow);
-                color: var(--accent);
-            }
-        }
+/* Opcional: Hover para PC */
+@media (hover: hover) {
+    button.soft:hover {
+        background: var(--accent-glow);
+        color: var(--accent);
+    }
+}
 
         button.dark-toggle {
             border: 1px solid var(--card-border);
@@ -802,27 +804,6 @@
             color: var(--text-main);
             text-shadow: none;
         }
-
-        /* --- CLASE PARA ERRORES SUAVES --- */
-        .error-msg {
-            color: var(--danger);
-            font-size: 13px;
-            font-weight: 500;
-            padding-left: 4px;
-            
-            /* Propiedades para la animación */
-            max-height: 0;       /* Empieza oculto (sin altura) */
-            opacity: 0;          /* Empieza transparente */
-            margin-top: 0;       /* Sin margen inicial */
-            overflow: hidden;    /* Para que el texto no se salga mientras se encoge */
-            transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1); /* Suavizado */
-        }
-
-        .error-msg.show {
-            max-height: 40px;    /* Altura suficiente para el mensaje */
-            opacity: 1;          /* Visible */
-            margin-top: 4px;     /* Margen cuando está activo */
-        }
     </style>
 </head>
 
@@ -859,9 +840,8 @@
                 <input type="text" id="nuevaPalabra" placeholder="Ej. Cybertruck, Zumpango..." />
                 <button class="smallbtn" onclick="agregarPalabra()">+</button>
             </div>
-            
-            <div id="errorPalabra" class="error-msg"></div>
-            
+            <div id="errorPalabra" style="color:var(--danger); font-size:12px; margin-top:4px; padding-left:4px;"></div>
+
             <ul id="listaPalabras"></ul>
 
             <hr style="margin:24px 0; border:none; border-top:1px solid var(--card-border)" />
@@ -871,9 +851,8 @@
                 <input type="text" id="nombreJugador" placeholder="Nombre del jugador" />
                 <button class="smallbtn" onclick="agregarJugador()">+</button>
             </div>
-            
-            <div id="errorJugador" class="error-msg"></div>
-            
+            <div id="errorJugador" style="color:var(--danger); font-size:12px; margin-top:4px; padding-left:4px;"></div>
+
             <ul id="listaJugadores"></ul>
 
             <div style="margin-top:24px" class="row">
@@ -891,49 +870,69 @@
                     <button style="width:100%" onclick="iniciarJuego()">¡Jugar!</button>
                 </div>
             </div>
+
             <div style="margin-top:16px" class="row">
-                <button class="danger ghost" style="flex:1" onclick="reiniciarTodo()">Reset Total</button>
+                <button class="danger ghost" style="flex:1" onclick="mostrarConfirmacion()">Reset Total</button>
             </div>
         </div>
 
-        <div id="asignacion" class="card" style="display:none; text-align:center">
-            <h2 class="assign-name" id="nombreAsignacion">...</h2>
-            
-            <div style="min-height:200px; display:flex; align-items:center; justify-content:center; margin-bottom:20px;">
-                <button id="btnReveal" class="hold-btn">
-                    <span style="width:100%">Mantén presionado para ver tu rol</span>
-                </button>
-                <div id="textoPalabra" class="reveal"></div>
+        <div id="asignacion" class="card" style="display:none">
+            <div style="display:flex; justify-content:space-between; align-items:center; opacity:0.6;">
+                <div style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px;">Turno de</div>
+                <div style="font-size:14px; font-variant-numeric: tabular-nums;">
+                    <span id="indiceAsignacion">1</span> / <span id="totalAsignacion">1</span>
+                </div>
             </div>
-
-            <button id="btnSiguiente" style="width:100%" onclick="siguienteAsignacion()">Entendido, pasa al siguiente</button>
+            <div class="assign-name" id="nombreJugadorAsignacion">Jugador</div>
+            <div style="display:flex; gap:16px; flex-direction:column; margin-top:10px;">
+                <div style="position:relative; width:100%">
+                    <button id="btnReveal" class="hold-btn" oncontextmenu="return false;">MANTÉN PARA VER TU ROL</button>
+                    <div id="textoPalabra" class="reveal"></div>
+                </div>
+                <button id="btnSiguiente" onclick="siguienteJugador()" style="margin-top:8px; width:100%">Entendido, siguiente</button>
+            </div>
         </div>
 
-        <div id="pistas" class="card" style="display:none; text-align:center">
-            <h2 style="margin-top:0">Ronda en curso</h2>
+        <div id="pistas" class="card" style="display:none">
+            <div style="display:flex; justify-content:space-between; align-items:center">
+                <div>
+                    <div style="font-size:12px; color:var(--text-muted); font-weight:600; text-transform:uppercase">Go Go Go</div>
+                    <div style="font-weight:800; font-size:18px; color:var(--text-main)">Describan la palabra</div>
+                </div>
+            </div>
             
             <div class="timer-wrap">
                 <svg class="timer-svg" viewBox="0 0 100 100">
                     <circle class="circle-bg" cx="50" cy="50" r="45"></circle>
                     <circle id="timerCircle" class="circle-fg" cx="50" cy="50" r="45"></circle>
                 </svg>
-                <div id="timerNumber" class="timer-number">60</div>
+                <div class="timer-number" id="timerNumber">60</div>
             </div>
 
             <div class="controls">
-                <button id="botonIniciarTimer" style="flex:1" onclick="iniciarTemporizador()">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <button id="botonIniciarTimer" style="flex:1.5" onclick="iniciarTemporizador()">
+                    <svg viewBox="0 0 24 24">
                         <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                    </svg>
-                    Iniciar
+                    </svg> Iniciar
                 </button>
-                <button class="danger ghost smallbtn" onclick="stopTemporizador(); mostrarAlertaTiempo();">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                        <rect x="6" y="6" width="12" height="12"></rect>
-                    </svg>
-                </button>
+                <button class="soft" style="flex:1" onclick="saltarAPuesta()">Votación</button>
             </div>
-            
+        </div>
+
+        <div id="votacion" class="card" style="display:none">
+            <div style="text-align:center; margin-bottom:16px;">
+                <div style="font-size:12px; color:var(--text-muted); font-weight:700; text-transform:uppercase">Votación final</div>
+                <div style="font-weight:900; font-size:20px; color:var(--text-main)">¿Quién es el impostor?</div>
+            </div>
+            <div id="voteContainer" class="vote-grid"></div>
+            <button style="margin-top:20px; width:100%" class="soft" onclick="mostrarResultado()">Ver Resultados</button>
+        </div>
+
+        <div id="resultado" class="card" style="display:none">
+            <div style="text-align:center">
+                <div style="font-size:12px; color:var(--text-muted); font-weight:700; text-transform:uppercase">Resultado</div>
+                <div class="result-text" id="textoResultado"></div>
+            </div>
             <div id="impostorGuessSection" style="margin-top:24px; padding:20px; border:1px solid var(--danger); border-radius:24px; background:var(--danger-soft); display:none">
                 <label id="impostorGuessLabel" style="color:var(--danger); font-weight:800; font-size:18px; text-align:center; display:block; margin-bottom:8px"></label>
                 <p style="font-size:14px; text-align:center; margin-bottom:16px; color:var(--text-main); opacity:0.8;">Si adivinas la palabra, ganas la partida.</p>
@@ -943,20 +942,6 @@
                 <button class="danger" style="width:100%; margin-top:12px;" onclick="impostorAdivina()">Intentar Adivinar</button>
                 <div id="guessFeedback" style="margin-top:12px; font-weight:700; font-size:15px; text-align:center"></div>
             </div>
-
-        </div>
-
-        <div id="votacion" class="card" style="display:none">
-            <h2 style="text-align:center; margin-top:0">¿Quién es el impostor?</h2>
-            <p style="text-align:center; color:var(--text-muted); font-size:14px">Toca para votar (solo un voto)</p>
-            <div id="voteContainer" class="vote-grid"></div>
-            <button style="width:100%; margin-top:24px" onclick="finalizarVotacion()">Ver Resultados</button>
-        </div>
-
-        <div id="resultado" class="card" style="display:none; text-align:center">
-            <h2 style="margin-top:0">Resultado</h2>
-            <div id="resultadoTexto"></div>
-            
             <div style="margin-top:30px; display:flex; flex-direction:column; gap:12px;">
                 <button onclick="nuevaRonda()">Jugar otra vez</button>
                 <button class="soft" onclick="mostrarSeccion('admin')">Volver al menú</button>
@@ -986,7 +971,7 @@
             <button style="width:100%" onclick="irAlInicio()">Volver al menú</button>
         </div>
     </div>
-    
+
     <div id="timeOutOverlay" class="toast-overlay" style="z-index: 1000;">
         <div class="toast-content" onclick="event.stopPropagation()">
             <div class="toast-title">¡Tiempo terminado!</div>
@@ -995,164 +980,205 @@
         </div>
     </div>
 
-    <div id="genericAlertOverlay" class="toast-overlay" style="z-index: 1005;">
+    <div id="genericAlertOverlay" class="toast-overlay" style="z-index: 1001;">
         <div class="toast-content" onclick="event.stopPropagation()">
-            <div class="toast-title" id="genericAlertTitle">Alerta</div>
-            <div class="toast-msg" id="genericAlertMsg">Mensaje...</div>
-            <button style="width:100%" onclick="cerrarAlertaGenerica()">Entendido</button>
+            <div id="genericAlertTitle" class="toast-title">Título</div>
+            <div id="genericAlertMsg" class="toast-msg">Mensaje</div>
+            <div class="row">
+                <button style="flex:1" onclick="cerrarAlertaGenerica()">Aceptar</button>
+            </div>
         </div>
     </div>
 
     <script>
         /* --------------------------------------------------------------------------------
-           LÓGICA DEL JUEGO (VANILLA JS)
+           SEGURIDAD BÁSICA
         -------------------------------------------------------------------------------- */
-        
-        // --- VARIABLES GLOBALES ---
-        let palabras = [];
-        let jugadores = [];
-        
-        // Estado del juego
-        let palabrasDisponibles = [];
-        let jugadoresMezclados = [];
-        let impostor = null;
-        let palabraSeleccionada = '';
-        let indiceActual = 0;
-        let votos = {}; // { "NombreJugador": VotosRecibidos }
-        
-        // Timer
-        let duracion = 60;
-        let tiempoRestante = 60;
-        let timerRunning = false;
-        let rafId = null;
-        let startTs = 0;
-
-        // Wake Lock
-        let wakeLock = null;
-
-        // SVG CONSTANTES
-        const SVG_PLAY = `<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`;
-        const SVG_PAUSE = `<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>`;
-
-        // --- MANEJO DE WAKE LOCK (Pantalla encendida) ---
-        async function requestWakeLock() {
-            try {
-                if ('wakeLock' in navigator) {
-                    wakeLock = await navigator.wakeLock.request('screen');
-                    wakeLock.addEventListener('release', () => {
-                        console.log('Wake Lock released');
-                    });
-                }
-            } catch (err) {
-                console.log(`${err.name}, ${err.message}`);
-            }
-        }
-
-        // --- INITIAL SETUP ---
-        document.addEventListener('DOMContentLoaded', () => {
-            // Check system preference
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                document.documentElement.classList.add('dark');
-            }
-            
-            // Detectar Enter en inputs
-            const inputs = document.querySelectorAll('input');
-            inputs.forEach(inp => {
-                inp.addEventListener('keypress', function (e) {
-                    if (e.key === 'Enter') {
-                        // Buscar el botón vecino y hacer click
-                        const btn = this.parentElement.querySelector('button');
-                        if (btn) btn.click();
-                        // Si es el input de adivinar
-                        if (this.id === 'guessInput') impostorAdivina();
-                    }
-                });
-            });
-            
-            // Focus trap simple para inputs
-            document.addEventListener('focusin', function(e) {
-                if(e.target.tagName === 'INPUT') {
-                    // asegurar que sea visible en móvil
-                    setTimeout(() => {
-                        e.target.scrollIntoView({behavior: "smooth", block: "center"});
-                    }, 300);
-                }
-            });
-            
-            // Prevenir submit de forms si hubiese
-            document.addEventListener('submit', e => e.preventDefault());
-            
-            // Global key listener para atajos rápidos (opcional)
-            document.onkeydown = function(e) {
-                const f = document.activeElement;
-                if (f.tagName === 'INPUT') return; 
-                // Aquí podrías agregar atajos si no estás en un input
-            };
-            
-            // Delegación de eventos para inputs específicos (por si acaso)
-            const inputNueva = document.getElementById('nuevaPalabra');
-            if(inputNueva) {
-                inputNueva.addEventListener('keydown', (e) => {
-                   if(e.key === 'Enter') agregarPalabra();
-                });
-            }
-             const inputJugador = document.getElementById('nombreJugador');
-            if(inputJugador) {
-                inputJugador.addEventListener('keydown', (e) => {
-                   if(e.key === 'Enter') agregarJugador();
-                });
-            }
-            
-            // Event listener global para enter en cualquier input que tenga al lado un botón
-            window.onkeyup = function(e) {
-                if (e.key !== 'Enter') return;
-                const f = document.activeElement;
-                if (f.tagName !== 'INPUT') return;
-                
-                if (f.id === 'nuevaPalabra') agregarPalabra();
-                if (f.id === 'nombreJugador') agregarJugador();
-                if (f.id === 'guessInput') impostorAdivina();
-            }
-        });
-
-        // --- INICIALIZACIÓN: CARGAR DATOS GUARDADOS ---
-        cargarDatos();
-        renderPalabras();
-        renderJugadores();
-        mostrarSeccion('admin');
-
-        /* --------------------------------------------------------------------------------
-           EVENTOS TÁCTILES Y GESTOS
-        -------------------------------------------------------------------------------- */
-        document.addEventListener('gesturestart', function(e) {
-            e.preventDefault();
-        });
-        document.addEventListener('touchmove', function(e) {
-            if (e.touches && e.touches.length > 1) e.preventDefault();
-            if (typeof e.scale === 'number' && e.scale !== 1) e.preventDefault();
-        }, {
-            passive: false
-        });
-
         (function() {
-            let lastTouch = 0;
-            document.addEventListener('touchend', function(e) {
-                const now = Date.now();
-                const dt = now - lastTouch;
-                if (dt > 0 && dt <= 300) e.preventDefault();
-                lastTouch = now;
-            }, {
-                passive: false
-            });
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                return false;
+            }, false);
+            document.onkeydown = function(e) {
+                if (e.keyCode == 123) return false;
+                if (e.ctrlKey && e.shiftKey && (e.keyCode == 'I'.charCodeAt(0) || e.keyCode == 'C'.charCodeAt(0) || e.keyCode == 'J'.charCodeAt(0))) return false;
+                if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
+            }
         })();
 
-        window.addEventListener('wheel', function(e) {
-            if (e.ctrlKey) e.preventDefault();
-        }, {
-            passive: false
+        /* --------------------------------------------------------------------------------
+           LÓGICA PRINCIPAL DEL JUEGO
+        -------------------------------------------------------------------------------- */
+        const titleElement = document.querySelector('h1');
+        const textToType = "El Impostor";
+        let charIndex = 0;
+
+        function typeWriter() {
+            if (charIndex < textToType.length) {
+                let currentText = titleElement.childNodes[0].nodeValue || "";
+                titleElement.childNodes[0].nodeValue = currentText + textToType.charAt(charIndex);
+                charIndex++;
+                setTimeout(typeWriter, 120);
+            } else {
+                setTimeout(() => {
+                    titleElement.childNodes[0].nodeValue = "";
+                    charIndex = 0;
+                    typeWriter();
+                }, 10000);
+            }
+        }
+        titleElement.innerHTML = '<span class="status-dot"></span>';
+        titleElement.insertBefore(document.createTextNode(""), titleElement.firstChild);
+        setTimeout(typeWriter, 300);
+
+        /* --- WAKE LOCK --- */
+        let wakeLock = null;
+        async function requestWakeLock() {
+            if ('wakeLock' in navigator) {
+                try {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    console.log('Wake Lock Activo');
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+        }
+        document.addEventListener('visibilitychange', async () => {
+            if (wakeLock !== null && document.visibilityState === 'visible') {
+                await requestWakeLock();
+            }
         });
 
-        /* --- FUNCIONES DE INTERFAZ Y UTILIDAD --- */
+        /* --- LÓGICA ALERTAS --- */
+        function mostrarConfirmacion() {
+            const overlay = document.getElementById('toastOverlay');
+            overlay.style.display = 'flex';
+            overlay.offsetHeight;
+            overlay.classList.add('active');
+            if (navigator.vibrate) navigator.vibrate(50);
+        }
+
+        function cerrarConfirmacion() {
+            const overlay = document.getElementById('toastOverlay');
+            overlay.classList.remove('active');
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 300);
+        }
+
+        function confirmarReinicio() {
+            // Limpia arrays en memoria
+            palabras = [];
+            jugadores = [];
+
+            // Limpia localStorage (NUEVO)
+            localStorage.removeItem('impostor_palabras');
+            localStorage.removeItem('impostor_jugadores');
+
+            resetGameData();
+            renderPalabras();
+            renderJugadores();
+            mostrarSeccion('admin');
+            cerrarConfirmacion();
+        }
+
+        function irAlInicio() {
+            const ov = document.getElementById('alertFinOverlay');
+            ov.classList.remove('active');
+            setTimeout(() => {
+                ov.style.display = 'none';
+                mostrarSeccion('admin');
+            }, 300);
+        }
+
+        function mostrarAlertaTiempo() {
+            const ov = document.getElementById('timeOutOverlay');
+            ov.style.display = 'flex';
+            ov.offsetHeight;
+            ov.classList.add('active');
+        }
+
+        function finalizarTiempoYContinuar() {
+            const ov = document.getElementById('timeOutOverlay');
+            ov.classList.remove('active');
+            setTimeout(() => {
+                ov.style.display = 'none';
+                saltarAPuesta();
+            }, 300);
+        }
+
+        function showAlertMessage(title, msg) {
+            const ov = document.getElementById('genericAlertOverlay');
+            const t = document.getElementById('genericAlertTitle');
+            const m = document.getElementById('genericAlertMsg');
+            t.innerText = title;
+            m.innerText = msg;
+            ov.style.display = 'flex';
+            ov.offsetHeight;
+            ov.classList.add('active');
+            if (navigator.vibrate) navigator.vibrate(50);
+        }
+
+        function cerrarAlertaGenerica() {
+            const ov = document.getElementById('genericAlertOverlay');
+            ov.classList.remove('active');
+            setTimeout(() => {
+                ov.style.display = 'none';
+                mostrarSeccion('admin');
+            }, 300);
+        }
+
+        /* --- FUNCIÓN AUXILIAR: FISHER-YATES SHUFFLE (NUEVO) --- */
+        function mezclarArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        /* --- GESTIÓN DE DATOS CON LOCALSTORAGE (NUEVO) --- */
+        function guardarDatos() {
+            localStorage.setItem('impostor_palabras', JSON.stringify(palabras));
+            localStorage.setItem('impostor_jugadores', JSON.stringify(jugadores));
+        }
+
+        function cargarDatos() {
+            const p = localStorage.getItem('impostor_palabras');
+            const j = localStorage.getItem('impostor_jugadores');
+            if (p) palabras = JSON.parse(p);
+            if (j) jugadores = JSON.parse(j);
+        }
+
+        /* --- LÓGICA DEL JUEGO --- */
+        let palabras = [];
+        let palabrasDisponibles = [];
+        let jugadores = [];
+        let jugadoresMezclados = [];
+        let impostor = null;
+        let palabraSeleccionada = "";
+        let indiceActual = 0;
+        let votos = {};
+        let duracion = 60;
+        let tiempoRestante = 0;
+        let timerRunning = false;
+        let rafId = null;
+        let startTs = null;
+
+        const SVG_PLAY = '<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
+        const SVG_PAUSE = '<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
+
+        // --- MODO OSCURO AUTOMÁTICO Y MANUAL ---
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        if (window.matchMedia) {
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+                if (e.matches) document.documentElement.classList.add('dark');
+                else document.documentElement.classList.remove('dark');
+            });
+        }
+
         function toggleDarkMode() {
             document.documentElement.classList.toggle('dark');
         }
@@ -1164,8 +1190,8 @@
                 if (s === id) {
                     el.style.display = 'block';
                     el.style.animation = 'none';
-                    el.offsetHeight; 
-                    el.style.animation = null; 
+                    el.offsetHeight;
+                    el.style.animation = null;
                 } else {
                     el.style.display = 'none';
                 }
@@ -1176,43 +1202,25 @@
             return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
         }
 
-        /* CAMBIO AQUÍ: Nueva función showError con animación */
         function showError(errorElem, message) {
-            // Si ya había un temporizador corriendo en este elemento, lo cancelamos
-            if (errorElem.timer) clearTimeout(errorElem.timer);
-
-            // Ponemos el texto y activamos la animación de "bajada"
             errorElem.innerText = message;
-            errorElem.classList.add('show');
-
-            // Esperamos 3 segundos antes de iniciar la "subida" (desvanecimiento)
-            errorElem.timer = setTimeout(() => {
-                errorElem.classList.remove('show');
-                
-                // Esperamos 500ms (lo que dura la animación CSS) para borrar el texto
-                setTimeout(() => {
-                    // Solo borramos si el error no se ha vuelto a activar mientras esperábamos
-                    if (!errorElem.classList.contains('show')) {
-                        errorElem.innerText = '';
-                    }
-                }, 500); 
+            setTimeout(() => {
+                errorElem.innerText = '';
             }, 3000);
         }
 
         function agregarPalabra() {
             const input = document.getElementById('nuevaPalabra');
             const errorElem = document.getElementById('errorPalabra');
-            
-            // Limpiar error anterior (aunque la función nueva lo maneja, esto es preventivo)
-            // errorElem.innerText = ''; 
-
+            errorElem.innerText = ''; // Limpiar error anterior
             let p = input.value.trim();
+
             if (!p) {
                 showError(errorElem, 'La palabra no puede estar vacía.');
                 input.value = '';
                 return;
             }
-            
+
             // Validar solo letras (incluyendo acentos y espacios)
             const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
             if (!regex.test(p)) {
@@ -1266,16 +1274,15 @@
         function agregarJugador() {
             const input = document.getElementById('nombreJugador');
             const errorElem = document.getElementById('errorJugador');
-            
-            // errorElem.innerText = '';
-
+            errorElem.innerText = ''; // Limpiar error anterior
             let name = input.value.trim();
+
             if (!name) {
                 showError(errorElem, 'El nombre no puede estar vacío.');
                 input.value = '';
                 return;
             }
-            
+
             // Validar solo letras (incluyendo acentos y espacios)
             const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
             if (!regex.test(name)) {
@@ -1285,8 +1292,8 @@
             }
 
             // Validar longitud
-            if (name.length < 2 || name.length > 15) {
-                showError(errorElem, 'El nombre debe tener entre 2 y 15 caracteres.');
+            if (name.length < 2 || name.length > 20) {
+                showError(errorElem, 'El nombre debe tener entre 2 y 20 caracteres.');
                 input.value = '';
                 return;
             }
@@ -1347,10 +1354,10 @@
                 showAlertMessage('Faltan palabras', 'Agrega al menos una palabra.');
                 return;
             }
-            
+
             duracion = Number(document.getElementById('duracionSelect').value || 60);
             palabrasDisponibles = [...palabras];
-            
+
             requestWakeLock();
             nuevaRonda();
         }
@@ -1364,7 +1371,7 @@
             if (palabrasDisponibles.length === 0) {
                 const ov = document.getElementById('alertFinOverlay');
                 ov.style.display = 'flex';
-                ov.offsetHeight; 
+                ov.offsetHeight;
                 ov.classList.add('active');
                 return;
             }
@@ -1385,51 +1392,62 @@
                 }
                 const newNum = newWrapper.querySelector('#timerNumber');
                 if(newNum) newNum.classList.remove('critical');
-                
+
                 oldWrapper.parentNode.replaceChild(newWrapper, oldWrapper);
             }
             // --------------------------
 
             const randomIndex = Math.floor(Math.random() * palabrasDisponibles.length);
             palabraSeleccionada = palabrasDisponibles[randomIndex];
-            // Quitar la palabra usada para que no se repita
             palabrasDisponibles.splice(randomIndex, 1);
 
             jugadoresMezclados = mezclarArray([...jugadores]);
+
             impostor = jugadoresMezclados[Math.floor(Math.random() * jugadoresMezclados.length)];
 
             indiceActual = 0;
-            mostrarAsignacion();
+            document.getElementById('totalAsignacion').innerText = jugadoresMezclados.length;
+            cargarJugador();
+            mostrarSeccion('asignacion');
+            stopTemporizador();
+            tiempoRestante = duracion;
+            actualizarTimerUI(duracion);
         }
 
-        function mostrarAsignacion() {
+        function cargarJugador() {
+            const jugador = jugadoresMezclados[indiceActual];
+            document.getElementById('nombreJugadorAsignacion').innerText = jugador;
+            document.getElementById('indiceAsignacion').innerText = (indiceActual + 1);
+
+            const elem = document.getElementById('textoPalabra');
+            elem.style.display = 'none';
+            elem.className = 'reveal';
+
+            const btn = document.getElementById('btnReveal');
+            btn.style.display = 'flex';
+            btn.style.opacity = '1';
+
+            document.getElementById('btnSiguiente').classList.add('btn-locked');
+        }
+
+        function siguienteJugador() {
+            document.getElementById('textoPalabra').style.display = 'none';
+            indiceActual++;
             if (indiceActual >= jugadoresMezclados.length) {
-                comenzarRonda();
+                document.getElementById('botonIniciarTimer').innerHTML = SVG_PLAY + " Iniciar";
+                prepararVotacion();
+                mostrarSeccion('pistas');
                 return;
             }
-            document.getElementById('nombreAsignacion').innerText = jugadoresMezclados[indiceActual];
-            
-            // Reset UI estado revelar
-            document.getElementById('btnReveal').style.display = 'flex';
-            document.getElementById('textoPalabra').style.display = 'none';
-            document.getElementById('btnSiguiente').classList.add('btn-locked');
-
-            mostrarSeccion('asignacion');
+            cargarJugador();
         }
 
-        function siguienteAsignacion() {
-            if(document.getElementById('btnSiguiente').classList.contains('btn-locked')) return;
-            indiceActual++;
-            mostrarAsignacion();
-        }
-
-        // Lógica de "Hold to Reveal"
         const btnReveal = document.getElementById('btnReveal');
         const revealBox = document.getElementById('textoPalabra');
-        
+
         function showContent(e) {
             if (e.cancelable && e.type === 'touchstart') e.preventDefault();
-            
+
             const jugador = jugadoresMezclados[indiceActual];
             if (jugador === impostor) {
                 revealBox.className = 'reveal impostor-mode';
@@ -1441,8 +1459,9 @@
 
             btnReveal.style.display = 'none';
             revealBox.style.display = 'flex';
+
             document.getElementById('btnSiguiente').classList.remove('btn-locked');
-            
+
             document.addEventListener('mouseup', hideContent);
             document.addEventListener('touchend', hideContent);
             document.addEventListener('touchcancel', hideContent);
@@ -1457,11 +1476,14 @@
         }
 
         btnReveal.addEventListener('mousedown', showContent);
-        btnReveal.addEventListener('touchstart', showContent, { passive: false });
+        btnReveal.addEventListener('touchstart', showContent, {
+            passive: false
+        });
 
 
         function iniciarTemporizador() {
             const btn = document.getElementById('botonIniciarTimer');
+
             if (timerRunning) {
                 stopTemporizador();
                 btn.innerHTML = SVG_PLAY + " Reanudar";
@@ -1469,16 +1491,16 @@
             }
 
             if (tiempoRestante <= 0) tiempoRestante = duracion;
-            
+
             btn.innerHTML = SVG_PAUSE + " Pausar";
             timerRunning = true;
-            
+
             startTs = performance.now() - ((duracion - tiempoRestante) * 1000);
-            
+
             function tick(now) {
                 const elapsed = (now - startTs) / 1000;
                 tiempoRestante = Math.max(0, duracion - elapsed);
-                
+
                 actualizarTimerUI(tiempoRestante);
 
                 if (tiempoRestante > 0 && timerRunning) {
@@ -1490,6 +1512,7 @@
                     mostrarAlertaTiempo();
                 }
             }
+
             rafId = requestAnimationFrame(tick);
         }
 
@@ -1500,115 +1523,61 @@
         }
 
         /* --- NUEVA FUNCIÓN OPTIMIZADA (LATE TODO JUNTO) --- */
-        function actualizarTimerUI(val) {
-            const timerCircle = document.getElementById('timerCircle');
-            const timerNumber = document.getElementById('timerNumber');
-            const timerWrap = document.querySelector('.timer-wrap');
+        function actualizarTimerUI(segundos) {
+            const numElem = document.getElementById('timerNumber');
+            const circle = document.getElementById('timerCircle');
+            const wrapper = document.querySelector('.timer-wrap'); // SELECCIONAMOS EL CONTENEDOR
+            
+            const duracionSelect = document.getElementById('duracionSelect');
+            const duracion = duracionSelect ? parseInt(duracionSelect.value) : 60;
+            
+            if(numElem) numElem.innerText = Math.ceil(segundos);
+            
+            const pct = Math.max(0, Math.min(1, segundos / duracion));
+            const circumference = 283; 
+            const offset = circumference - (pct * circumference);
+            
+            if(circle) {
+                circle.style.strokeDashoffset = offset;
 
-            // 1. Texto
-            const seconds = Math.ceil(val);
-            timerNumber.innerText = seconds;
-
-            // 2. Círculo progreso
-            const maxDash = 283; 
-            const offset = maxDash - (val / duracion) * maxDash;
-            timerCircle.style.strokeDashoffset = offset;
-
-            // 3. Estado CRÍTICO (últimos 15s)
-            if (val <= 15 && val > 0) {
-                // Si aún no tiene la clase critical, la agregamos
-                if (!timerWrap.classList.contains('critical')) {
-                    timerWrap.classList.add('critical');
-                    timerCircle.classList.add('critical');
-                    timerNumber.classList.add('critical');
-                }
-            } else {
-                // Si no estamos en crítico (o el tiempo es 0 o mayor a 15) quitamos
-                // OJO: Si llega a 0, a veces queremos mantener el rojo, pero paramos la animación.
-                // Para simplificar, si val > 15 quitamos critical. Si val == 0 quitamos animación pero dejamos rojo.
-                
-                if (val > 15) {
-                    timerWrap.classList.remove('critical');
-                    timerCircle.classList.remove('critical');
-                    timerNumber.classList.remove('critical');
+                // --- LÓGICA DE LOS 15 SEGUNDOS ---
+                if (segundos <= 15) {
+                    // ACTIVAMOS PÁNICO EN EL CONTENEDOR (Todo late junto)
+                    if(wrapper) wrapper.classList.add('critical');
                     
-                    // Restauramos colores originales
-                    timerCircle.style.stroke = 'var(--accent)';
-                    timerCircle.style.filter = 'drop-shadow(0 0 4px var(--accent-glow))';
-                    timerNumber.style.color = 'var(--text-main)';
+                    // Cambios de color individuales
+                    circle.classList.add('critical');
+                    if(numElem) numElem.classList.add('critical');
+                    
+                    // Limpiamos estilos inline
+                    circle.style.stroke = ''; 
+                    circle.style.filter = '';
+                } else {
+                    // DESACTIVAMOS PÁNICO
+                    if(wrapper) wrapper.classList.remove('critical');
+                    
+                    circle.classList.remove('critical');
+                    if(numElem) numElem.classList.remove('critical');
+                    
+                    // Restauramos estilos normales
+                    circle.style.stroke = 'var(--accent)';
+                    circle.style.filter = 'drop-shadow(0 0 4px var(--accent-glow))';
                 }
             }
         }
+        /* ----------------------------------------- */
 
         function saltarAPuesta() {
-            mostrarSeccion('pistas');
-            // Muestra sección de adivinar del impostor
-            const sec = document.getElementById('impostorGuessSection');
-            const lbl = document.getElementById('impostorGuessLabel');
-            lbl.innerText = `¿Eres ${impostor}?`;
-            sec.style.display = 'block';
-            sec.scrollIntoView({ behavior: 'smooth' });
-
-            // Detenemos timer y UI
             stopTemporizador();
-            document.getElementById('botonIniciarTimer').style.display = 'none'; // ocultar botón
-            
-            // Creamos botón para ir a votar
-            const votBtn = document.createElement('button');
-            votBtn.innerText = "Ir a Votación";
-            votBtn.style.width = "100%";
-            votBtn.style.marginTop = "20px";
-            votBtn.onclick = function() {
-                irAVotacion();
-                this.remove(); // se quita a sí mismo
-            };
-            // Insertar después de controles
-            document.querySelector('.controls').insertAdjacentElement('afterend', votBtn);
-        }
-
-        function comenzarRonda() {
-            tiempoRestante = duracion;
-            actualizarTimerUI(duracion);
-            
-            document.getElementById('botonIniciarTimer').innerHTML = SVG_PLAY + " Iniciar";
-            document.getElementById('botonIniciarTimer').style.display = 'flex'; 
-            
-            mostrarSeccion('pistas');
-        }
-
-        function irAVotacion() {
-            generarOpcionesVoto();
+            prepararVotacion();
             mostrarSeccion('votacion');
         }
 
-        function impostorAdivina() {
-            const inp = document.getElementById('guessInput');
-            const fb = document.getElementById('guessFeedback');
-            const intento = normalize(inp.value.trim());
-            const real = normalize(palabraSeleccionada);
-            
-            if(!intento) return;
-
-            if (intento === real) {
-                fb.style.color = 'var(--accent)';
-                fb.innerText = "¡CORRECTO! El impostor gana.";
-                if (navigator.vibrate) navigator.vibrate([100,50,100,50,100]);
-                setTimeout(() => {
-                    mostrarResultadoFinal("IMPOSTOR GANA", "Adivinó la palabra secreta.");
-                }, 2000);
-            } else {
-                fb.style.color = 'var(--danger)';
-                fb.innerText = "Incorrecto.";
-                if (navigator.vibrate) navigator.vibrate(200);
-            }
-        }
-
-        function generarOpcionesVoto() {
+        function prepararVotacion() {
             const container = document.getElementById('voteContainer');
             container.innerHTML = '';
-            container.className = 'vote-grid'; // reset
+            container.classList.remove('has-selection');
             votos = {};
-            
             jugadores.forEach(jugador => {
                 const btn = document.createElement('button');
                 btn.className = 'vote-card';
@@ -1624,17 +1593,17 @@
         function registrarVotoUnico(elegido, btnElement) {
             const container = document.getElementById('voteContainer');
             const yaEstabaSeleccionado = btnElement.classList.contains('voted');
-            
+
             const allBtns = container.querySelectorAll('.vote-card');
             allBtns.forEach(b => {
                 b.classList.remove('voted');
                 b.innerText = b.dataset.originalName;
             });
 
-            votos = {}; 
+            votos = {};
 
             if (!yaEstabaSeleccionado) {
-                votos[elegido] = 1; 
+                votos[elegido] = 1;
                 container.classList.add('has-selection');
                 btnElement.classList.add('voted');
                 btnElement.innerText = "Eliminar a\n" + elegido;
@@ -1647,6 +1616,7 @@
         function mostrarResultado() {
             let masVotado = null;
             let max = -1;
+
             for (const k in votos) {
                 if (votos[k] > max) {
                     max = votos[k];
@@ -1654,150 +1624,85 @@
                 }
             }
 
+            const res = document.getElementById('textoResultado');
+            const guessSection = document.getElementById('impostorGuessSection');
+
+            const htmlPalabra = `<div style="margin-top:12px; font-size:18px; color:var(--text-muted)">La palabra era <strong style="color:var(--text-main)">${palabraSeleccionada}</strong></div>`;
+
             if (!masVotado) {
-                // Nadie votó
-                mostrarResultadoFinal("EMPATE", "Nadie fue eliminado.");
-                return;
-            }
-
-            if (masVotado === impostor) {
-                mostrarResultadoFinal("¡CIUDADANOS GANAN!", `El impostor era ${impostor}.`);
+                res.innerHTML = `El impostor era <span style="color:var(--danger)">${impostor}</span>.${htmlPalabra}`;
+            } else if (masVotado === impostor) {
+                res.innerHTML = `Efectivamente el impostor era <strong style="color:var(--danger)">${impostor}</strong>.${htmlPalabra}`;
             } else {
-                mostrarResultadoFinal("IMPOSTOR GANA", `Expulsaron a ${masVotado}, que era inocente.\nEl impostor era ${impostor}.`);
+                res.innerHTML = `JAJAJA fallaron, el impostor era <strong style="color:var(--danger)">${impostor}</strong>.${htmlPalabra}`;
             }
-        }
 
-        function finalizarVotacion() {
-            // Verificar si se votó
-            if(Object.keys(votos).length === 0) {
-                if(!confirm("¿Nadie va a votar?")) return;
-            }
-            mostrarResultado();
-        }
+            guessSection.style.display = 'none';
 
-        function mostrarResultadoFinal(titulo, descripcion) {
-            const div = document.getElementById('resultadoTexto');
-            // Animación simple de texto
-            let color = titulo.includes("CIUDADANOS") ? "var(--accent)" : "var(--danger)";
-            if (titulo === "EMPATE") color = "var(--text-muted)";
-
-            div.innerHTML = `
-                <h1 style="color:${color}; font-size:32px; margin-bottom:10px">${titulo}</h1>
-                <p style="font-size:18px; color:var(--text-main)">${descripcion}</p>
-                <div style="margin-top:20px; padding:15px; background:var(--item-bg); border-radius:16px; display:inline-block; border:1px solid var(--item-border)">
-                    <span style="font-size:12px; text-transform:uppercase; color:var(--text-muted); display:block; margin-bottom:4px">Palabra secreta</span>
-                    <span style="font-size:24px; font-weight:800; color:var(--text-main)">${palabraSeleccionada}</span>
-                </div>
-            `;
             mostrarSeccion('resultado');
         }
 
-        /* --- ALERTAS --- */
-        function mostrarConfirmacion() {
-            const overlay = document.getElementById('toastOverlay');
-            overlay.style.display = 'flex';
-            overlay.offsetHeight; 
-            overlay.classList.add('active');
-            if (navigator.vibrate) navigator.vibrate(50);
-        }
-
-        function cerrarConfirmacion() {
-            const overlay = document.getElementById('toastOverlay');
-            overlay.classList.remove('active');
-            setTimeout(() => {
-                overlay.style.display = 'none';
-            }, 300);
-        }
-
-        function confirmarReinicio() {
-            // Limpia arrays en memoria
-            palabras = [];
-            jugadores = [];
-            // Limpia localStorage (NUEVO)
-            localStorage.removeItem('impostor_palabras');
-            localStorage.removeItem('impostor_jugadores');
-            
-            resetGameData();
-            renderPalabras();
-            renderJugadores();
-            mostrarSeccion('admin');
-            cerrarConfirmacion();
-        }
-
-        function irAlInicio() {
-            const ov = document.getElementById('alertFinOverlay');
-            ov.classList.remove('active');
-            setTimeout(() => {
-                ov.style.display = 'none';
-                mostrarSeccion('admin');
-            }, 300);
-        }
-
-        function mostrarAlertaTiempo() {
-            const ov = document.getElementById('timeOutOverlay');
-            ov.style.display = 'flex';
-            ov.offsetHeight;
-            ov.classList.add('active');
-        }
-
-        function finalizarTiempoYContinuar() {
-            const ov = document.getElementById('timeOutOverlay');
-            ov.classList.remove('active');
-            setTimeout(() => {
-                ov.style.display = 'none';
-                saltarAPuesta();
-            }, 300);
-        }
-
-        function showAlertMessage(title, msg) {
-            const ov = document.getElementById('genericAlertOverlay');
-            const t = document.getElementById('genericAlertTitle');
-            const m = document.getElementById('genericAlertMsg');
-            t.innerText = title;
-            m.innerText = msg;
-            
-            ov.style.display = 'flex';
-            ov.offsetHeight;
-            ov.classList.add('active');
-            if (navigator.vibrate) navigator.vibrate(50);
-        }
-
-        function cerrarAlertaGenerica() {
-            const ov = document.getElementById('genericAlertOverlay');
-            ov.classList.remove('active');
-            setTimeout(() => {
-                ov.style.display = 'none';
-                mostrarSeccion('admin');
-            }, 300);
-        }
-
-        /* --- FUNCIÓN AUXILIAR: FISHER-YATES SHUFFLE (NUEVO) --- */
-        function mezclarArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
+        function impostorAdivina() {
+            const intento = document.getElementById('guessInput').value.trim();
+            const feed = document.getElementById('guessFeedback');
+            if (!intento) {
+                feed.innerText = 'Escribe algo primero.';
+                return;
             }
-            return array;
-        }
-
-        /* --- GESTIÓN DE DATOS CON LOCALSTORAGE (NUEVO) --- */
-        function guardarDatos() {
-            localStorage.setItem('impostor_palabras', JSON.stringify(palabras));
-            localStorage.setItem('impostor_jugadores', JSON.stringify(jugadores));
-        }
-
-        function cargarDatos() {
-            const p = localStorage.getItem('impostor_palabras');
-            const j = localStorage.getItem('impostor_jugadores');
-            
-            if (p) {
-                try { palabras = JSON.parse(p); } catch(e) { console.error(e); }
-            }
-            if (j) {
-                try { jugadores = JSON.parse(j); } catch(e) { console.error(e); }
+            if (intento.toLowerCase() === palabraSeleccionada.toLowerCase()) {
+                feed.style.color = '#10b981';
+                feed.innerText = '¡INCREÍBLE! Ganaste.';
+            } else {
+                feed.style.color = 'var(--danger)';
+                feed.innerText = `Nop. Era "${palabraSeleccionada}".`;
             }
         }
 
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Enter') {
+                const f = document.activeElement;
+                if (f.id === 'nuevaPalabra') agregarPalabra();
+                if (f.id === 'nombreJugador') agregarJugador();
+                if (f.id === 'guessInput') impostorAdivina();
+            }
+        });
+
+        // --- INICIALIZACIÓN: CARGAR DATOS GUARDADOS ---
+        cargarDatos();
+        renderPalabras();
+        renderJugadores();
+        mostrarSeccion('admin');
+
+        /* --------------------------------------------------------------------------------
+           EVENTOS TÁCTILES Y GESTOS
+        -------------------------------------------------------------------------------- */
+        document.addEventListener('gesturestart', function(e) {
+            e.preventDefault();
+        });
+        document.addEventListener('touchmove', function(e) {
+            if (e.touches && e.touches.length > 1) e.preventDefault();
+            if (typeof e.scale === 'number' && e.scale !== 1) e.preventDefault();
+        }, {
+            passive: false
+        });
+
+        (function() {
+            let lastTouch = 0;
+            document.addEventListener('touchend', function(e) {
+                const now = Date.now();
+                const dt = now - lastTouch;
+                if (dt > 0 && dt <= 300) e.preventDefault();
+                lastTouch = now;
+            }, {
+                passive: false
+            });
+        })();
+
+        window.addEventListener('wheel', function(e) {
+            if (e.ctrlKey) e.preventDefault();
+        }, {
+            passive: false
+        });
     </script>
 </body>
 
